@@ -13,454 +13,249 @@
     --surface2: #131820;
     --border: #1c2333;
     --accent: #4f8eff;
-    --accent-glow: rgba(79,142,255,0.18);
+    --accent-glow: rgba(79,142,255,0.15);
     --green: #22d98a;
     --red: #ff4f6a;
     --text: #dde4f0;
     --muted: #4a5568;
   }
-
-- { margin:0; padding:0; box-sizing:border-box; }
+  * { margin:0; padding:0; box-sizing:border-box; }
 
 body {
 background: var(–bg);
 color: var(–text);
 font-family: ‘Cabinet Grotesk’, sans-serif;
-min-height: 100vh;
-overflow-x: hidden;
+height: 100vh;
+overflow: hidden;
 }
 
-/* BG GRID */
 body::before {
 content: ‘’;
-position: fixed;
-inset: 0;
+position: fixed; inset: 0;
 background-image:
 linear-gradient(rgba(79,142,255,0.03) 1px, transparent 1px),
 linear-gradient(90deg, rgba(79,142,255,0.03) 1px, transparent 1px);
 background-size: 40px 40px;
-pointer-events: none;
-z-index: 0;
+pointer-events: none; z-index: 0;
 }
 body::after {
 content: ‘’;
-position: fixed;
-inset: 0;
-background:
-radial-gradient(ellipse 70% 50% at 50% 0%, rgba(79,142,255,0.08) 0%, transparent 65%);
-pointer-events: none;
-z-index: 0;
+position: fixed; inset: 0;
+background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(79,142,255,0.07) 0%, transparent 65%);
+pointer-events: none; z-index: 0;
 }
 
-/* ── PAGES ── */
-.page { position: relative; z-index: 1; animation: fadeUp .5s ease both; }
+.page {
+position: relative; z-index: 1;
+height: 100vh;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+padding: 20px;
+animation: fadeUp .5s ease both;
+}
 .page.hidden { display: none !important; }
 
 @keyframes fadeUp {
-from { opacity:0; transform:translateY(20px); }
+from { opacity:0; transform:translateY(16px); }
 to   { opacity:1; transform:none; }
 }
 
-/* ── HOME PAGE ── */
-#home {
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-padding: 40px 20px;
-gap: 0;
-}
-
+/* NAV */
 .nav {
-position: fixed;
-top: 0; left: 0; right: 0;
-height: 56px;
-display: flex;
-align-items: center;
-padding: 0 32px;
+position: fixed; top:0; left:0; right:0;
+height: 54px;
+display: flex; align-items: center;
+padding: 0 28px;
 z-index: 50;
 border-bottom: 1px solid var(–border);
-background: rgba(5,8,15,0.8);
+background: rgba(5,8,15,0.85);
 backdrop-filter: blur(12px);
 }
-.nav-logo {
-font-size: 18px;
-font-weight: 900;
+.logo {
+font-size: 18px; font-weight: 900;
 letter-spacing: -.02em;
 background: linear-gradient(135deg, #fff 40%, var(–accent));
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
+-webkit-background-clip: text; -webkit-text-fill-color: transparent;
 background-clip: text;
 }
-.nav-logo span { color: var(–accent); -webkit-text-fill-color: var(–accent); }
+.logo span { -webkit-text-fill-color: var(–accent); }
 
-.hero {
-text-align: center;
-max-width: 640px;
-margin-bottom: 48px;
-}
+/* HERO */
+.hero { text-align: center; max-width: 580px; margin-bottom: 40px; }
+
 .badge {
-display: inline-flex;
-align-items: center;
-gap: 6px;
+display: inline-flex; align-items: center; gap: 7px;
 background: var(–accent-glow);
-border: 1px solid rgba(79,142,255,.25);
-border-radius: 40px;
-padding: 5px 14px;
-font-size: 12px;
-font-family: ‘DM Mono’, monospace;
-color: var(–accent);
-margin-bottom: 28px;
-letter-spacing: .05em;
+border: 1px solid rgba(79,142,255,.22);
+border-radius: 40px; padding: 5px 14px;
+font-size: 12px; font-family: ‘DM Mono’, monospace;
+color: var(–accent); margin-bottom: 24px; letter-spacing: .05em;
 }
 .badge-dot {
-width: 6px; height: 6px;
-border-radius: 50%;
-background: var(–accent);
-animation: blink 2s infinite;
+width: 6px; height: 6px; border-radius: 50%;
+background: var(–green); animation: blink 2s infinite;
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
 
 h1 {
-font-size: clamp(42px, 7vw, 80px);
-font-weight: 900;
-line-height: 1.0;
-letter-spacing: -.03em;
-color: #fff;
-margin-bottom: 18px;
+font-size: clamp(40px, 7vw, 76px);
+font-weight: 900; line-height: 1.0;
+letter-spacing: -.03em; color: #fff; margin-bottom: 16px;
 }
 h1 em {
 font-style: normal;
 background: linear-gradient(90deg, var(–accent), var(–green));
--webkit-background-clip: text;
--webkit-text-fill-color: transparent;
+-webkit-background-clip: text; -webkit-text-fill-color: transparent;
 background-clip: text;
 }
+.hero p { font-size: 15px; color: var(–muted); line-height: 1.6; }
 
-.hero p {
-font-size: 16px;
-color: var(–muted);
-line-height: 1.6;
-font-weight: 400;
-}
-
-/* Card */
+/* CARD */
 .card {
 background: var(–surface);
 border: 1px solid var(–border);
-border-radius: 24px;
-padding: 36px;
-width: min(460px, 92vw);
+border-radius: 22px; padding: 32px;
+width: min(440px, 92vw);
 }
-
-.card-title {
-font-size: 18px;
-font-weight: 800;
-margin-bottom: 6px;
-color: #fff;
-}
-.card-sub {
-font-size: 13px;
-color: var(–muted);
-margin-bottom: 24px;
-font-family: ‘DM Mono’, monospace;
-}
+.card-title { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+.card-sub { font-size: 12px; color: var(–muted); font-family: ‘DM Mono’, monospace; margin-bottom: 22px; }
 
 label {
-display: block;
-font-size: 12px;
+display: block; font-size: 11px;
 font-family: ‘DM Mono’, monospace;
-letter-spacing: .1em;
-color: var(–muted);
-text-transform: uppercase;
-margin-bottom: 8px;
+letter-spacing: .1em; color: var(–muted);
+text-transform: uppercase; margin-bottom: 7px;
 }
 
-input[type=“text”] {
+input {
 width: 100%;
 background: var(–surface2);
 border: 1px solid var(–border);
-border-radius: 12px;
-padding: 13px 16px;
+border-radius: 11px; padding: 12px 15px;
 color: var(–text);
 font-family: ‘Cabinet Grotesk’, sans-serif;
-font-size: 15px;
-font-weight: 500;
-outline: none;
-transition: border-color .2s, box-shadow .2s;
-margin-bottom: 16px;
+font-size: 15px; font-weight: 500;
+outline: none; transition: border-color .2s, box-shadow .2s;
+margin-bottom: 14px;
 }
-input[type=“text”]:focus {
-border-color: var(–accent);
-box-shadow: 0 0 0 3px var(–accent-glow);
-}
+input:focus { border-color: var(–accent); box-shadow: 0 0 0 3px var(–accent-glow); }
 input::placeholder { color: var(–muted); font-weight: 400; }
 
 .btn {
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 8px;
-width: 100%;
-padding: 14px;
-border-radius: 12px;
-border: none;
+display: flex; align-items: center; justify-content: center; gap: 8px;
+width: 100%; padding: 13px;
+border-radius: 11px; border: none;
 font-family: ‘Cabinet Grotesk’, sans-serif;
-font-size: 15px;
-font-weight: 800;
-cursor: pointer;
-transition: all .2s;
-letter-spacing: -.01em;
+font-size: 15px; font-weight: 800;
+cursor: pointer; transition: all .2s; letter-spacing: -.01em;
 }
 .btn-primary {
-background: var(–accent);
-color: #fff;
-box-shadow: 0 4px 24px rgba(79,142,255,.3);
+background: var(–accent); color: #fff;
+box-shadow: 0 4px 20px rgba(79,142,255,.28);
 }
-.btn-primary:hover { filter: brightness(1.12); transform: translateY(-1px); box-shadow: 0 8px 32px rgba(79,142,255,.4); }
+.btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
 .btn-primary:active { transform: none; }
 
-/* ── NAME PAGE ── */
-#name-page {
-min-height: 100vh;
-display: flex;
-align-items: center;
-justify-content: center;
-padding: 80px 20px 40px;
-}
-.name-card {
+/* JOIN PAGE */
+.join-card {
 background: var(–surface);
 border: 1px solid var(–border);
-border-radius: 24px;
-padding: 40px;
+border-radius: 22px; padding: 40px 36px;
 width: min(420px, 92vw);
 text-align: center;
 }
-.name-card .icon {
-font-size: 40px;
-margin-bottom: 16px;
-}
-.name-card h2 {
-font-size: 26px;
-font-weight: 900;
-color: #fff;
-margin-bottom: 8px;
-letter-spacing: -.02em;
-}
-.name-card p {
-font-size: 14px;
-color: var(–muted);
-margin-bottom: 28px;
-font-family: ‘DM Mono’, monospace;
-}
+.join-card .big-icon { font-size: 44px; margin-bottom: 14px; }
+.join-card h2 { font-size: 26px; font-weight: 900; color: #fff; letter-spacing: -.02em; margin-bottom: 6px; }
+.join-card p { font-size: 13px; color: var(–muted); font-family: ‘DM Mono’, monospace; margin-bottom: 26px; }
 
-/* ── CALL PAGE ── */
+/* CALL PAGE — full screen Jitsi */
 #call-page {
-height: 100vh;
-display: flex;
-flex-direction: column;
-background: #020408;
+position: fixed; inset: 0; z-index: 100;
+background: #000;
+display: flex; flex-direction: column;
 }
+#call-page.hidden { display: none !important; }
 
-.videos {
+#jitsi-container {
 flex: 1;
-display: grid;
-gap: 8px;
-padding: 8px;
-min-height: 0;
-transition: grid-template-columns .3s;
+width: 100%; min-height: 0;
 }
-.videos.solo   { grid-template-columns: 1fr; }
-.videos.duo    { grid-template-columns: 1fr 1fr; }
-
-.vid-tile {
-position: relative;
-background: var(–surface);
-border-radius: 16px;
-overflow: hidden;
-border: 1px solid var(–border);
-}
-.vid-tile video {
+#jitsi-container iframe {
 width: 100%; height: 100%;
-object-fit: cover;
-display: block;
+border: none; display: block;
 }
-.vid-overlay {
-position: absolute;
-inset: 0;
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 12px;
-}
-.vid-avatar {
-width: 80px; height: 80px;
-border-radius: 50%;
-background: linear-gradient(135deg, var(–accent), var(–green));
-display: flex; align-items: center; justify-content: center;
-font-size: 32px; font-weight: 900; color: #fff;
-}
-.vid-name-big { font-size: 15px; color: var(–muted); font-family: ‘DM Mono’, monospace; }
 
-.vid-label {
-position: absolute;
-bottom: 12px; left: 12px;
-background: rgba(0,0,0,.6);
-backdrop-filter: blur(8px);
-padding: 4px 12px;
-border-radius: 20px;
-font-size: 12px;
-font-family: ‘DM Mono’, monospace;
-color: #fff;
-}
-.mute-icon {
-position: absolute;
-top: 10px; right: 10px;
-background: var(–red);
-border-radius: 50%;
-width: 26px; height: 26px;
-display: none;
-align-items: center; justify-content: center;
-font-size: 11px;
-}
-.mute-icon.on { display: flex; }
-
-/* Waiting overlay */
-#waiting-overlay {
-position: absolute;
-inset: 0;
-background: rgba(2,4,8,.88);
-backdrop-filter: blur(10px);
-display: flex;
-flex-direction: column;
-align-items: center;
-justify-content: center;
-gap: 16px;
-border-radius: 16px;
-z-index: 10;
-transition: opacity .3s;
-}
-#waiting-overlay.gone { display: none; }
-
-.spin {
-width: 48px; height: 48px;
-border-radius: 50%;
-border: 2px solid var(–border);
-border-top-color: var(–accent);
-animation: spin 1s linear infinite;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-
-.wait-h { font-size: 17px; font-weight: 800; color: #fff; }
-.wait-p { font-size: 13px; color: var(–muted); font-family: ‘DM Mono’, monospace; }
-
-.link-box {
-display: flex;
-align-items: center;
-gap: 0;
-background: var(–surface2);
-border: 1px solid var(–border);
-border-radius: 12px;
-overflow: hidden;
-max-width: 340px;
-width: 90vw;
-}
-.link-text {
-flex: 1;
-padding: 10px 14px;
-font-family: ‘DM Mono’, monospace;
-font-size: 12px;
-color: var(–accent);
-white-space: nowrap;
-overflow: hidden;
-text-overflow: ellipsis;
-}
-.copy-btn {
-padding: 10px 16px;
-background: var(–accent);
-color: #fff;
-border: none;
-font-family: ‘Cabinet Grotesk’, sans-serif;
-font-size: 13px;
-font-weight: 700;
-cursor: pointer;
-transition: filter .2s;
+/* Custom bottom bar */
+.call-bar {
+height: 60px;
+background: rgba(5,8,15,.96);
+border-top: 1px solid var(–border);
+display: flex; align-items: center;
+justify-content: space-between;
+padding: 0 24px;
 flex-shrink: 0;
 }
-.copy-btn:hover { filter: brightness(1.1); }
-
-/* Toolbar */
-.toolbar {
-height: 76px;
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 10px;
-padding: 0 20px;
-position: relative;
-border-top: 1px solid var(–border);
-background: rgba(5,8,15,.95);
-}
-.t-info {
-position: absolute;
-left: 20px;
+.call-bar-left {
 font-family: ‘DM Mono’, monospace;
-font-size: 11px;
-color: var(–muted);
+font-size: 12px; color: var(–muted);
 line-height: 1.5;
 }
-.t-timer {
-position: absolute;
-right: 20px;
-font-family: ‘DM Mono’, monospace;
-font-size: 13px;
-color: var(–muted);
-}
-.tbtn {
-width: 50px; height: 50px;
-border-radius: 50%;
-border: 1px solid var(–border);
+.call-bar-left strong { color: var(–accent); font-weight: 400; }
+
+.share-row { display: flex; align-items: center; gap: 8px; }
+
+.share-link {
 background: var(–surface2);
-color: var(–text);
-font-size: 17px;
-cursor: pointer;
-display: flex; align-items: center; justify-content: center;
-transition: all .18s;
+border: 1px solid var(–border);
+border-radius: 8px;
+padding: 7px 12px;
+font-family: ‘DM Mono’, monospace;
+font-size: 11px;
+color: var(–accent);
+max-width: 220px;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.tbtn:hover { border-color: var(–accent); transform: scale(1.06); }
-.tbtn.off { background: var(–surface2); border-color: var(–red); color: var(–red); }
-.tbtn.end-btn {
-background: var(–red);
-border-color: var(–red);
-color: #fff;
-width: 56px; height: 56px;
-font-size: 20px;
-box-shadow: 0 4px 20px rgba(255,79,106,.3);
+
+.sbtn {
+padding: 7px 14px;
+border-radius: 8px; border: none;
+font-family: ‘Cabinet Grotesk’, sans-serif;
+font-size: 12px; font-weight: 700;
+cursor: pointer; transition: all .18s;
 }
-.tbtn.end-btn:hover { filter: brightness(1.1); transform: scale(1.06); }
+.sbtn-copy { background: var(–accent); color: #fff; }
+.sbtn-copy:hover { filter: brightness(1.1); }
+.sbtn-wa { background: #25D366; color: #fff; }
+.sbtn-wa:hover { filter: brightness(1.1); }
+.sbtn-end { background: var(–red); color: #fff; }
+.sbtn-end:hover { filter: brightness(1.1); }
 
 /* Toast */
 #toast {
-position: fixed;
-bottom: 100px;
-left: 50%;
-transform: translateX(-50%) translateY(20px);
+position: fixed; bottom: 80px; left: 50%;
+transform: translateX(-50%) translateY(16px);
 background: var(–surface2);
 border: 1px solid var(–border);
-border-radius: 40px;
-padding: 10px 20px;
-font-size: 13px;
-font-family: ‘DM Mono’, monospace;
-color: var(–text);
-opacity: 0;
+border-radius: 40px; padding: 9px 20px;
+font-size: 13px; font-family: ‘DM Mono’, monospace;
+color: var(–text); opacity: 0;
 transition: all .35s cubic-bezier(.34,1.56,.64,1);
-z-index: 999;
-pointer-events: none;
-white-space: nowrap;
+z-index: 999; pointer-events: none; white-space: nowrap;
 }
 #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* Loading */
+#loading {
+position: fixed; inset: 0; z-index: 200;
+background: var(–bg);
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+gap: 16px;
+}
+#loading.hidden { display: none; }
+.spin { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(–border); border-top-color: var(–accent); animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.load-text { font-family: ‘DM Mono’, monospace; font-size: 13px; color: var(–muted); }
 </style>
 
 </head>
@@ -468,44 +263,48 @@ white-space: nowrap;
 
 <div id="toast"></div>
 
+<!-- LOADING SCREEN -->
+
+<div id="loading" class="hidden">
+  <div class="spin"></div>
+  <div class="load-text" id="load-text">Starting call…</div>
+</div>
+
 <!-- NAV -->
 
-<nav class="nav">
-  <div class="nav-logo">wave<span>.</span></div>
-</nav>
+<nav class="nav"><div class="logo">wave<span>.</span></div></nav>
 
 <!-- HOME PAGE -->
 
-<div id="home" class="page">
+<div id="home-page" class="page">
   <div class="hero">
-    <div class="badge"><span class="badge-dot"></span> free · no signup needed</div>
+    <div class="badge"><span class="badge-dot"></span> free · no account · works everywhere</div>
     <h1>Video calls that<br><em>just work.</em></h1>
-    <p>Create a call, share the link.<br>Anyone with the link joins instantly.</p>
+    <p>Create a call and share the link.<br>Anyone who clicks it joins instantly — no downloads.</p>
   </div>
-
   <div class="card">
     <div class="card-title">Start a new call</div>
-    <div class="card-sub">// you'll get a link to share</div>
-    <label for="host-name">Your name</label>
-    <input type="text" id="host-name" placeholder="What should we call you?" maxlength="24" />
-    <button class="btn btn-primary" onclick="startNewCall()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
-      Create call link
+    <div class="card-sub">// you'll get a shareable link</div>
+    <label>Your name</label>
+    <input type="text" id="host-name" placeholder="What should we call you?" maxlength="28" />
+    <button class="btn btn-primary" onclick="createCall()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
+      Create call &amp; get link
     </button>
   </div>
 </div>
 
-<!-- NAME PAGE (for people joining via link) -->
+<!-- JOIN PAGE -->
 
-<div id="name-page" class="page hidden">
-  <div class="name-card">
-    <div class="icon">👋</div>
+<div id="join-page" class="page hidden">
+  <div class="join-card">
+    <div class="big-icon">👋</div>
     <h2>You're invited!</h2>
-    <p id="join-msg">Someone is waiting in a call</p>
-    <label for="join-name">Your name</label>
-    <input type="text" id="join-name" placeholder="Enter your name" maxlength="24" />
-    <button class="btn btn-primary" onclick="joinExistingCall()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
+    <p id="join-sub">Someone is waiting in a call</p>
+    <label>Your name</label>
+    <input type="text" id="join-name" placeholder="Enter your name to join" maxlength="28" />
+    <button class="btn btn-primary" onclick="joinCall()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
       Join call now
     </button>
   </div>
@@ -513,91 +312,55 @@ white-space: nowrap;
 
 <!-- CALL PAGE -->
 
-<div id="call-page" class="page hidden">
-  <div class="videos solo" id="videos">
-
-```
-<!-- LOCAL tile -->
-<div class="vid-tile" id="local-tile">
-  <video id="local-vid" autoplay muted playsinline></video>
-  <div class="vid-overlay" id="local-overlay" style="display:none">
-    <div class="vid-avatar" id="local-av">?</div>
-    <div class="vid-name-big" id="local-name-big">you</div>
-  </div>
-  <div class="vid-label" id="local-label">You</div>
-  <div class="mute-icon" id="local-mute">🔇</div>
-
-  <!-- Waiting overlay (only shows for host) -->
-  <div id="waiting-overlay">
-    <div class="spin"></div>
-    <div class="wait-h">Waiting for someone to join</div>
-    <div class="wait-p">Share this link with them</div>
-    <div class="link-box">
-      <div class="link-text" id="share-link-text">—</div>
-      <button class="copy-btn" onclick="copyLink()">Copy</button>
+<div id="call-page" class="hidden">
+  <div id="jitsi-container"></div>
+  <div class="call-bar">
+    <div class="call-bar-left">
+      wave. &nbsp;·&nbsp; room <strong id="bar-room">—</strong>
     </div>
-    <div class="wait-p">or send via</div>
-    <div style="display:flex;gap:8px">
-      <button onclick="shareWhatsApp()" style="background:#25D366;border:none;border-radius:8px;padding:8px 14px;color:#fff;font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:13px;cursor:pointer">WhatsApp</button>
-      <button onclick="shareSMS()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:13px;cursor:pointer">SMS</button>
-      <button onclick="shareNative()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Cabinet Grotesk',sans-serif;font-weight:700;font-size:13px;cursor:pointer">More…</button>
+    <div class="share-row" id="host-share-row">
+      <div class="share-link" id="bar-link">—</div>
+      <button class="sbtn sbtn-copy" onclick="copyLink()">Copy link</button>
+      <button class="sbtn sbtn-wa" onclick="shareWhatsApp()">WhatsApp</button>
     </div>
-  </div>
-</div>
-
-<!-- REMOTE tile -->
-<div class="vid-tile hidden" id="remote-tile">
-  <video id="remote-vid" autoplay playsinline></video>
-  <div class="vid-overlay" id="remote-overlay">
-    <div class="vid-avatar" id="remote-av">?</div>
-    <div class="vid-name-big" id="remote-name-big">guest</div>
-  </div>
-  <div class="vid-label" id="remote-label">Guest</div>
-  <div class="mute-icon" id="remote-mute">🔇</div>
-</div>
-```
-
-  </div>
-
-  <div class="toolbar">
-    <div class="t-info" id="t-info">wave.</div>
-    <button class="tbtn" id="btn-mic" onclick="toggleMic()" title="Mute">🎤</button>
-    <button class="tbtn end-btn" onclick="endCall()">📵</button>
-    <button class="tbtn" id="btn-cam" onclick="toggleCam()" title="Camera">📷</button>
-    <div class="t-timer" id="timer">—</div>
+    <button class="sbtn sbtn-end" onclick="leaveCall()">Leave ✕</button>
   </div>
 </div>
 
 <script>
-// ─────────────────────────────────────────────
-// HOW IT WORKS:
-//   Host creates call → gets URL like yoursite.com/?room=ABCDEF
-//   Guest opens that URL → sees name page → joins
-//   PeerJS handles WebRTC signalling (free public server)
-//   Room ID encoded in the URL hash/param
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+// WAVE — powered by Jitsi Meet (meet.jit.si)
+// Jitsi runs its own STUN + TURN infrastructure — 100% free,
+// works on all networks including mobile & corporate firewalls.
+//
+// Flow:
+//   Host  → creates call → URL gets ?room=XXXX appended
+//           → shareable link shown in bottom bar
+//   Guest → opens ?room=XXXX URL → name page → joins same room
+// ─────────────────────────────────────────────────────────────
 
-let peer, localStream, currentCall;
-let myName = '', roomId = '';
-let micOn = true, camOn = true;
-let timerSecs = 0, timerInt;
+let roomId = '';
+let myDisplayName = '';
+let jitsiApi = null;
 let isHost = false;
 
-// ── URL HELPERS ──────────────────────────────
-function getRoomFromURL() {
-  const p = new URLSearchParams(window.location.search);
-  return p.get('room') || '';
-}
-
-function buildShareURL(room) {
-  return `${location.origin}${location.pathname}?room=${room}`;
-}
-
+// ── HELPERS ──────────────────────────────────
 function genRoom() {
-  return Math.random().toString(36).substr(2, 8).toUpperCase();
+  // Jitsi rooms need to be hard-to-guess to avoid collisions
+  const chars = 'abcdefghijkmnpqrstuvwxyz23456789';
+  let r = 'wave-';
+  for (let i = 0; i < 10; i++) r += chars[Math.floor(Math.random() * chars.length)];
+  return r;
 }
 
-// ── TOAST ────────────────────────────────────
+function getRoomFromURL() {
+  return new URLSearchParams(window.location.search).get('room') || '';
+}
+
+function shareURL() {
+  return `${location.origin}${location.pathname}?room=${roomId}`;
+}
+
 let toastT;
 function toast(msg, dur = 3000) {
   const el = document.getElementById('toast');
@@ -607,241 +370,140 @@ function toast(msg, dur = 3000) {
   toastT = setTimeout(() => el.classList.remove('show'), dur);
 }
 
-// ── PAGES ────────────────────────────────────
 function showPage(id) {
-  ['home','name-page','call-page'].forEach(p => {
-    const el = document.getElementById(p);
-    if (el) el.classList.add('hidden');
+  ['home-page','join-page','call-page'].forEach(p => {
+    document.getElementById(p)?.classList.add('hidden');
   });
-  const target = document.getElementById(id);
-  if (target) {
-    target.classList.remove('hidden');
-    void target.offsetWidth; // reflow for animation
-    target.style.animation = 'none';
-    target.style.animation = '';
-  }
+  document.getElementById(id)?.classList.remove('hidden');
 }
 
-// ── MEDIA ────────────────────────────────────
-async function getMedia() {
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  } catch {
-    try {
-      localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-      camOn = false;
-    } catch {
-      localStream = new MediaStream();
-      camOn = false; micOn = false;
-    }
-  }
-  const vid = document.getElementById('local-vid');
-  vid.srcObject = localStream;
-  updateLocalUI();
-}
-
-function updateLocalUI() {
-  const hasVid = localStream.getVideoTracks().length > 0 && camOn;
-  document.getElementById('local-overlay').style.display = hasVid ? 'none' : 'flex';
-  document.getElementById('local-av').textContent = myName[0]?.toUpperCase() || '?';
-  document.getElementById('local-name-big').textContent = myName;
-  document.getElementById('local-label').textContent = myName || 'You';
-  document.getElementById('btn-cam').textContent = camOn ? '📷' : '🚫';
-  document.getElementById('btn-cam').classList.toggle('off', !camOn);
-  document.getElementById('btn-mic').textContent = micOn ? '🎤' : '🔇';
-  document.getElementById('btn-mic').classList.toggle('off', !micOn);
-  document.getElementById('local-mute').classList.toggle('on', !micOn);
-}
-
-function toggleMic() {
-  micOn = !micOn;
-  localStream.getAudioTracks().forEach(t => t.enabled = micOn);
-  updateLocalUI();
-}
-
-function toggleCam() {
-  camOn = !camOn;
-  localStream.getVideoTracks().forEach(t => t.enabled = camOn);
-  updateLocalUI();
-}
-
-// ── TIMER ────────────────────────────────────
-function startTimer() {
-  timerSecs = 0;
-  clearInterval(timerInt);
-  timerInt = setInterval(() => {
-    timerSecs++;
-    const m = String(Math.floor(timerSecs/60)).padStart(2,'0');
-    const s = String(timerSecs%60).padStart(2,'0');
-    document.getElementById('timer').textContent = `${m}:${s}`;
-  }, 1000);
-}
-function stopTimer() {
-  clearInterval(timerInt);
-  document.getElementById('timer').textContent = '—';
-}
-
-// ── PEERJS ───────────────────────────────────
-function loadPeer(cb) {
-  if (window.Peer) { cb(); return; }
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js';
-  s.onload = cb;
-  document.head.appendChild(s);
-}
-
-const PEER_CFG = {
-  host: '0.peerjs.com', port: 443, path: '/', secure: true,
-  config: { iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' }
-  ]}
-};
-
-function initPeer(id, onOpen) {
-  peer = id ? new Peer(id, PEER_CFG) : new Peer(PEER_CFG);
-  peer.on('open', peerId => { onOpen && onOpen(peerId); });
-  peer.on('error', e => {
-    if (e.type === 'peer-unavailable') toast('Could not find that call :(');
-    else toast('Connection issue — try refreshing');
-  });
-}
-
-// ── REMOTE STREAM ────────────────────────────
-function handleRemoteStream(stream, name) {
-  const vid = document.getElementById('remote-vid');
-  vid.srcObject = stream;
-  document.getElementById('remote-tile').classList.remove('hidden');
-  document.getElementById('videos').className = 'videos duo';
-  document.getElementById('waiting-overlay').classList.add('gone');
-  document.getElementById('remote-label').textContent = name;
-  document.getElementById('remote-name-big').textContent = name;
-  document.getElementById('remote-av').textContent = name[0]?.toUpperCase() || '?';
-  const hasVid = stream.getVideoTracks().length > 0;
-  document.getElementById('remote-overlay').style.display = hasVid ? 'none' : 'flex';
-  startTimer();
-  toast(`${name} joined the call 🎉`);
-}
-
-function handleRemoteLeft() {
-  document.getElementById('remote-tile').classList.add('hidden');
-  document.getElementById('videos').className = 'videos solo';
-  if (isHost) document.getElementById('waiting-overlay').classList.remove('gone');
-  stopTimer();
-  toast('They left the call');
+function setLoading(show, msg = 'Loading…') {
+  const el = document.getElementById('loading');
+  document.getElementById('load-text').textContent = msg;
+  el.classList.toggle('hidden', !show);
 }
 
 // ── CREATE CALL ──────────────────────────────
-async function startNewCall() {
-  myName = document.getElementById('host-name').value.trim() || 'Host';
+function createCall() {
+  myDisplayName = document.getElementById('host-name').value.trim() || 'Host';
   isHost = true;
   roomId = genRoom();
-
-  // Update URL so the page has a shareable link
-  const shareURL = buildShareURL(roomId);
   history.replaceState(null, '', `?room=${roomId}`);
-
-  showPage('call-page');
-  document.getElementById('t-info').textContent = 'wave.';
-  document.getElementById('share-link-text').textContent = shareURL;
-
-  await getMedia();
-
-  loadPeer(() => {
-    initPeer('wave-host-' + roomId, () => {
-      toast('Call ready! Share the link 🔗', 5000);
-    });
-
-    peer.on('call', inCall => {
-      currentCall = inCall;
-      inCall.answer(localStream);
-      inCall.on('stream', s => handleRemoteStream(s, inCall.metadata?.name || 'Guest'));
-      inCall.on('close', () => handleRemoteLeft());
-      inCall.on('error', () => handleRemoteLeft());
-    });
-  });
+  launchJitsi();
 }
 
 // ── JOIN CALL ────────────────────────────────
-async function joinExistingCall() {
-  myName = document.getElementById('join-name').value.trim() || 'Guest';
+function joinCall() {
+  myDisplayName = document.getElementById('join-name').value.trim() || 'Guest';
+  isHost = false;
+  launchJitsi();
+}
 
+// ── LAUNCH JITSI ────────────────────────────
+function launchJitsi() {
+  setLoading(true, 'Connecting to call…');
+
+  // Load Jitsi External API script
+  if (window.JitsiMeetExternalAPI) {
+    startJitsi();
+    return;
+  }
+  const script = document.createElement('script');
+  script.src = 'https://meet.jit.si/external_api.js';
+  script.onload = startJitsi;
+  script.onerror = () => {
+    setLoading(false);
+    toast('Failed to load — check your internet connection');
+  };
+  document.head.appendChild(script);
+}
+
+function startJitsi() {
   showPage('call-page');
-  document.getElementById('waiting-overlay').classList.add('gone'); // guests don't see waiting
-  document.getElementById('t-info').textContent = 'wave.';
 
-  await getMedia();
+  // Update bar
+  document.getElementById('bar-room').textContent = roomId.replace('wave-', '');
+  document.getElementById('bar-link').textContent = shareURL();
+  document.getElementById('host-share-row').style.display = isHost ? 'flex' : 'none';
 
-  loadPeer(() => {
-    initPeer(null, () => {
-      const hostPeerId = 'wave-host-' + roomId;
-      const call = peer.call(hostPeerId, localStream, { metadata: { name: myName } });
-      currentCall = call;
-      call.on('stream', s => handleRemoteStream(s, 'Host'));
-      call.on('close', () => handleRemoteLeft());
-      call.on('error', () => { toast('Could not connect to host'); });
-      toast('Connecting…');
-    });
+  const domain = 'meet.jit.si';
+  const options = {
+    roomName: roomId,
+    parentNode: document.getElementById('jitsi-container'),
+    userInfo: { displayName: myDisplayName },
+    configOverwrite: {
+      startWithAudioMuted: false,
+      startWithVideoMuted: false,
+      prejoinPageEnabled: false,       // skip Jitsi's own pre-join screen (we have ours)
+      disableDeepLinking: true,
+      enableWelcomePage: false,
+      disableInviteFunctions: true,
+      toolbarButtons: [
+        'microphone', 'camera', 'desktop', 'chat',
+        'tileview', 'fullscreen', 'hangup'
+      ],
+    },
+    interfaceConfigOverwrite: {
+      SHOW_JITSI_WATERMARK: false,
+      SHOW_WATERMARK_FOR_GUESTS: false,
+      SHOW_BRAND_WATERMARK: false,
+      BRAND_WATERMARK_LINK: '',
+      SHOW_POWERED_BY: false,
+      TOOLBAR_ALWAYS_VISIBLE: true,
+      MOBILE_APP_PROMO: false,
+      HIDE_INVITE_MORE_HEADER: true,
+    },
+    width: '100%',
+    height: '100%',
+  };
+
+  jitsiApi = new JitsiMeetExternalAPI(domain, options);
+
+  jitsiApi.addEventListener('videoConferenceJoined', () => {
+    setLoading(false);
+    if (isHost) toast('Call ready! Share the link below 🔗', 6000);
+    else toast('You joined the call 🎉');
+  });
+
+  jitsiApi.addEventListener('readyToClose', () => {
+    leaveCall();
   });
 }
 
-// ── END CALL ─────────────────────────────────
-function endCall() {
-  currentCall?.close();
-  localStream?.getTracks().forEach(t => t.stop());
-  peer?.destroy();
-  stopTimer();
-  // Go home, clear URL
+// ── LEAVE ────────────────────────────────────
+function leaveCall() {
+  if (jitsiApi) { try { jitsiApi.dispose(); } catch(e){} jitsiApi = null; }
   history.replaceState(null, '', location.pathname);
   location.reload();
 }
 
-// ── SHARE HELPERS ────────────────────────────
+// ── SHARE ────────────────────────────────────
 function copyLink() {
-  const url = buildShareURL(roomId);
-  navigator.clipboard.writeText(url).then(() => toast('Link copied! 📋')).catch(() => {
-    toast('Copy: ' + url);
-  });
+  navigator.clipboard.writeText(shareURL())
+    .then(() => toast('Link copied! 📋'))
+    .catch(() => toast(shareURL()));
 }
 
 function shareWhatsApp() {
-  const url = buildShareURL(roomId);
-  window.open(`https://wa.me/?text=${encodeURIComponent('Join my video call: ' + url)}`);
+  window.open(`https://wa.me/?text=${encodeURIComponent('Join my video call 👇\n' + shareURL())}`);
 }
 
-function shareSMS() {
-  const url = buildShareURL(roomId);
-  window.open(`sms:?body=${encodeURIComponent('Join my video call: ' + url)}`);
-}
-
-function shareNative() {
-  const url = buildShareURL(roomId);
-  if (navigator.share) {
-    navigator.share({ title: 'Join my Wave call', url });
-  } else {
-    copyLink();
-  }
-}
-
-// ── INIT: check if joining via link ──────────
+// ── INIT ─────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   const room = getRoomFromURL();
   if (room) {
     // Someone opened a join link
     roomId = room;
     isHost = false;
-    document.getElementById('join-msg').textContent = 'You were invited to a video call';
-    showPage('name-page');
-    // Pre-focus name input
+    showPage('join-page');
     setTimeout(() => document.getElementById('join-name').focus(), 300);
   } else {
-    showPage('home');
+    showPage('home-page');
     setTimeout(() => document.getElementById('host-name').focus(), 300);
   }
 
-  // Enter key shortcuts
-  document.getElementById('host-name').addEventListener('keydown', e => { if (e.key==='Enter') startNewCall(); });
-  document.getElementById('join-name').addEventListener('keydown', e => { if (e.key==='Enter') joinExistingCall(); });
+  document.getElementById('host-name').addEventListener('keydown', e => { if (e.key === 'Enter') createCall(); });
+  document.getElementById('join-name').addEventListener('keydown', e => { if (e.key === 'Enter') joinCall(); });
 });
 </script>
 
