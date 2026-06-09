@@ -5,392 +5,704 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Wave — Video Calls</title>
-<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Wave Meet</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #05080f;
-    --surface: #0c1018;
-    --surface2: #131820;
-    --border: #1c2333;
-    --accent: #4f8eff;
-    --accent-glow: rgba(79,142,255,0.15);
-    --green: #22d98a;
-    --red: #ff4f6a;
-    --text: #dde4f0;
-    --muted: #4a5568;
-  }
 
-html { overflow:hidden; width:100%; height:100%; position:fixed; }
+/* ═══════════════════════════════════════════════
+WAVE MEET — Zoom-inspired, clean & professional
+Palette: Zoom blues, white surface, sharp UI
+═══════════════════════════════════════════════ */
+
+:root {
+–blue:        #0E71EB;
+–blue-dark:   #0a5bbf;
+–blue-light:  #e8f1fd;
+–blue-glow:   rgba(14,113,235,0.18);
+–bg:          #F5F5F5;
+–white:       #FFFFFF;
+–surface:     #FFFFFF;
+–border:      #E0E0E0;
+–border-dark: #C8C8C8;
+–text:        #1A1A1A;
+–text-2:      #444444;
+–muted:       #888888;
+–green:       #00C853;
+–red:         #E53935;
+–red-dark:    #C62828;
+–toolbar-bg:  #1C1C1C;
+–toolbar-btn: #2D2D2D;
+–shadow-sm:   0 1px 4px rgba(0,0,0,0.10);
+–shadow-md:   0 4px 20px rgba(0,0,0,0.12);
+–shadow-lg:   0 8px 40px rgba(0,0,0,0.16);
+–radius:      12px;
+–radius-sm:   8px;
+}
+
+/* ── RESET & BASE ─────────────────────────── */
+html {
+overflow: hidden; width: 100%; height: 100%;
+position: fixed;
+}
 body {
-overflow-x:hidden; overflow-y:auto;
-width:100%; height:100%; position:fixed; inset:0;
--webkit-overflow-scrolling:touch;
-overscroll-behavior:none; touch-action:pan-y;
-background:var(–bg); color:var(–text);
-font-family:‘Cabinet Grotesk’,sans-serif;
+overflow-x: hidden; overflow-y: auto;
+width: 100%; height: 100%;
+position: fixed; inset: 0;
+-webkit-overflow-scrolling: touch;
+overscroll-behavior: none;
+touch-action: pan-y;
+background: var(–bg);
+color: var(–text);
+font-family: ‘Inter’, -apple-system, sans-serif;
+font-size: 15px;
+line-height: 1.5;
+-webkit-font-smoothing: antialiased;
 }
-*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; max-width:100%; }
-
-body::before {
-content:’’; position:fixed; inset:0;
-background-image:
-linear-gradient(rgba(79,142,255,0.03) 1px,transparent 1px),
-linear-gradient(90deg,rgba(79,142,255,0.03) 1px,transparent 1px);
-background-size:40px 40px; pointer-events:none; z-index:0;
-}
-body::after {
-content:’’; position:fixed; inset:0;
-background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(79,142,255,0.07) 0%,transparent 65%);
-pointer-events:none; z-index:0;
+*, *::before, *::after {
+margin: 0; padding: 0;
+box-sizing: border-box;
+max-width: 100%;
 }
 
+/* ── PAGE SYSTEM ──────────────────────────── */
 .page {
-position:relative; z-index:1; min-height:100vh; width:100%;
-display:flex; flex-direction:column; align-items:center; justify-content:center;
-padding:80px 20px 40px; animation:fadeUp .45s ease both; overflow:hidden;
+position: relative; z-index: 1;
+width: 100%; min-height: 100vh;
+display: flex; flex-direction: column;
+align-items: center; justify-content: center;
+padding: 20px;
+animation: pageIn .35s ease both;
 }
-.page.hidden { display:none !important; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
-
-.nav {
-position:fixed; top:0; left:0; right:0; height:54px;
-display:flex; align-items:center; padding:0 24px; z-index:50;
-border-bottom:1px solid var(–border);
-background:rgba(5,8,15,0.88);
-backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); width:100%;
+.page.hidden { display: none !important; }
+@keyframes pageIn {
+from { opacity: 0; transform: translateY(10px); }
+to   { opacity: 1; transform: none; }
 }
-.logo {
-font-size:18px; font-weight:900; letter-spacing:-.02em;
-background:linear-gradient(135deg,#fff 40%,var(–accent));
--webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+
+/* ── TOPBAR ───────────────────────────────── */
+.topbar {
+position: fixed; top: 0; left: 0; right: 0;
+height: 60px;
+background: var(–white);
+border-bottom: 1px solid var(–border);
+display: flex; align-items: center;
+justify-content: space-between;
+padding: 0 28px;
+z-index: 100;
+box-shadow: var(–shadow-sm);
 }
-.logo span { -webkit-text-fill-color:var(–accent); }
-
-.hero { text-align:center; width:100%; max-width:560px; margin-bottom:32px; padding:0 4px; }
-.badge {
-display:inline-flex; align-items:center; gap:7px;
-background:var(–accent-glow); border:1px solid rgba(79,142,255,.22);
-border-radius:40px; padding:5px 14px; font-size:12px;
-font-family:‘DM Mono’,monospace; color:var(–accent);
-margin-bottom:20px; letter-spacing:.04em; white-space:nowrap;
+.topbar-logo {
+display: flex; align-items: center; gap: 10px;
 }
-.badge-dot { width:6px; height:6px; border-radius:50%; background:var(–green); flex-shrink:0; animation:blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
-
-h1 { font-size:clamp(36px,9vw,72px); font-weight:900; line-height:1.0; letter-spacing:-.03em; color:#fff; margin-bottom:14px; word-break:break-word; }
-h1 em { font-style:normal; background:linear-gradient(90deg,var(–accent),var(–green)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.hero p { font-size:15px; color:var(–muted); line-height:1.6; padding:0 8px; }
-
-.card { background:var(–surface); border:1px solid var(–border); border-radius:20px; padding:28px 24px; width:100%; max-width:420px; }
-.card-title { font-size:16px; font-weight:800; color:#fff; margin-bottom:4px; }
-.card-sub { font-size:12px; color:var(–muted); font-family:‘DM Mono’,monospace; margin-bottom:20px; }
-
-label { display:block; font-size:11px; font-family:‘DM Mono’,monospace; letter-spacing:.1em; color:var(–muted); text-transform:uppercase; margin-bottom:7px; }
-
-input {
-display:block; width:100%; background:var(–surface2); border:1px solid var(–border);
-border-radius:11px; padding:13px 14px; color:var(–text);
-font-family:‘Cabinet Grotesk’,sans-serif; font-size:16px; font-weight:500;
-outline:none; transition:border-color .2s,box-shadow .2s; margin-bottom:14px;
--webkit-appearance:none; appearance:none;
+.logo-icon {
+width: 36px; height: 36px;
+background: var(–blue);
+border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
 }
-input:focus { border-color:var(–accent); box-shadow:0 0 0 3px var(–accent-glow); }
-input::placeholder { color:var(–muted); font-weight:400; }
+.logo-icon svg { color: #fff; }
+.logo-name {
+font-size: 20px; font-weight: 700;
+color: var(–text); letter-spacing: -.02em;
+}
+.logo-name span { color: var(–blue); }
+.topbar-right {
+font-size: 13px; color: var(–muted); font-weight: 500;
+}
 
+/* ── HOME PAGE ────────────────────────────── */
+#home-page { padding-top: 80px; gap: 0; }
+
+.home-layout {
+display: flex;
+gap: 48px;
+align-items: center;
+width: 100%;
+max-width: 960px;
+padding: 40px 0;
+}
+
+.home-left { flex: 1; min-width: 0; }
+.home-right { flex-shrink: 0; width: 380px; }
+
+.home-eyebrow {
+display: inline-flex; align-items: center; gap: 6px;
+background: var(–blue-light);
+color: var(–blue);
+font-size: 12px; font-weight: 600;
+padding: 5px 12px; border-radius: 20px;
+margin-bottom: 20px;
+letter-spacing: .03em; text-transform: uppercase;
+}
+.eyebrow-dot {
+width: 6px; height: 6px; border-radius: 50%;
+background: var(–green); flex-shrink: 0;
+animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.home-title {
+font-size: clamp(32px, 5vw, 52px);
+font-weight: 800;
+line-height: 1.1;
+letter-spacing: -.03em;
+color: var(–text);
+margin-bottom: 16px;
+}
+.home-title span { color: var(–blue); }
+
+.home-desc {
+font-size: 16px; color: var(–text-2);
+line-height: 1.7; margin-bottom: 32px;
+font-weight: 400;
+}
+
+.feature-list {
+display: flex; flex-direction: column; gap: 12px;
+}
+.feature-item {
+display: flex; align-items: center; gap: 10px;
+font-size: 14px; color: var(–text-2); font-weight: 500;
+}
+.feature-icon {
+width: 32px; height: 32px; border-radius: 8px;
+background: var(–blue-light);
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; font-size: 15px;
+}
+
+/* ACTION CARD */
+.action-card {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 32px;
+box-shadow: var(–shadow-md);
+}
+.action-card-title {
+font-size: 20px; font-weight: 700;
+color: var(–text); margin-bottom: 6px;
+}
+.action-card-sub {
+font-size: 13px; color: var(–muted);
+margin-bottom: 24px;
+}
+
+.field-group { margin-bottom: 18px; }
+.field-label {
+display: block; font-size: 12px; font-weight: 600;
+color: var(–text-2); margin-bottom: 6px;
+text-transform: uppercase; letter-spacing: .06em;
+}
+.field-input {
+display: block; width: 100%;
+background: var(–bg);
+border: 1.5px solid var(–border);
+border-radius: var(–radius-sm);
+padding: 12px 14px;
+color: var(–text);
+font-family: ‘Inter’, sans-serif;
+font-size: 15px; font-weight: 500;
+outline: none;
+transition: border-color .2s, box-shadow .2s, background .2s;
+-webkit-appearance: none;
+}
+.field-input:focus {
+border-color: var(–blue);
+background: var(–white);
+box-shadow: 0 0 0 3px var(–blue-glow);
+}
+.field-input::placeholder { color: #bbb; font-weight: 400; }
+
+/* BUTTONS */
 .btn {
-display:flex; align-items:center; justify-content:center; gap:8px;
-width:100%; padding:14px; border-radius:11px; border:none;
-font-family:‘Cabinet Grotesk’,sans-serif; font-size:15px; font-weight:800;
-cursor:pointer; transition:all .18s; letter-spacing:-.01em;
--webkit-tap-highlight-color:transparent;
+display: flex; align-items: center; justify-content: center; gap: 8px;
+width: 100%; padding: 13px 20px;
+border-radius: var(–radius-sm); border: none;
+font-family: ‘Inter’, sans-serif;
+font-size: 15px; font-weight: 600;
+cursor: pointer; transition: all .18s;
+-webkit-tap-highlight-color: transparent;
+letter-spacing: -.01em;
 }
-.btn-primary { background:var(–accent); color:#fff; box-shadow:0 4px 20px rgba(79,142,255,.25); }
-.btn-primary:active { filter:brightness(.9); transform:scale(.98); }
-.btn-ghost { background:transparent; border:1px solid var(–border); color:var(–muted); margin-top:8px; }
-.btn-ghost:active { background:var(–surface2); }
+.btn-blue {
+background: var(–blue); color: #fff;
+box-shadow: 0 2px 12px rgba(14,113,235,.30);
+}
+.btn-blue:hover { background: var(–blue-dark); }
+.btn-blue:active { transform: scale(.98); }
 
-/* JOIN PAGE */
-.join-card { background:var(–surface); border:1px solid var(–border); border-radius:20px; padding:36px 24px; width:100%; max-width:400px; text-align:center; }
-.join-card .big-icon { font-size:44px; margin-bottom:12px; }
-.join-card h2 { font-size:24px; font-weight:900; color:#fff; letter-spacing:-.02em; margin-bottom:6px; }
-.join-card p { font-size:13px; color:var(–muted); font-family:‘DM Mono’,monospace; margin-bottom:24px; }
+.btn-outline {
+background: transparent;
+border: 1.5px solid var(–border-dark);
+color: var(–text-2);
+margin-top: 10px;
+}
+.btn-outline:hover { border-color: var(–blue); color: var(–blue); background: var(–blue-light); }
+.btn-outline:active { transform: scale(.98); }
 
-/* ── CALL PAGE ── */
+.divider {
+display: flex; align-items: center; gap: 10px;
+margin: 16px 0; color: var(–muted); font-size: 12px; font-weight: 500;
+}
+.divider::before, .divider::after {
+content: ‘’; flex: 1; height: 1px; background: var(–border);
+}
+
+/* ── JOIN PAGE ────────────────────────────── */
+#join-page { padding-top: 80px; }
+.join-card {
+background: var(–white);
+border: 1px solid var(–border);
+border-radius: 16px;
+padding: 40px 36px;
+width: 100%; max-width: 420px;
+text-align: center;
+box-shadow: var(–shadow-md);
+}
+.join-avatar {
+width: 72px; height: 72px; border-radius: 50%;
+background: var(–blue-light);
+display: flex; align-items: center; justify-content: center;
+margin: 0 auto 16px; font-size: 32px;
+}
+.join-card h2 {
+font-size: 22px; font-weight: 700;
+color: var(–text); margin-bottom: 6px;
+}
+.join-card p {
+font-size: 14px; color: var(–muted);
+margin-bottom: 24px; line-height: 1.5;
+}
+.join-card .field-group { text-align: left; }
+
+/* ── CALL PAGE ────────────────────────────── */
 #call-page {
-position:fixed; inset:0; z-index:100;
-background:#000; display:flex; flex-direction:column;
-width:100%; height:100%; overflow:hidden;
+position: fixed; inset: 0; z-index: 200;
+background: #1A1A1A;
+display: flex; flex-direction: column;
+width: 100%; height: 100%; overflow: hidden;
 }
-#call-page.hidden { display:none !important; }
+#call-page.hidden { display: none !important; }
 
-/* Daily iframe fills everything */
+/* Daily iframe */
 #daily-container {
-flex:1; width:100%; min-height:0; position:relative; overflow:hidden;
+flex: 1; width: 100%; min-height: 0;
+position: relative; overflow: hidden;
+background: #1A1A1A;
 }
 #daily-container iframe {
-position:absolute; inset:0;
-width:100%; height:100%;
-border:none; display:block;
+position: absolute; inset: 0;
+width: 100%; height: 100%;
+border: none; display: block;
 }
 
-/* Bottom bar */
+/* Call bottom bar */
 .call-bar {
-background:rgba(5,8,15,.97); border-top:1px solid var(–border);
-display:flex; flex-wrap:wrap; align-items:center; gap:8px;
-padding:10px 16px;
-padding-bottom:calc(10px + env(safe-area-inset-bottom));
-flex-shrink:0; width:100%;
+background: var(–toolbar-bg);
+border-top: 1px solid #333;
+display: flex; align-items: center;
+gap: 8px; flex-wrap: wrap;
+padding: 10px 16px;
+padding-bottom: calc(10px + env(safe-area-inset-bottom));
+flex-shrink: 0; width: 100%;
 }
-.bar-left { font-family:‘DM Mono’,monospace; font-size:11px; color:var(–muted); white-space:nowrap; }
-.bar-left strong { color:var(–accent); font-weight:400; }
-.share-row { display:flex; align-items:center; gap:6px; flex:1; min-width:0; }
-.share-link {
-background:var(–surface2); border:1px solid var(–border); border-radius:7px;
-padding:6px 10px; font-family:‘DM Mono’,monospace; font-size:11px; color:var(–accent);
-flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+.call-bar-info {
+font-size: 12px; color: #999;
+font-weight: 500; white-space: nowrap;
 }
-.sbtn {
-padding:7px 12px; border-radius:8px; border:none;
-font-family:‘Cabinet Grotesk’,sans-serif; font-size:12px; font-weight:700;
-cursor:pointer; white-space:nowrap; flex-shrink:0;
--webkit-tap-highlight-color:transparent; transition:filter .15s;
-}
-.sbtn:active { filter:brightness(.85); }
-.sbtn-copy { background:var(–accent); color:#fff; }
-.sbtn-wa   { background:#25D366; color:#fff; }
-.sbtn-end  { background:var(–red); color:#fff; margin-left:auto; }
+.call-bar-info strong { color: #fff; }
 
-/* TOAST */
-#toast {
-position:fixed; bottom:90px; left:50%;
-transform:translateX(-50%) translateY(16px);
-background:var(–surface2); border:1px solid var(–border);
-border-radius:40px; padding:9px 20px; font-size:13px;
-font-family:‘DM Mono’,monospace; color:var(–text); opacity:0;
-transition:all .35s cubic-bezier(.34,1.56,.64,1);
-z-index:999; pointer-events:none;
-white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis;
+.invite-row {
+display: flex; align-items: center;
+gap: 6px; flex: 1; min-width: 0;
 }
-#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+.invite-url {
+flex: 1; min-width: 0;
+background: #2D2D2D; border: 1px solid #444;
+border-radius: 6px; padding: 7px 10px;
+font-size: 11px; font-family: ‘Inter’, monospace;
+color: #82B4FF;
+white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 
-/* LOADING */
+.cbar-btn {
+padding: 8px 14px; border-radius: 7px; border: none;
+font-family: ‘Inter’, sans-serif; font-size: 12px; font-weight: 600;
+cursor: pointer; white-space: nowrap; flex-shrink: 0;
+transition: filter .15s, transform .15s;
+-webkit-tap-highlight-color: transparent;
+}
+.cbar-btn:active { transform: scale(.95); }
+.cbar-copy { background: var(–blue); color: #fff; }
+.cbar-wa   { background: #25D366; color: #fff; }
+.cbar-sms  { background: #444; color: #fff; }
+.cbar-end  { background: var(–red); color: #fff; margin-left: auto; }
+
+/* ── LOADING OVERLAY ──────────────────────── */
 #loading {
-position:fixed; inset:0; z-index:200; background:var(–bg);
-display:flex; flex-direction:column; align-items:center; justify-content:center; gap:16px;
+position: fixed; inset: 0; z-index: 500;
+background: rgba(255,255,255,.95);
+display: flex; flex-direction: column;
+align-items: center; justify-content: center; gap: 20px;
 }
-#loading.hidden { display:none; }
-.spin { width:44px; height:44px; border-radius:50%; border:2px solid var(–border); border-top-color:var(–accent); animation:spin 1s linear infinite; }
-@keyframes spin { to{transform:rotate(360deg)} }
-.load-text { font-family:‘DM Mono’,monospace; font-size:13px; color:var(–muted); }
+#loading.hidden { display: none; }
 
-/* ERROR */
-#error-box {
-display:none; background:rgba(255,79,106,0.1); border:1px solid var(–red);
-border-radius:11px; padding:12px 16px; margin-top:12px;
-font-size:13px; font-family:‘DM Mono’,monospace; color:var(–red); text-align:center;
+.loader-ring {
+width: 52px; height: 52px; border-radius: 50%;
+border: 3px solid var(–border);
+border-top-color: var(–blue);
+animation: spin 1s linear infinite;
 }
-#error-box.show { display:block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loader-logo {
+width: 48px; height: 48px; background: var(–blue);
+border-radius: 14px;
+display: flex; align-items: center; justify-content: center;
+box-shadow: 0 4px 20px var(–blue-glow);
+}
+.loader-text {
+font-size: 15px; font-weight: 600; color: var(–text);
+}
+.loader-sub { font-size: 13px; color: var(–muted); margin-top: -12px; }
+
+/* ── TOAST ────────────────────────────────── */
+#toast {
+position: fixed; bottom: 80px; left: 50%;
+transform: translateX(-50%) translateY(12px);
+background: var(–text); color: #fff;
+border-radius: 8px; padding: 10px 20px;
+font-size: 13px; font-weight: 500;
+opacity: 0; pointer-events: none;
+transition: all .3s cubic-bezier(.34,1.56,.64,1);
+z-index: 9999; white-space: nowrap;
+max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
+box-shadow: var(–shadow-md);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── ERROR BOX ────────────────────────────── */
+.error-box {
+display: none; margin-top: 12px;
+background: #FFF0F0; border: 1px solid #FFCDD2;
+border-radius: var(–radius-sm); padding: 10px 14px;
+font-size: 13px; color: var(–red); text-align: center;
+line-height: 1.4;
+}
+.error-box.show { display: block; }
+
+/* ── RESPONSIVE ───────────────────────────── */
+@media (max-width: 720px) {
+.home-layout {
+flex-direction: column; gap: 28px; padding: 20px 0;
+}
+.home-right { width: 100%; }
+.home-left { text-align: center; }
+.feature-list { align-items: center; }
+.topbar { padding: 0 16px; }
+#home-page { padding-top: 70px; justify-content: flex-start; }
+.action-card { padding: 24px 20px; }
+.join-card { padding: 32px 20px; }
+.call-bar { gap: 6px; }
+}
 </style>
 
 </head>
 <body>
 
+<!-- TOAST -->
+
 <div id="toast"></div>
+
+<!-- LOADING -->
+
 <div id="loading" class="hidden">
-  <div class="spin"></div>
-  <div class="load-text" id="load-text">Setting up your call…</div>
+  <div class="loader-logo">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+      <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/>
+      <rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/>
+    </svg>
+  </div>
+  <div class="loader-ring"></div>
+  <div class="loader-text" id="load-text">Setting up your meeting…</div>
+  <div class="loader-sub">This only takes a second</div>
 </div>
 
-<nav class="nav"><div class="logo">wave<span>.</span></div></nav>
+<!-- TOP BAR -->
 
-<!-- HOME -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/>
+        <rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/>
+      </svg>
+    </div>
+    <span class="logo-name">Wave <span>Meet</span></span>
+  </div>
+  <div class="topbar-right">Free · No account needed</div>
+</header>
+
+<!-- ── HOME PAGE ── -->
 
 <div id="home-page" class="page">
-  <div class="hero">
-    <div class="badge"><span class="badge-dot"></span> free · no account · stays on this page</div>
-    <h1>Video calls that<br><em>just work.</em></h1>
-    <p>Create a call and share the link.<br>Anyone who taps it joins instantly — right here.</p>
+  <div class="home-layout">
+
+```
+<div class="home-left">
+  <div class="home-eyebrow">
+    <span class="eyebrow-dot"></span> Powered by Daily.co
   </div>
-  <div class="card">
-    <div class="card-title">Start a new call</div>
-    <div class="card-sub">// you'll get a shareable link</div>
-    <label>Your name</label>
-    <input type="text" id="host-name" placeholder="What should we call you?" maxlength="28" autocomplete="off" />
-    <div id="error-box"></div>
-    <button class="btn btn-primary" onclick="createCall()" style="margin-top:4px">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
-      Create call &amp; get link
+  <h1 class="home-title">
+    Video meetings for<br><span>everyone.</span>
+  </h1>
+  <p class="home-desc">
+    Create a meeting and share the link.<br>
+    Anyone who clicks it joins instantly — no downloads, no sign-up.
+  </p>
+  <div class="feature-list">
+    <div class="feature-item">
+      <div class="feature-icon">🔒</div>
+      HD video &amp; audio, end-to-end encrypted
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">📱</div>
+      Works on iPhone, Android &amp; desktop
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🔗</div>
+      Share via WhatsApp, SMS or just a link
+    </div>
+    <div class="feature-item">
+      <div class="feature-icon">🖥️</div>
+      Screen sharing &amp; chat built in
+    </div>
+  </div>
+</div>
+
+<div class="home-right">
+  <div class="action-card">
+    <div class="action-card-title">Start or join a meeting</div>
+    <div class="action-card-sub">Enter your name to get started</div>
+
+    <div class="field-group">
+      <label class="field-label">Your name</label>
+      <input class="field-input" type="text" id="host-name"
+        placeholder="e.g. Viccy" maxlength="28" autocomplete="off" />
+    </div>
+
+    <div id="home-error" class="error-box"></div>
+
+    <button class="btn btn-blue" onclick="createCall()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/>
+        <rect x="3" y="6" width="12" height="12" rx="2"/>
+      </svg>
+      New Meeting
+    </button>
+
+    <div class="divider">or join with a link</div>
+
+    <div class="field-group">
+      <label class="field-label">Meeting link or ID</label>
+      <input class="field-input" type="text" id="join-link-input"
+        placeholder="Paste link here" autocomplete="off" />
+    </div>
+    <button class="btn btn-outline" onclick="joinFromLink()">
+      Join Meeting
     </button>
   </div>
 </div>
+```
 
-<!-- JOIN -->
+  </div>
+</div>
+
+<!-- ── JOIN PAGE ── -->
 
 <div id="join-page" class="page hidden">
   <div class="join-card">
-    <div class="big-icon">👋</div>
-    <h2>You're invited!</h2>
-    <p>Someone is waiting in a call</p>
-    <label>Your name</label>
-    <input type="text" id="join-name" placeholder="Enter your name to join" maxlength="28" autocomplete="off" />
-    <button class="btn btn-primary" onclick="joinCall()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
-      Join call now
+    <div class="join-avatar">👋</div>
+    <h2>You're invited to a meeting</h2>
+    <p>Enter your name to join. No account or download needed.</p>
+    <div class="field-group">
+      <label class="field-label">Your name</label>
+      <input class="field-input" type="text" id="join-name"
+        placeholder="Enter your name" maxlength="28" autocomplete="off" />
+    </div>
+    <div id="join-error" class="error-box"></div>
+    <button class="btn btn-blue" onclick="joinCall()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/>
+        <rect x="3" y="6" width="12" height="12" rx="2"/>
+      </svg>
+      Join Meeting
+    </button>
+    <button class="btn btn-outline" onclick="goHome()" style="margin-top:10px">
+      ← Back
     </button>
   </div>
 </div>
 
-<!-- CALL PAGE -->
+<!-- ── CALL PAGE ── -->
 
 <div id="call-page" class="hidden">
   <div id="daily-container"></div>
   <div class="call-bar">
-    <div class="bar-left">wave · <strong id="bar-room">—</strong></div>
-    <div class="share-row" id="share-row" style="display:none">
-      <div class="share-link" id="bar-link">—</div>
-      <button class="sbtn sbtn-copy" onclick="copyLink()">Copy</button>
-      <button class="sbtn sbtn-wa" onclick="shareWA()">WhatsApp</button>
+    <div class="call-bar-info" id="call-bar-info">
+      Wave Meet · <strong id="bar-room-name">—</strong>
     </div>
-    <button class="sbtn sbtn-end" onclick="leaveCall()">Leave ✕</button>
+    <div class="invite-row" id="invite-row" style="display:none">
+      <div class="invite-url" id="invite-url-text">—</div>
+      <button class="cbar-btn cbar-copy" onclick="copyInvite()">Copy</button>
+      <button class="cbar-btn cbar-wa" onclick="inviteWA()">WhatsApp</button>
+    </div>
+    <button class="cbar-btn cbar-end" onclick="leaveCall()">End ✕</button>
   </div>
 </div>
+
+<!-- Daily.co SDK -->
 
 <script src="https://unpkg.com/@daily-co/daily-js"></script>
 
 <script>
-// ─────────────────────────────────────────────────────
-// WAVE — powered by Daily.co
-// Full video stays on YOUR domain, works on all devices
-// ─────────────────────────────────────────────────────
 
-const DAILY_API_KEY    = '004181d7ab0376ffbc4614272780d4be5182a62a45ea8fc992e2d9d307a8a42b';
-const DAILY_DOMAIN     = 'viccy.daily.co';
-const DAILY_API_BASE   = 'https://api.daily.co/v1';
+// ─────────────────────────────────────────────
+//  WAVE MEET — Daily.co powered
+//  Backend: /api/create-room (Vercel function)
+//  API key is server-side only — never in browser
+// ─────────────────────────────────────────────
 
-let callFrame = null;
-let roomName  = '';
-let myName    = '';
-let isHost    = false;
+const DAILY_DOMAIN = 'viccy.daily.co';
 
-// ── UTILS ─────────────────────────────────────
-function getRoomFromURL() { return new URLSearchParams(window.location.search).get('room') || ''; }
-function shareURL()       { return `${location.origin}${location.pathname}?room=${roomName}`; }
+let callFrame  = null;
+let roomName   = '';
+let myName     = '';
+let isHost     = false;
 
-let toastT;
-function toast(msg, dur=3000) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastT);
-  toastT = setTimeout(() => el.classList.remove('show'), dur);
+// ── URL HELPERS ──────────────────────────────
+function getRoomFromURL() {
+  return new URLSearchParams(window.location.search).get('room') || '';
+}
+function meetingURL() {
+  return `${location.origin}${location.pathname}?room=${roomName}`;
+}
+function dailyRoomURL() {
+  return `https://${DAILY_DOMAIN}/${roomName}`;
 }
 
+// ── UI HELPERS ───────────────────────────────
 function showPage(id) {
   ['home-page','join-page','call-page'].forEach(p =>
     document.getElementById(p)?.classList.add('hidden')
   );
   document.getElementById(id)?.classList.remove('hidden');
 }
-
-function setLoading(show, msg='Setting up call…') {
+function goHome() {
+  history.replaceState(null, '', location.pathname);
+  showPage('home-page');
+}
+function setLoading(show, msg = 'Setting up your meeting…') {
   document.getElementById('load-text').textContent = msg;
   document.getElementById('loading').classList.toggle('hidden', !show);
 }
-
-function showError(msg) {
-  const el = document.getElementById('error-box');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 5000);
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 6000);
 }
 
-// ── CREATE ROOM via Daily API ──────────────────
-async function createDailyRoom() {
-  // exp: 4 hours from now
-  const exp = Math.floor(Date.now() / 1000) + (4 * 60 * 60);
-  const res = await fetch(`${DAILY_API_BASE}/rooms`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${DAILY_API_KEY}`
-    },
-    body: JSON.stringify({
-      properties: {
-        exp,
-        enable_chat: true,
-        enable_screenshare: true,
-        start_video_off: false,
-        start_audio_off: false,
-      }
-    })
-  });
-  if (!res.ok) throw new Error('Could not create room');
-  const data = await res.json();
-  return data.name; // room name (not full URL)
+let toastT;
+function toast(msg, dur = 3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(() => el.classList.remove('show'), dur);
 }
 
-// ── HOST: CREATE CALL ──────────────────────────
+// ── CREATE ROOM (via Vercel function) ─────────
 async function createCall() {
-  myName  = document.getElementById('host-name').value.trim() || 'Host';
-  isHost  = true;
-  setLoading(true, 'Creating your room…');
+  myName = document.getElementById('host-name').value.trim();
+  if (!myName) { showError('home-error', 'Please enter your name to continue.'); return; }
+  isHost = true;
+  setLoading(true, 'Creating your meeting…');
   try {
-    roomName = await createDailyRoom();
+    const res  = await fetch('/api/create-room', { method: 'POST' });
+    if (!res.ok) throw new Error('Server error');
+    const data = await res.json();
+    roomName   = data.name;
     history.replaceState(null, '', `?room=${roomName}`);
     await launchCall();
   } catch(e) {
     setLoading(false);
-    showError('Could not create room — check your connection and try again.');
+    showError('home-error', 'Could not create meeting. Check your connection and try again.');
     console.error(e);
   }
 }
 
-// ── GUEST: JOIN CALL ───────────────────────────
+// ── JOIN FROM LINK ON HOME PAGE ───────────────
+function joinFromLink() {
+  const val = document.getElementById('join-link-input').value.trim();
+  if (!val) { showError('home-error', 'Paste a meeting link or ID.'); return; }
+  // Parse room name from full URL or bare name
+  try {
+    const url  = new URL(val);
+    const room = url.searchParams.get('room') || url.pathname.replace('/', '');
+    if (room) { roomName = room; }
+  } catch {
+    roomName = val; // bare room name
+  }
+  if (!roomName) { showError('home-error', 'Invalid meeting link.'); return; }
+  history.replaceState(null, '', `?room=${roomName}`);
+  showPage('join-page');
+  setTimeout(() => document.getElementById('join-name').focus(), 200);
+}
+
+// ── JOIN CALL (guest) ─────────────────────────
 async function joinCall() {
-  myName = document.getElementById('join-name').value.trim() || 'Guest';
+  myName = document.getElementById('join-name').value.trim();
+  if (!myName) { showError('join-error', 'Please enter your name.'); return; }
   isHost = false;
-  setLoading(true, 'Joining call…');
+  setLoading(true, 'Joining meeting…');
   await launchCall();
 }
 
-// ── LAUNCH Daily callFrame ─────────────────────
+// ── LAUNCH Daily callFrame ────────────────────
 async function launchCall() {
-  const roomURL = `https://${DAILY_DOMAIN}/${roomName}`;
-
   showPage('call-page');
-  document.getElementById('bar-room').textContent = roomName.slice(0,12) + '…';
-  document.getElementById('bar-link').textContent = shareURL();
-  if (isHost) document.getElementById('share-row').style.display = 'flex';
 
-  // Destroy previous instance if any
+  // Set call bar
+  document.getElementById('bar-room-name').textContent = roomName.slice(0, 16) + (roomName.length > 16 ? '…' : '');
+  document.getElementById('invite-url-text').textContent = meetingURL();
+  if (isHost) document.getElementById('invite-row').style.display = 'flex';
+
+  // Destroy old frame
   if (callFrame) { try { callFrame.destroy(); } catch(e){} callFrame = null; }
 
   callFrame = window.DailyIframe.createFrame(
     document.getElementById('daily-container'),
     {
       iframeStyle: {
-        position: 'absolute',
-        top: '0', left: '0',
+        position: 'absolute', top: '0', left: '0',
         width: '100%', height: '100%',
         border: 'none',
-        borderRadius: '0',
       },
-      showLeaveButton: false,   // we have our own Leave button
+      showLeaveButton: false,
       showFullscreenButton: true,
       theme: {
         colors: {
-          accent: '#4f8eff',
-          accentText: '#ffffff',
-          background: '#05080f',
-          backgroundAccent: '#0c1018',
-          baseText: '#dde4f0',
-          border: '#1c2333',
-          mainAreaBg: '#05080f',
-          mainAreaBgAccent: '#0c1018',
-          mainAreaText: '#dde4f0',
-          supportiveText: '#4a5568',
+          accent:             '#0E71EB',
+          accentText:         '#FFFFFF',
+          background:         '#1A1A1A',
+          backgroundAccent:   '#2D2D2D',
+          baseText:           '#FFFFFF',
+          border:             '#333333',
+          mainAreaBg:         '#1A1A1A',
+          mainAreaBgAccent:   '#2D2D2D',
+          mainAreaText:       '#FFFFFF',
+          supportiveText:     '#999999',
         }
       }
     }
@@ -398,15 +710,14 @@ async function launchCall() {
 
   callFrame
     .on('loaded', () => {
-      callFrame.join({ url: roomURL, userName: myName });
+      callFrame.join({ url: dailyRoomURL(), userName: myName });
     })
     .on('joined-meeting', () => {
       setLoading(false);
-      toast(isHost ? 'Call ready! Share the link below 🔗' : 'You joined the call 🎉', 5000);
+      if (isHost) toast('Meeting ready! Share the link to invite others 🔗', 6000);
+      else toast('You joined the meeting 🎉', 4000);
     })
-    .on('left-meeting', () => {
-      leaveCall();
-    })
+    .on('left-meeting', leaveCall)
     .on('error', (e) => {
       setLoading(false);
       toast('Connection error — please try again');
@@ -414,28 +725,28 @@ async function launchCall() {
     });
 }
 
-// ── LEAVE ──────────────────────────────────────
+// ── LEAVE ─────────────────────────────────────
 async function leaveCall() {
   if (callFrame) {
     try { await callFrame.leave(); } catch(e){}
-    try { callFrame.destroy(); } catch(e){}
+    try { callFrame.destroy(); }    catch(e){}
     callFrame = null;
   }
   history.replaceState(null, '', location.pathname);
   location.reload();
 }
 
-// ── SHARE ──────────────────────────────────────
-function copyLink() {
-  navigator.clipboard.writeText(shareURL())
-    .then(() => toast('Link copied! 📋'))
-    .catch(()  => toast(shareURL()));
+// ── SHARE ─────────────────────────────────────
+function copyInvite() {
+  navigator.clipboard.writeText(meetingURL())
+    .then(() => toast('Meeting link copied! 📋'))
+    .catch(() => toast(meetingURL()));
 }
-function shareWA() {
-  window.open(`https://wa.me/?text=${encodeURIComponent('Join my video call 👇\n' + shareURL())}`);
+function inviteWA() {
+  window.open(`https://wa.me/?text=${encodeURIComponent('Join my Wave Meet video call 👇\n' + meetingURL())}`);
 }
 
-// ── INIT ───────────────────────────────────────
+// ── INIT ──────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   const room = getRoomFromURL();
   if (room) {
@@ -447,8 +758,10 @@ window.addEventListener('DOMContentLoaded', () => {
     showPage('home-page');
     setTimeout(() => document.getElementById('host-name').focus(), 350);
   }
+
   document.getElementById('host-name').addEventListener('keydown', e => { if(e.key==='Enter') createCall(); });
   document.getElementById('join-name').addEventListener('keydown', e => { if(e.key==='Enter') joinCall(); });
+  document.getElementById('join-link-input').addEventListener('keydown', e => { if(e.key==='Enter') joinFromLink(); });
 });
 </script>
 
