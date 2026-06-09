@@ -5,516 +5,452 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Wave Meet</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>WaveMeet</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+
 :root {
-  --g1: #FF006E;
-  --g2: #8338EC;
-  --g3: #3A86FF;
-  --g4: #06FFB4;
-  --g5: #FFBE0B;
-  --bg: #0A0A0F;
-  --surface: #12121A;
-  --surface2: #1A1A26;
-  --border: rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.14);
-  --text: #F0F0FF;
-  --text2: #9090B0;
-  --muted: #505070;
-  --red: #FF4060;
-  --green: #06FFB4;
-  --radius: 16px;
-  --radius-sm: 10px;
+–g1: #FF006E;
+–g2: #8338EC;
+–g3: #3A86FF;
+–g4: #06FFB4;
+–g5: #FFBE0B;
+–bg: #0A0A0F;
+–s1: #12121A;
+–s2: #1A1A26;
+–b1: rgba(255,255,255,0.08);
+–b2: rgba(255,255,255,0.13);
+–text: #F0F0FF;
+–t2: #9090B0;
+–muted: #505070;
+–red: #FF4060;
+–green: #06FFB4;
 }
 
-html { overflow:hidden; width:100%; height:100%; position:fixed; }
-body {
-overflow-x:hidden; overflow-y:auto;
-width:100%; height:100%; position:fixed; inset:0;
--webkit-overflow-scrolling:touch;
-overscroll-behavior:none; touch-action:pan-y;
-background:var(–bg); color:var(–text);
-font-family:‘Space Grotesk’,sans-serif;
+/* ── HARD RESET ── */
+html,body {
+margin:0 !important; padding:0 !important;
+width:100% !important; height:100% !important;
+background:#0A0A0F !important;
+color:#F0F0FF !important;
+font-family:‘Space Grotesk’,-apple-system,BlinkMacSystemFont,‘Segoe UI’,sans-serif !important;
+overflow:hidden !important;
+position:fixed !important;
+inset:0 !important;
 -webkit-font-smoothing:antialiased;
+overscroll-behavior:none;
+touch-action:pan-y;
 }
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; max-width:100%; }
 
-/* ── ANIMATED BG ── */
-.bg-orbs {
-position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden;
-}
-.orb {
-position:absolute; border-radius:50%; filter:blur(80px); opacity:.25;
-animation:orbFloat 8s ease-in-out infinite;
-}
-.orb1 { width:400px; height:400px; background:var(–g2); top:-100px; left:-100px; animation-delay:0s; }
-.orb2 { width:350px; height:350px; background:var(–g1); bottom:-100px; right:-80px; animation-delay:-3s; }
-.orb3 { width:280px; height:280px; background:var(–g3); top:40%; left:40%; animation-delay:-5s; }
-@keyframes orbFloat {
-0%,100% { transform:translate(0,0) scale(1); }
-33%      { transform:translate(20px,-30px) scale(1.05); }
-66%      { transform:translate(-15px,20px) scale(.95); }
-}
-
-/* ── NAV ── */
-.nav {
-position:fixed; top:0; left:0; right:0; height:58px;
-display:flex; align-items:center; justify-content:space-between;
-padding:0 20px; z-index:100;
-background:rgba(10,10,15,.8);
-backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-border-bottom:1px solid var(–border);
-}
-.nav-logo { display:flex; align-items:center; gap:10px; }
-.nav-icon {
-width:34px; height:34px; border-radius:10px;
-background:linear-gradient(135deg,var(–g2),var(–g1));
-display:flex; align-items:center; justify-content:center;
-box-shadow:0 0 20px rgba(131,56,236,.5);
-}
-.nav-name {
-font-size:18px; font-weight:800; letter-spacing:-.02em;
-background:linear-gradient(90deg,var(–g2),var(–g3));
--webkit-background-clip:text; -webkit-text-fill-color:transparent;
-background-clip:text;
-}
-.nav-pill {
-font-size:11px; font-weight:700; font-family:‘Space Mono’,monospace;
-color:var(–g4); background:rgba(6,255,180,.08);
-border:1px solid rgba(6,255,180,.2);
-border-radius:20px; padding:4px 12px; letter-spacing:.05em;
-text-transform:uppercase;
-}
+/* ── ANIMATED ORBS ── */
+.orbs { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
+.orb  { position:absolute; border-radius:50%; filter:blur(90px); opacity:.22; animation:orbf 9s ease-in-out infinite; }
+.o1 { width:380px; height:380px; background:#8338EC; top:-80px; left:-80px; animation-delay:0s; }
+.o2 { width:320px; height:320px; background:#FF006E; bottom:-80px; right:-60px; animation-delay:-3.5s; }
+.o3 { width:260px; height:260px; background:#3A86FF; top:45%; left:45%; animation-delay:-6s; }
+@keyframes orbf { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(18px,-28px) scale(1.05)} 66%{transform:translate(-12px,18px) scale(.96)} }
 
 /* ── PAGES ── */
 .page {
 position:relative; z-index:1; width:100%; min-height:100vh;
-display:flex; flex-direction:column;
-align-items:center; justify-content:center;
-padding:78px 16px 40px;
-animation:pageIn .4s ease both;
+display:flex; flex-direction:column; align-items:center; justify-content:center;
+padding:70px 16px 36px; overflow-x:hidden;
+animation:pi .35s ease both;
 }
+/* Allow scrolling inside pages on small screens */
+html, body { overflow:hidden !important; }
+body > .page { position:absolute; inset:0; overflow-y:auto; height:100%; min-height:unset; }
 .page.hidden { display:none !important; }
-@keyframes pageIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:none} }
+@keyframes pi { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
 
-/* ── HOME ── */
-.home-hero { text-align:center; margin-bottom:32px; width:100%; max-width:520px; }
+/* ── NAV ── */
+.nav {
+position:fixed; top:0; left:0; right:0; height:56px;
+display:flex; align-items:center; justify-content:space-between;
+padding:0 18px; z-index:200;
+background:rgba(10,10,15,.85);
+backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+border-bottom:1px solid var(–b1);
+}
+.nav-logo { display:flex; align-items:center; gap:9px; }
+.nav-icon {
+width:32px; height:32px; border-radius:9px;
+background:linear-gradient(135deg,var(–g2),var(–g1));
+display:flex; align-items:center; justify-content:center;
+box-shadow:0 0 18px rgba(131,56,236,.55);
+}
+.nav-name {
+font-size:17px; font-weight:800; letter-spacing:-.02em;
+background:linear-gradient(90deg,var(–g2),var(–g3));
+-webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.nav-pill {
+font-size:11px; font-weight:700;
+font-family:‘Space Mono’,monospace;
+color:var(–g4); background:rgba(6,255,180,.08);
+border:1px solid rgba(6,255,180,.22);
+border-radius:20px; padding:4px 12px;
+letter-spacing:.05em; text-transform:uppercase;
+}
+
+/* ── HERO ── */
+.hero { text-align:center; margin-bottom:28px; width:100%; max-width:500px; }
 .hero-tag {
 display:inline-flex; align-items:center; gap:7px;
-background:rgba(255,255,255,.05); border:1px solid var(–border2);
-border-radius:40px; padding:6px 16px; margin-bottom:22px;
-font-size:12px; font-weight:700; font-family:‘Space Mono’,monospace;
-color:var(–text2); letter-spacing:.06em; text-transform:uppercase;
+background:rgba(255,255,255,.05); border:1px solid var(–b2);
+border-radius:40px; padding:5px 14px; margin-bottom:18px;
+font-size:11px; font-weight:700;
+font-family:‘Space Mono’,monospace;
+color:var(–t2); letter-spacing:.07em; text-transform:uppercase;
 }
-.hero-dot { width:7px; height:7px; border-radius:50%; background:var(–green); animation:blink 2s infinite; flex-shrink:0; }
+.hdot { width:7px; height:7px; border-radius:50%; background:var(–green); flex-shrink:0; animation:blink 2s infinite; }
 @keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 6px var(–green)} 50%{opacity:.3;box-shadow:none} }
-
-h1 {
-font-size:clamp(32px,8vw,60px); font-weight:800;
-line-height:1.05; letter-spacing:-.03em; margin-bottom:14px; color:#fff;
-}
-.grad-text {
-background:linear-gradient(90deg,var(–g1),var(–g2),var(–g3));
--webkit-background-clip:text; -webkit-text-fill-color:transparent;
-background-clip:text;
-}
-.home-hero p { font-size:15px; color:var(–text2); line-height:1.7; }
+h1 { font-size:clamp(30px,8vw,56px); font-weight:800; line-height:1.05; letter-spacing:-.03em; margin-bottom:12px; color:#fff; }
+.gt { background:linear-gradient(90deg,var(–g1),var(–g2),var(–g3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.hero p { font-size:14px; color:var(–t2); line-height:1.7; }
 
 /* ── CARD ── */
 .card {
-background:rgba(18,18,26,.9);
-border:1px solid var(–border2);
-border-radius:20px; padding:28px 24px;
-width:100%; max-width:420px;
-backdrop-filter:blur(20px);
-box-shadow:0 8px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.06);
+background:rgba(18,18,26,.92);
+border:1px solid var(–b2); border-radius:20px;
+padding:26px 22px; width:100%; max-width:420px;
+backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+box-shadow:0 8px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);
 }
-.card-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:4px; }
-.card-sub { font-size:12px; color:var(–muted); font-family:‘Space Mono’,monospace; margin-bottom:22px; }
+.card-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:3px; }
+.card-sub { font-size:11px; color:var(–muted); font-family:‘Space Mono’,monospace; margin-bottom:20px; }
 
-.flabel {
-display:block; font-size:11px; font-weight:700;
-color:var(–text2); text-transform:uppercase;
-letter-spacing:.08em; margin-bottom:7px;
-}
-.finput {
-display:block; width:100%;
-background:rgba(255,255,255,.05);
-border:1.5px solid var(–border2);
-border-radius:var(–radius-sm); padding:12px 14px;
+.fl { display:block; font-size:11px; font-weight:700; color:var(–t2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+.fi {
+display:block; width:100%; background:rgba(255,255,255,.05);
+border:1.5px solid var(–b2); border-radius:10px; padding:12px 13px;
 color:var(–text); font-family:‘Space Grotesk’,sans-serif;
 font-size:16px; font-weight:500; outline:none;
-transition:border-color .2s, box-shadow .2s;
--webkit-appearance:none; margin-bottom:14px;
+transition:border-color .2s,box-shadow .2s; -webkit-appearance:none; margin-bottom:13px;
 }
-.finput:focus {
-border-color:var(–g3);
-box-shadow:0 0 0 3px rgba(58,134,255,.2);
-background:rgba(255,255,255,.07);
-}
-.finput::placeholder { color:var(–muted); font-weight:400; }
+.fi:focus { border-color:var(–g3); box-shadow:0 0 0 3px rgba(58,134,255,.2); background:rgba(255,255,255,.07); }
+.fi::placeholder { color:var(–muted); font-weight:400; }
 
-/* ── BUTTONS ── */
 .btn {
 display:flex; align-items:center; justify-content:center; gap:8px;
-width:100%; padding:14px; border-radius:var(–radius-sm); border:none;
+width:100%; padding:13px; border-radius:10px; border:none;
 font-family:‘Space Grotesk’,sans-serif; font-size:15px; font-weight:800;
-cursor:pointer; transition:all .18s; -webkit-tap-highlight-color:transparent;
-letter-spacing:-.01em; position:relative; overflow:hidden;
+cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; letter-spacing:-.01em;
 }
-.btn-grad {
-background:linear-gradient(135deg,var(–g2),var(–g1));
-color:#fff;
-box-shadow:0 4px 20px rgba(131,56,236,.4);
-}
-.btn-grad:active { transform:scale(.97); filter:brightness(.9); }
-.btn-outline {
-background:transparent; border:1.5px solid var(–border2);
-color:var(–text2); margin-top:10px;
-}
-.btn-outline:active { background:rgba(255,255,255,.05); }
-.btn-ghost {
-background:rgba(255,255,255,.05); border:1px solid var(–border);
-color:var(–text2); font-size:13px; padding:10px;
-}
+.btn-grad { background:linear-gradient(135deg,var(–g2),var(–g1)); color:#fff; box-shadow:0 4px 20px rgba(131,56,236,.4); }
+.btn-grad:active { transform:scale(.97); filter:brightness(.88); }
+.btn-out { background:transparent; border:1.5px solid var(–b2); color:var(–t2); margin-top:10px; }
+.btn-out:active { background:rgba(255,255,255,.05); }
 
-.divider {
-display:flex; align-items:center; gap:10px;
-margin:18px 0; font-size:11px; font-weight:700;
-color:var(–muted); font-family:‘Space Mono’,monospace;
-text-transform:uppercase; letter-spacing:.08em;
+.div {
+display:flex; align-items:center; gap:10px; margin:16px 0;
+font-size:11px; font-weight:700; color:var(–muted);
+font-family:‘Space Mono’,monospace; text-transform:uppercase; letter-spacing:.08em;
 }
-.divider::before,.divider::after { content:’’; flex:1; height:1px; background:var(–border); }
+.div::before,.div::after { content:’’; flex:1; height:1px; background:var(–b1); }
 
-.err {
-display:none; background:rgba(255,64,96,.1);
-border:1px solid rgba(255,64,96,.3);
-border-radius:var(–radius-sm); padding:10px 14px;
-font-size:13px; color:var(–red);
-text-align:center; margin-bottom:12px; line-height:1.4;
-}
+.err { display:none; background:rgba(255,64,96,.1); border:1px solid rgba(255,64,96,.3); border-radius:10px; padding:10px 13px; font-size:13px; color:var(–red); text-align:center; margin-bottom:12px; line-height:1.4; }
 .err.on { display:block; }
 
-/* ── VIDEO SOURCE PICKER ── */
-.source-picker { margin-bottom:18px; }
-.source-label { font-size:11px; font-weight:700; color:var(–text2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; display:block; }
-.source-options { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.source-opt {
-padding:12px 10px; border-radius:var(–radius-sm);
-border:1.5px solid var(–border2);
-background:rgba(255,255,255,.03);
-cursor:pointer; text-align:center;
+/* ── SOURCE PICKER ── */
+.src-wrap { margin-bottom:16px; }
+.src-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
+.src-opt {
+padding:12px 8px; border-radius:10px; border:1.5px solid var(–b2);
+background:rgba(255,255,255,.03); cursor:pointer; text-align:center;
 transition:all .2s; -webkit-tap-highlight-color:transparent;
 }
-.source-opt.active {
-border-color:var(–g3);
-background:rgba(58,134,255,.1);
-box-shadow:0 0 12px rgba(58,134,255,.2);
-}
-.source-opt-icon { font-size:22px; margin-bottom:5px; display:block; }
-.source-opt-label { font-size:12px; font-weight:700; color:var(–text2); }
-.source-opt.active .source-opt-label { color:var(–g3); }
+.src-opt.active { border-color:var(–g3); background:rgba(58,134,255,.1); box-shadow:0 0 14px rgba(58,134,255,.2); }
+.src-icon { font-size:22px; margin-bottom:5px; display:block; }
+.src-lbl { font-size:12px; font-weight:700; color:var(–t2); }
+.src-opt.active .src-lbl { color:var(–g3); }
 
-/* File upload area */
+/* File upload */
 #file-area {
-display:none; margin-bottom:14px;
-border:1.5px dashed var(–border2);
-border-radius:var(–radius-sm); padding:20px;
-text-align:center; cursor:pointer;
-transition:border-color .2s;
-background:rgba(255,255,255,.02);
+display:none; margin-bottom:12px;
+border:1.5px dashed var(–b2); border-radius:10px;
+padding:18px; text-align:center; cursor:pointer;
+background:rgba(255,255,255,.02); transition:border-color .2s;
 }
-#file-area:hover { border-color:var(–g3); }
+#file-area:active { border-color:var(–g3); }
 #file-area p { font-size:13px; color:var(–muted); }
-#file-area strong { color:var(–text2); }
+#file-area strong { color:var(–t2); }
 #file-input { display:none; }
+
+/* Video preview before call */
+#vid-preview-wrap {
+display:none; margin-bottom:12px; border-radius:10px; overflow:hidden;
+border:1px solid var(–b2); position:relative; background:#000;
+}
+#vid-preview { width:100%; max-height:180px; display:block; object-fit:contain; background:#000; }
+.preview-overlay {
+position:absolute; inset:0; background:rgba(0,0,0,.55);
+display:flex; flex-direction:column; align-items:center; justify-content:center;
+gap:8px;
+}
+.preview-play-btn {
+width:56px; height:56px; border-radius:50%; border:none;
+background:linear-gradient(135deg,var(–g2),var(–g3));
+color:#fff; font-size:22px; cursor:pointer;
+display:flex; align-items:center; justify-content:center;
+box-shadow:0 0 24px rgba(58,134,255,.5);
+-webkit-tap-highlight-color:transparent;
+}
+.preview-hint { font-size:12px; color:rgba(255,255,255,.7); font-weight:600; }
 
 /* Lag toggle */
 .lag-row {
 display:none; align-items:center; justify-content:space-between;
 background:rgba(255,190,11,.06); border:1px solid rgba(255,190,11,.2);
-border-radius:var(–radius-sm); padding:12px 14px; margin-bottom:14px;
+border-radius:10px; padding:11px 13px; margin-bottom:13px;
 }
 .lag-row.show { display:flex; }
-.lag-label { font-size:13px; font-weight:700; color:var(–g5); }
+.lag-lbl { font-size:13px; font-weight:700; color:var(–g5); }
 .lag-sub { font-size:11px; color:var(–muted); margin-top:2px; }
-.toggle-wrap { display:flex; align-items:center; gap:8px; }
-.toggle {
+.tog {
 width:44px; height:24px; border-radius:12px;
-background:var(–surface2); border:1px solid var(–border2);
-position:relative; cursor:pointer; transition:background .2s;
-flex-shrink:0;
+background:var(–s2); border:1px solid var(–b2);
+position:relative; cursor:pointer; transition:background .2s; flex-shrink:0;
 }
-.toggle.on { background:var(–g5); }
-.toggle-knob {
-position:absolute; top:3px; left:3px;
-width:18px; height:18px; border-radius:50%;
-background:#fff; transition:transform .2s;
-box-shadow:0 1px 4px rgba(0,0,0,.3);
-}
-.toggle.on .toggle-knob { transform:translateX(20px); }
+.tog.on { background:var(–g5); }
+.tok { position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 1px 4px rgba(0,0,0,.3); }
+.tog.on .tok { transform:translateX(20px); }
 
 /* ── JOIN PAGE ── */
 .join-card {
-background:rgba(18,18,26,.9);
-border:1px solid var(–border2);
-border-radius:20px; padding:36px 24px;
-width:100%; max-width:400px;
-backdrop-filter:blur(20px);
-text-align:center;
-box-shadow:0 8px 40px rgba(0,0,0,.4);
+background:rgba(18,18,26,.92); border:1px solid var(–b2); border-radius:20px;
+padding:36px 22px; width:100%; max-width:400px;
+backdrop-filter:blur(24px); text-align:center;
+box-shadow:0 8px 48px rgba(0,0,0,.5);
 }
 .join-icon { font-size:52px; margin-bottom:14px; display:block; }
-.join-card h2 { font-size:24px; font-weight:800; color:#fff; margin-bottom:6px; letter-spacing:-.02em; }
-.join-card p { font-size:13px; color:var(–text2); margin-bottom:24px; line-height:1.5; }
-.join-card .flabel { text-align:left; }
+.join-card h2 { font-size:24px; font-weight:800; color:#fff; margin-bottom:6px; }
+.join-card p { font-size:13px; color:var(–t2); margin-bottom:22px; line-height:1.5; }
+.join-card .fl { text-align:left; }
 
-/* ── CALL PAGE ── */
+/* ═══════════════════════════════════════════
+CALL PAGE — WhatsApp/Snap layout
+Remote = fullscreen bg
+Local  = small draggable overlay (top-right)
+Tap overlay = swap sizes
+═══════════════════════════════════════════ */
 #call-page {
-position:fixed; inset:0; z-index:200;
-background:#050508; display:flex; flex-direction:column;
+position:fixed; inset:0; z-index:300;
+background:#050508;
+display:flex; flex-direction:column;
 width:100%; height:100%; overflow:hidden;
 }
 #call-page.hidden { display:none !important; }
 
-.videos-grid {
-flex:1; display:grid; gap:6px; padding:6px; min-height:0; overflow:hidden;
+/* BIG video (remote or local when alone) */
+.vid-bg {
+position:absolute; inset:0;
+background:#0A0A0F;
 }
-.videos-grid.solo { grid-template-columns:1fr; }
-.videos-grid.duo  { grid-template-columns:1fr 1fr; }
-
-.vid-tile {
-position:relative; background:#0D0D14;
-border-radius:14px; overflow:hidden; min-height:0;
-border:1px solid rgba(255,255,255,.06);
-}
-.vid-tile video { width:100%; height:100%; object-fit:cover; display:block; }
-
-/* Lag filter on remote video */
-.vid-tile.lagging video {
-animation:lagEffect 0.4s steps(1) infinite;
-filter:blur(1px) contrast(1.1);
-}
-@keyframes lagEffect {
-0%   { opacity:1; transform:none; }
-20%  { opacity:.4; transform:translateX(3px); }
-40%  { opacity:1; transform:none; }
-60%  { opacity:.6; transform:translateX(-2px) scaleY(.99); }
-80%  { opacity:1; transform:none; }
-100% { opacity:.7; filter:blur(3px); }
+.vid-bg video {
+width:100%; height:100%; object-fit:cover; display:block;
 }
 
-/* Lag overlay text */
-.lag-badge {
+/* Avatar fallback for big video */
+.big-avatar {
+position:absolute; inset:0;
+display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+}
+.big-av-circle {
+width:90px; height:90px; border-radius:50%;
+background:linear-gradient(135deg,var(–g2),var(–g1));
+display:flex; align-items:center; justify-content:center;
+font-size:36px; font-weight:800; color:#fff;
+box-shadow:0 0 40px rgba(131,56,236,.5);
+}
+.big-av-name { font-size:16px; font-weight:700; color:rgba(255,255,255,.6); }
+
+/* Name tag on big video */
+.big-nametag {
+position:absolute; bottom:90px; left:16px;
+background:rgba(0,0,0,.55); backdrop-filter:blur(10px);
+border-radius:20px; padding:5px 14px;
+font-size:13px; font-weight:700; color:#fff;
+display:flex; align-items:center; gap:6px;
+}
+.muted-dot { width:8px; height:8px; border-radius:50%; background:var(–red); display:none; }
+.muted-dot.on { display:block; }
+
+/* SMALL overlay (picture-in-picture) */
+.vid-pip {
+position:absolute; top:70px; right:12px;
+width:110px; height:155px;
+border-radius:16px; overflow:hidden;
+border:2px solid rgba(255,255,255,.2);
+box-shadow:0 8px 32px rgba(0,0,0,.6);
+cursor:pointer; z-index:10;
+transition:all .3s cubic-bezier(.34,1.56,.64,1);
+background:#111;
+}
+.vid-pip video { width:100%; height:100%; object-fit:cover; display:block; }
+.pip-avatar {
+position:absolute; inset:0;
+display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+}
+.pip-av-circle {
+width:40px; height:40px; border-radius:50%;
+background:linear-gradient(135deg,var(–g2),var(–g1));
+display:flex; align-items:center; justify-content:center;
+font-size:16px; font-weight:800; color:#fff;
+}
+.pip-av-name { font-size:10px; color:rgba(255,255,255,.5); font-weight:600; }
+.pip-tap-hint {
+position:absolute; bottom:6px; left:50%;
+transform:translateX(-50%);
+font-size:9px; color:rgba(255,255,255,.4);
+font-family:‘Space Mono’,monospace; white-space:nowrap;
+}
+
+/* Lag effect */
+.vid-bg.lagging video { animation:lagEff .5s steps(1) infinite; filter:blur(1px); }
+@keyframes lagEff {
+0%{opacity:1;transform:none}
+15%{opacity:.3;transform:translateX(4px)}
+30%{opacity:1;transform:none}
+55%{opacity:.5;transform:translateX(-3px) scaleY(.98)}
+80%{opacity:1;transform:none}
+95%{opacity:.4;filter:blur(4px)}
+}
+.lag-overlay {
 position:absolute; top:50%; left:50%;
 transform:translate(-50%,-50%);
-background:rgba(0,0,0,.75); border-radius:8px;
-padding:8px 14px; font-size:12px; font-weight:700;
-color:#fff; font-family:‘Space Mono’,monospace;
-display:none; text-align:center; line-height:1.5;
-pointer-events:none;
+background:rgba(0,0,0,.72); border-radius:10px;
+padding:10px 16px; text-align:center;
+font-size:13px; font-weight:700; color:#fff;
+font-family:‘Space Mono’,monospace;
+display:none; pointer-events:none; line-height:1.6;
 }
-.vid-tile.lagging .lag-badge { display:block; }
+.vid-bg.lagging .lag-overlay { display:block; }
 
-.vid-avatar-wrap {
-position:absolute; inset:0;
-display:flex; flex-direction:column;
-align-items:center; justify-content:center; gap:10px;
-}
-.vid-avatar {
-width:70px; height:70px; border-radius:50%;
-display:flex; align-items:center; justify-content:center;
-font-size:28px; font-weight:800; color:#fff;
-background:linear-gradient(135deg,var(–g2),var(–g1));
-box-shadow:0 0 30px rgba(131,56,236,.4);
-}
-.vid-avatar-name { font-size:13px; color:var(–muted); font-weight:600; }
-.vid-name {
-position:absolute; bottom:10px; left:12px;
-background:rgba(0,0,0,.6); backdrop-filter:blur(8px);
-border-radius:20px; padding:4px 12px;
-font-size:12px; font-weight:700; color:#fff;
-}
-.vid-muted {
-position:absolute; top:10px; right:10px;
-background:var(–red); border-radius:50%;
-width:28px; height:28px;
-display:none; align-items:center; justify-content:center;
-font-size:13px; box-shadow:0 0 12px rgba(255,64,96,.5);
-}
-.vid-muted.on { display:flex; }
-
-/* Video controls overlay (for uploaded video) */
-.vid-controls {
-position:absolute; bottom:44px; left:50%;
-transform:translateX(-50%);
-display:none; gap:8px;
-background:rgba(0,0,0,.7); border-radius:30px;
-padding:6px 12px;
-backdrop-filter:blur(10px);
-}
-.vid-controls.show { display:flex; }
-.vc-btn {
-width:32px; height:32px; border-radius:50%; border:none;
-background:rgba(255,255,255,.1); color:#fff;
-font-size:14px; cursor:pointer;
-display:flex; align-items:center; justify-content:center;
--webkit-tap-highlight-color:transparent;
-}
-.vc-btn:active { background:rgba(255,255,255,.2); }
-
-/* Wait overlay */
+/* Wait overlay (when alone) */
 .wait-overlay {
 position:absolute; inset:0;
-background:rgba(5,5,8,.92); backdrop-filter:blur(12px);
+background:rgba(5,5,8,.88); backdrop-filter:blur(14px);
 display:flex; flex-direction:column;
 align-items:center; justify-content:center;
-gap:14px; border-radius:14px; z-index:5; padding:24px;
+gap:14px; z-index:5; padding:24px;
 }
 .wait-overlay.gone { display:none; }
-.wait-ring {
-width:48px; height:48px; border-radius:50%;
-border:2px solid rgba(255,255,255,.1);
-border-top-color:var(–g3);
-animation:spin 1s linear infinite;
-}
+.wait-ring { width:48px; height:48px; border-radius:50%; border:2px solid rgba(255,255,255,.1); border-top-color:var(–g3); animation:spin 1s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
-.wait-title { font-size:17px; font-weight:800; color:#fff; }
-.wait-sub { font-size:13px; color:var(–text2); text-align:center; line-height:1.5; }
-
+.wait-title { font-size:18px; font-weight:800; color:#fff; }
+.wait-sub   { font-size:13px; color:var(–t2); text-align:center; line-height:1.5; }
 .link-pill {
 display:flex; align-items:center;
-background:rgba(255,255,255,.05);
-border:1px solid var(–border2);
-border-radius:10px; overflow:hidden;
-width:100%; max-width:320px;
+background:rgba(255,255,255,.06); border:1px solid var(–b2);
+border-radius:10px; overflow:hidden; width:100%; max-width:300px;
 }
-.link-pill-text {
-flex:1; padding:9px 12px; font-size:11px;
-font-family:‘Space Mono’,monospace; color:var(–g3);
-white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;
-}
-.link-pill-btn {
-padding:9px 14px; background:linear-gradient(135deg,var(–g2),var(–g3));
-border:none; color:#fff; font-family:‘Space Grotesk’,sans-serif;
-font-size:12px; font-weight:800; cursor:pointer; flex-shrink:0;
--webkit-tap-highlight-color:transparent;
-}
+.link-txt { flex:1; padding:9px 12px; font-size:11px; font-family:‘Space Mono’,monospace; color:var(–g4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.link-copy { padding:9px 14px; background:linear-gradient(135deg,var(–g2),var(–g3)); border:none; color:#fff; font-family:‘Space Grotesk’,sans-serif; font-size:12px; font-weight:800; cursor:pointer; flex-shrink:0; }
 .share-btns { display:flex; gap:8px; }
-.share-btn {
-padding:8px 16px; border-radius:8px; border:none;
-font-family:‘Space Grotesk’,sans-serif; font-size:12px; font-weight:700;
-cursor:pointer; -webkit-tap-highlight-color:transparent;
+.swa  { padding:9px 16px; border-radius:8px; border:none; background:#25D366; color:#fff; font-family:‘Space Grotesk’,sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
+.ssms { padding:9px 16px; border-radius:8px; border:1px solid var(–b2); background:rgba(255,255,255,.06); color:#fff; font-family:‘Space Grotesk’,sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
+
+/* Video playback controls overlay */
+.vid-play-controls {
+position:absolute; bottom:86px; left:50%;
+transform:translateX(-50%);
+display:none; align-items:center; gap:10px;
+background:rgba(0,0,0,.65); backdrop-filter:blur(10px);
+border-radius:30px; padding:8px 16px; z-index:10;
 }
-.swa { background:#25D366; color:#fff; }
-.ssms { background:rgba(255,255,255,.1); color:#fff; border:1px solid var(–border2); }
+.vid-play-controls.show { display:flex; }
+.vc-btn {
+width:36px; height:36px; border-radius:50%; border:none;
+background:rgba(255,255,255,.12); color:#fff; font-size:15px;
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+-webkit-tap-highlight-color:transparent; transition:background .15s;
+}
+.vc-btn:active { background:rgba(255,255,255,.25); }
+.vc-time { font-size:12px; font-family:‘Space Mono’,monospace; color:rgba(255,255,255,.7); }
 
 /* ── TOOLBAR ── */
 .toolbar {
-height:74px; background:rgba(5,5,8,.97);
-border-top:1px solid rgba(255,255,255,.06);
+position:absolute; bottom:0; left:0; right:0;
+height:72px; z-index:20;
 display:flex; align-items:center; justify-content:center;
-gap:14px; flex-shrink:0; position:relative;
+gap:14px;
 padding-bottom:env(safe-area-inset-bottom);
+background:linear-gradient(to top,rgba(5,5,8,.9) 0%,transparent 100%);
 }
-.t-room {
-position:absolute; left:14px;
+.t-info {
+position:absolute; left:14px; top:50%; transform:translateY(-50%);
 font-size:10px; font-weight:700; font-family:‘Space Mono’,monospace;
-color:var(–muted); text-transform:uppercase; letter-spacing:.08em;
+color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:.08em;
 }
 .t-timer {
-position:absolute; right:14px;
-font-size:12px; font-weight:700;
-font-family:‘Space Mono’,monospace; color:var(–text2);
+position:absolute; right:14px; top:50%; transform:translateY(-50%);
+font-size:12px; font-weight:700; font-family:‘Space Mono’,monospace; color:rgba(255,255,255,.4);
 }
-
 .tbtn {
-width:48px; height:48px; border-radius:50%; border:none;
-background:rgba(255,255,255,.08);
-color:#fff; font-size:18px; cursor:pointer;
-display:flex; align-items:center; justify-content:center;
+width:50px; height:50px; border-radius:50%; border:none;
+background:rgba(255,255,255,.1); color:#fff; font-size:18px;
+cursor:pointer; display:flex; align-items:center; justify-content:center;
 transition:all .15s; -webkit-tap-highlight-color:transparent;
-border:1px solid rgba(255,255,255,.08);
-flex-shrink:0;
+border:1px solid rgba(255,255,255,.1); flex-shrink:0;
 }
-.tbtn:active { transform:scale(.9); }
-.tbtn.off { background:rgba(255,64,96,.15); border-color:rgba(255,64,96,.3); }
-
+.tbtn:active { transform:scale(.88); }
+.tbtn.off { background:rgba(255,64,96,.18); border-color:rgba(255,64,96,.35); }
 .tbtn-end {
-width:56px; height:56px; border-radius:50%; border:none;
+width:58px; height:58px; border-radius:50%; border:none;
 background:linear-gradient(135deg,#FF4060,#FF0040);
-color:#fff; font-size:20px; cursor:pointer;
-display:flex; align-items:center; justify-content:center;
-box-shadow:0 4px 20px rgba(255,64,96,.5);
-flex-shrink:0; -webkit-tap-highlight-color:transparent;
+color:#fff; font-size:20px;
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+box-shadow:0 4px 22px rgba(255,64,96,.55); flex-shrink:0;
+-webkit-tap-highlight-color:transparent;
 }
-.tbtn-end:active { transform:scale(.9); }
-
-/* Lag toggle in toolbar */
-.lag-toolbar-btn {
-width:48px; height:48px; border-radius:50%; border:none;
-background:rgba(255,190,11,.1);
-border:1px solid rgba(255,190,11,.2);
-color:var(–g5); font-size:16px; cursor:pointer;
-display:flex; align-items:center; justify-content:center;
-transition:all .15s; -webkit-tap-highlight-color:transparent;
-flex-shrink:0; position:relative;
+.tbtn-end:active { transform:scale(.88); }
+.tbtn-lag {
+width:50px; height:50px; border-radius:50%; border:none;
+background:rgba(255,190,11,.1); border:1px solid rgba(255,190,11,.2);
+color:var(–g5); font-size:16px;
+cursor:pointer; display:flex; align-items:center; justify-content:center;
+transition:all .15s; -webkit-tap-highlight-color:transparent; flex-shrink:0;
+position:relative;
 }
-.lag-toolbar-btn.active {
-background:rgba(255,190,11,.25);
-border-color:var(–g5);
-box-shadow:0 0 16px rgba(255,190,11,.4);
-animation:lagPulse 1s infinite;
-}
-@keyframes lagPulse { 0%,100%{box-shadow:0 0 10px rgba(255,190,11,.4)} 50%{box-shadow:0 0 24px rgba(255,190,11,.7)} }
-.lag-badge-dot {
-position:absolute; top:6px; right:6px;
-width:8px; height:8px; border-radius:50%;
-background:var(–g5); display:none;
-}
-.lag-toolbar-btn.active .lag-badge-dot { display:block; }
+.tbtn-lag.on { background:rgba(255,190,11,.25); border-color:var(–g5); box-shadow:0 0 16px rgba(255,190,11,.45); animation:lagPulse 1.2s infinite; }
+@keyframes lagPulse { 0%,100%{box-shadow:0 0 10px rgba(255,190,11,.4)} 50%{box-shadow:0 0 26px rgba(255,190,11,.75)} }
 
 /* ── LOADING ── */
 #loading {
-position:fixed; inset:0; z-index:500;
-background:rgba(10,10,15,.96);
-display:flex; flex-direction:column;
-align-items:center; justify-content:center; gap:20px;
+position:fixed; inset:0; z-index:999;
+background:rgba(10,10,15,.97);
+display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
 }
 #loading.hidden { display:none; }
-.loader-icon {
-width:60px; height:60px; border-radius:18px;
+.lring { width:52px; height:52px; border-radius:50%; border:3px solid rgba(255,255,255,.1); border-top-color:var(–g3); animation:spin 1s linear infinite; }
+.licon {
+width:62px; height:62px; border-radius:18px;
 background:linear-gradient(135deg,var(–g2),var(–g1));
 display:flex; align-items:center; justify-content:center;
-box-shadow:0 0 40px rgba(131,56,236,.6);
-animation:iconPulse 2s infinite;
+box-shadow:0 0 44px rgba(131,56,236,.65); animation:lp 2s infinite;
 }
-@keyframes iconPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.05)} }
-.loader-ring {
-width:52px; height:52px; border-radius:50%;
-border:3px solid rgba(255,255,255,.1);
-border-top-color:var(–g3);
-animation:spin 1s linear infinite;
-}
-.loader-text { font-size:16px; font-weight:800; color:#fff; }
-.loader-sub { font-size:13px; color:var(–text2); margin-top:-12px; }
+@keyframes lp { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+.ltxt { font-size:16px; font-weight:800; color:#fff; }
+.lsub { font-size:13px; color:var(–t2); margin-top:-12px; }
 
 /* ── TOAST ── */
 #toast {
-position:fixed; bottom:88px; left:50%;
+position:fixed; bottom:90px; left:50%;
 transform:translateX(-50%) translateY(10px);
-background:rgba(26,26,38,.95);
-border:1px solid var(–border2);
+background:rgba(26,26,38,.96); border:1px solid var(–b2);
 color:#fff; border-radius:10px; padding:10px 18px;
-font-size:13px; font-weight:700; opacity:0;
-pointer-events:none;
+font-size:13px; font-weight:700; opacity:0; pointer-events:none;
 transition:all .3s cubic-bezier(.34,1.56,.64,1);
-z-index:9999; white-space:nowrap;
-max-width:90vw; overflow:hidden; text-overflow:ellipsis;
-box-shadow:0 8px 32px rgba(0,0,0,.4);
+z-index:9999; white-space:nowrap; max-width:90vw;
+overflow:hidden; text-overflow:ellipsis; box-shadow:0 8px 32px rgba(0,0,0,.5);
 }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* Utility */
+.hidden { display:none !important; }
 </style>
 
 </head>
@@ -522,23 +458,21 @@ box-shadow:0 8px 32px rgba(0,0,0,.4);
 
 <!-- BG ORBS -->
 
-<div class="bg-orbs">
-  <div class="orb orb1"></div>
-  <div class="orb orb2"></div>
-  <div class="orb orb3"></div>
-</div>
-
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
 <div id="toast"></div>
+
+<!-- LOADING -->
+
 <div id="loading" class="hidden">
-  <div class="loader-icon">
+  <div class="licon">
     <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
       <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/>
       <rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/>
     </svg>
   </div>
-  <div class="loader-ring"></div>
-  <div class="loader-text" id="load-text">Setting up…</div>
-  <div class="loader-sub">Connecting securely</div>
+  <div class="lring"></div>
+  <div class="ltxt" id="ltxt">Setting up…</div>
+  <div class="lsub">Connecting securely</div>
 </div>
 
 <!-- NAV -->
@@ -546,7 +480,7 @@ box-shadow:0 8px 32px rgba(0,0,0,.4);
 <nav class="nav">
   <div class="nav-logo">
     <div class="nav-icon">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
         <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/>
         <rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/>
       </svg>
@@ -556,506 +490,614 @@ box-shadow:0 8px 32px rgba(0,0,0,.4);
   <div class="nav-pill">● Live</div>
 </nav>
 
-<!-- HOME -->
+<!-- HOME PAGE -->
 
 <div id="home-page" class="page">
-  <div class="home-hero">
-    <div class="hero-tag"><span class="hero-dot"></span> No account · No download</div>
-    <h1>Meetings from<br><span class="grad-text">the future.</span></h1>
+  <div class="hero">
+    <div class="hero-tag"><span class="hdot"></span> No account · No download</div>
+    <h1>Meetings from<br><span class="gt">the future.</span></h1>
     <p>Create a call, share the link.<br>Your people join instantly — anywhere.</p>
   </div>
 
   <div class="card">
     <div class="card-title">Start a meeting</div>
-    <div class="card-sub">// configure your setup below</div>
+    <div class="card-sub">// configure your setup</div>
 
 ```
-<label class="flabel">Your name</label>
-<input class="finput" type="text" id="host-name" placeholder="e.g. Viccy" maxlength="28" autocomplete="off" />
+<label class="fl">Your name</label>
+<input class="fi" type="text" id="host-name" placeholder="e.g. Viccy" maxlength="28" autocomplete="off" />
 
-<!-- Video source picker -->
-<div class="source-picker">
-  <span class="source-label">Video source</span>
-  <div class="source-options">
-    <div class="source-opt active" id="src-cam" onclick="setSource('camera')">
-      <span class="source-opt-icon">📷</span>
-      <span class="source-opt-label">My Camera</span>
+<!-- Video source -->
+<div class="src-wrap">
+  <span class="fl">Video source</span>
+  <div class="src-grid">
+    <div class="src-opt active" id="src-cam" onclick="setSrc('camera')">
+      <span class="src-icon">📷</span>
+      <span class="src-lbl">My Camera</span>
     </div>
-    <div class="source-opt" id="src-file" onclick="setSource('file')">
-      <span class="source-opt-icon">🎬</span>
-      <span class="source-opt-label">Upload Video</span>
+    <div class="src-opt" id="src-file" onclick="setSrc('file')">
+      <span class="src-icon">🎬</span>
+      <span class="src-lbl">Upload Video</span>
     </div>
   </div>
 </div>
 
-<!-- File upload area (shown when file selected) -->
+<!-- File upload -->
 <div id="file-area" onclick="document.getElementById('file-input').click()">
-  <p>📁 <strong id="file-name">Tap to choose a video file</strong></p>
-  <p style="font-size:11px;margin-top:4px;color:var(--muted)">MP4, MOV, WebM supported</p>
+  <p>📁 <strong id="file-name">Tap to choose a video</strong></p>
+  <p style="font-size:11px;margin-top:3px;color:var(--muted)">MP4 · MOV · WebM</p>
 </div>
-<input type="file" id="file-input" accept="video/*" onchange="onFileSelected(event)" />
+<input type="file" id="file-input" accept="video/*" onchange="onFilePick(event)" />
 
-<!-- Lag toggle (shown when file selected) -->
+<!-- Video preview — must press play before starting -->
+<div id="vid-preview-wrap">
+  <video id="vid-preview" playsinline preload="metadata"></video>
+  <div class="preview-overlay" id="preview-overlay">
+    <button class="preview-play-btn" onclick="previewPlay()">▶</button>
+    <span class="preview-hint">Press play to preview & confirm</span>
+  </div>
+</div>
+
+<!-- Lag toggle -->
 <div class="lag-row" id="lag-row">
   <div>
-    <div class="lag-label">😂 Lag Mode</div>
-    <div class="lag-sub">Makes your video look like bad connection</div>
+    <div class="lag-lbl">😂 Lag Mode</div>
+    <div class="lag-sub">Makes you look like bad connection</div>
   </div>
-  <div class="toggle-wrap">
-    <div class="toggle" id="lag-toggle" onclick="toggleLagSetup()">
-      <div class="toggle-knob"></div>
-    </div>
-  </div>
+  <div class="tog" id="lag-tog" onclick="togLagSetup()"><div class="tok"></div></div>
 </div>
 
 <div class="err" id="home-err"></div>
 
 <button class="btn btn-grad" onclick="createCall()">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
     <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/>
     <rect x="3" y="6" width="12" height="12" rx="2"/>
   </svg>
   Start Meeting
 </button>
 
-<div class="divider">or join</div>
-
-<label class="flabel">Meeting link</label>
-<input class="finput" type="text" id="join-link" placeholder="Paste invite link here" autocomplete="off" />
-<button class="btn btn-outline" onclick="joinFromLink()">Join Meeting →</button>
+<div class="div">or join existing</div>
+<label class="fl">Meeting link</label>
+<input class="fi" type="text" id="join-link" placeholder="Paste invite link here" autocomplete="off" />
+<button class="btn btn-out" onclick="joinFromLink()">Join Meeting →</button>
 ```
 
   </div>
 </div>
 
-<!-- JOIN -->
+<!-- JOIN PAGE -->
 
 <div id="join-page" class="page hidden">
   <div class="join-card">
     <span class="join-icon">🚀</span>
     <h2>You're invited!</h2>
-    <p>Enter your name to jump into the meeting.<br>No account or app needed.</p>
-    <label class="flabel">Your name</label>
-    <input class="finput" type="text" id="join-name" placeholder="Your name" maxlength="28" autocomplete="off" />
+    <p>Enter your name to jump in.<br>No account or app needed.</p>
+    <label class="fl">Your name</label>
+    <input class="fi" type="text" id="join-name" placeholder="Your name" maxlength="28" autocomplete="off" />
     <div class="err" id="join-err"></div>
     <button class="btn btn-grad" onclick="joinCall()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
         <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/>
         <rect x="3" y="6" width="12" height="12" rx="2"/>
       </svg>
       Jump In
     </button>
-    <button class="btn btn-outline" onclick="goHome()">← Back</button>
+    <button class="btn btn-out" onclick="goHome()">← Back</button>
   </div>
 </div>
 
 <!-- CALL PAGE -->
 
 <div id="call-page" class="hidden">
-  <div class="videos-grid solo" id="videos-grid">
 
-```
-<!-- Local tile -->
-<div class="vid-tile" id="local-tile">
-  <video id="local-vid" autoplay muted playsinline></video>
-  <!-- Hidden video element for uploaded file -->
-  <video id="file-vid" loop playsinline style="display:none"></video>
-  <!-- Canvas used to stream file video as camera -->
-  <canvas id="canvas-feed" style="display:none"></canvas>
+  <!-- BIG background video (remote, or self when alone) -->
 
-  <div class="vid-avatar-wrap" id="local-av-wrap" style="display:none">
-    <div class="vid-avatar" id="local-av-letter">?</div>
-    <div class="vid-avatar-name" id="local-av-name">You</div>
+  <div class="vid-bg" id="vid-bg">
+    <video id="big-vid" autoplay playsinline></video>
+    <div class="big-avatar" id="big-avatar" style="display:none">
+      <div class="big-av-circle" id="big-av-letter">?</div>
+      <div class="big-av-name"  id="big-av-name">Waiting…</div>
+    </div>
+    <!-- Lag overlay -->
+    <div class="lag-overlay">📡 Poor connection<br><span style="font-size:10px;opacity:.6">Buffering…</span></div>
   </div>
-  <div class="vid-name" id="local-vid-name">You</div>
-  <div class="vid-muted" id="local-muted-icon">🔇</div>
 
-  <!-- Video file controls -->
-  <div class="vid-controls" id="vid-controls">
-    <button class="vc-btn" id="play-pause-btn" onclick="toggleVideoFile()">⏸</button>
-    <button class="vc-btn" onclick="restartVideo()">⏮</button>
+  <!-- Name tag on big video -->
+
+  <div class="big-nametag" id="big-nametag">
+    <span id="big-nametag-txt">You</span>
+    <span class="muted-dot" id="big-muted-dot"></span>
+  </div>
+
+  <!-- PIP overlay (small, tappable) -->
+
+  <div class="vid-pip" id="vid-pip" onclick="swapVids()">
+    <video id="pip-vid" autoplay muted playsinline></video>
+    <div class="pip-avatar" id="pip-avatar" style="display:none">
+      <div class="pip-av-circle" id="pip-av-letter">?</div>
+      <div class="pip-av-name"  id="pip-av-name">Guest</div>
+    </div>
+    <span class="pip-tap-hint">tap to swap</span>
   </div>
 
   <!-- Wait overlay -->
+
   <div class="wait-overlay" id="wait-overlay">
     <div class="wait-ring"></div>
     <div class="wait-title">Waiting for someone</div>
     <div class="wait-sub">Share this link to invite</div>
     <div class="link-pill">
-      <div class="link-pill-text" id="wait-link">—</div>
-      <button class="link-pill-btn" onclick="copyLink()">Copy</button>
+      <div class="link-txt" id="wait-link">—</div>
+      <button class="link-copy" onclick="copyLink()">Copy</button>
     </div>
     <div class="share-btns">
-      <button class="share-btn swa" onclick="shareWA()">WhatsApp</button>
-      <button class="share-btn ssms" onclick="shareSMS()">SMS</button>
+      <button class="swa" onclick="shareWA()">WhatsApp</button>
+      <button class="ssms" onclick="shareSMS()">SMS</button>
     </div>
   </div>
-</div>
 
-<!-- Remote tile -->
-<div class="vid-tile" id="remote-tile" style="display:none">
-  <video id="remote-vid" autoplay playsinline></video>
-  <div class="vid-avatar-wrap" id="remote-av-wrap" style="display:none">
-    <div class="vid-avatar" id="remote-av-letter">?</div>
-    <div class="vid-avatar-name" id="remote-av-name">Guest</div>
-  </div>
-  <div class="vid-name" id="remote-vid-name">Guest</div>
-  <div class="vid-muted" id="remote-muted-icon">🔇</div>
-  <div class="lag-badge" id="lag-badge">📡 Poor connection<br><span style="font-size:10px;opacity:.7">Buffering…</span></div>
-</div>
-```
+  <!-- Video file playback controls -->
 
+  <div class="vid-play-controls" id="vid-play-controls">
+    <button class="vc-btn" onclick="restartVid()">⏮</button>
+    <button class="vc-btn" id="pp-btn" onclick="toggleVidPlay()">⏸</button>
+    <span class="vc-time" id="vc-time">0:00</span>
   </div>
 
   <!-- Toolbar -->
 
   <div class="toolbar">
-    <div class="t-room" id="t-room">WAVE</div>
+    <div class="t-info" id="t-info">WAVE</div>
     <button class="tbtn" id="btn-mic" onclick="toggleMic()">🎤</button>
-    <button class="tbtn" id="btn-cam" onclick="toggleCam()">📷</button>
     <button class="tbtn-end" onclick="endCall()">
       <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/>
+        <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.38 1.02-.22 1.14.44 2.35.68 3.58.68.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C6.84 21 2 16.16 2 10c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.12.36.03.76-.22 1.02L6.6 10.8z"/>
       </svg>
     </button>
-    <!-- Lag button (only shown during call if file mode) -->
-    <button class="lag-toolbar-btn" id="lag-toolbar-btn" onclick="toggleLagLive()" style="display:none" title="Lag Mode 😂">
-      📡
-      <div class="lag-badge-dot"></div>
-    </button>
-    <button class="tbtn" id="btn-vid-pause" onclick="toggleVideoFile()" style="display:none">⏸</button>
+    <button class="tbtn" id="btn-cam" onclick="toggleCam()">📷</button>
+    <button class="tbtn-lag hidden" id="btn-lag" onclick="toggleLagLive()">📡</button>
     <div class="t-timer" id="t-timer">—</div>
   </div>
+
 </div>
 
 <script>
-// ═══════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
 //  WAVE MEET 2070
-//  WebRTC + Metered TURN — real video, your domain
-//  Features: camera OR video file, lag prank, mute, timer
-// ═══════════════════════════════════════════════════════
+//  Pure WebRTC + Metered TURN — real video, your domain
+//
+//  Layout: WhatsApp/Snap style
+//    - Remote = fullscreen bg
+//    - Local  = small PIP overlay (tap to swap)
+//    - When alone = see yourself fullscreen + wait overlay
+//
+//  Features:
+//    - Camera OR video file as source
+//    - Must preview/play video before starting
+//    - Pause/resume syncs to remote in real time
+//    - Seek sync — remote jumps to same timestamp
+//    - Lag mode prank
+//    - Mute mic / toggle cam
+//    - Call timer
+// ═══════════════════════════════════════════════════════════
 
 const ICE = [
   { urls:'stun:stun.l.google.com:19302' },
   { urls:'stun:stun1.l.google.com:19302' },
   {
-    urls:['turn:a.relay.metered.ca:80','turn:a.relay.metered.ca:80?transport=tcp','turn:a.relay.metered.ca:443','turn:a.relay.metered.ca:443?transport=tcp','turns:a.relay.metered.ca:443?transport=tcp'],
-    username:'bdd71e02060e1c9aec7db3b3',
-    credential:'FvAwsOkY/+2FLFJ0'
+    urls:[
+      'turn:a.relay.metered.ca:80',
+      'turn:a.relay.metered.ca:80?transport=tcp',
+      'turn:a.relay.metered.ca:443',
+      'turn:a.relay.metered.ca:443?transport=tcp',
+      'turns:a.relay.metered.ca:443?transport=tcp',
+    ],
+    username:   'bdd71e02060e1c9aec7db3b3',
+    credential: 'FvAwsOkY/+2FLFJ0',
   }
 ];
 
-const MEDIA_CONSTRAINTS = {
+const MED = {
   video:{ width:{ideal:320,max:480}, height:{ideal:240,max:360}, frameRate:{ideal:15,max:20}, facingMode:'user' },
   audio:{ echoCancellation:true, noiseSuppression:true, sampleRate:16000, channelCount:1 }
 };
 
-// ── STATE ──────────────────────────────────────
+// ── STATE ──────────────────────────────────────────
 let localStream = null;
-let myName = '', roomId = '', isHost = false;
-let micOn = true, camOn = true;
-let timerInt = null, timerSecs = 0;
-let peer = null, conn = null;
-let videoSource = 'camera'; // 'camera' | 'file'
-let uploadedFile = null;
-let lagEnabled = false;
-let lagSetupEnabled = false;
-let canvasStream = null;
-let canvasInt = null;
+let myName='', roomId='', isHost=false;
+let micOn=true, camOn=true;
+let timerInt=null, timerSecs=0;
+let peer=null, conn=null;
+let videoSrc='camera';
+let uploadedFile=null;
+let lagEnabled=false, lagSetup=false;
+let canvasInt=null;
+// PIP swap state: false = remote is big, true = local is big
+let localIsBig = false;
+// Are we currently in a call with someone?
+let remoteJoined = false;
 
-// ── HELPERS ────────────────────────────────────
-function getRoomFromURL() { return new URLSearchParams(window.location.search).get('room')||''; }
-function shareURL()       { return `${location.origin}${location.pathname}?room=${roomId}`; }
-function genRoom()        { const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++)r+=c[Math.floor(Math.random()*c.length)]; return r; }
-function showPage(id)     { ['home-page','join-page','call-page'].forEach(p=>document.getElementById(p)?.classList.add('hidden')); document.getElementById(id)?.classList.remove('hidden'); }
-function goHome()         { history.replaceState(null,'',location.pathname); showPage('home-page'); }
-function setLoading(s,m='Connecting…') { document.getElementById('load-text').textContent=m; document.getElementById('loading').classList.toggle('hidden',!s); }
-function showErr(id,msg)  { const el=document.getElementById(id); el.textContent=msg; el.classList.add('on'); setTimeout(()=>el.classList.remove('on'),5000); }
-let toastT;
-function toast(msg,dur=3000) { const el=document.getElementById('toast'); el.textContent=msg; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),dur); }
+// ── HELPERS ────────────────────────────────────────
+const $  = id => document.getElementById(id);
+const on = (id,ev,fn) => $(id).addEventListener(ev,fn);
+function getRoomFromURL(){ return new URLSearchParams(location.search).get('room')||''; }
+function shareURL()      { return `${location.origin}${location.pathname}?room=${roomId}`; }
+function genRoom()       { const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++)r+=c[Math.floor(Math.random()*c.length)]; return r; }
+function showPage(id)    { ['home-page','join-page','call-page'].forEach(p=>$(p)?.classList.add('hidden')); $(id)?.classList.remove('hidden'); }
+function goHome()        { history.replaceState(null,'',location.pathname); showPage('home-page'); }
+function setLoad(s,m='Connecting…'){ $('ltxt').textContent=m; $('loading').classList.toggle('hidden',!s); }
+function showErr(id,msg) { const e=$(id); e.textContent=msg; e.classList.add('on'); setTimeout(()=>e.classList.remove('on'),5000); }
+let _tt;
+function toast(msg,dur=3000){ const e=$('toast'); e.textContent=msg; e.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>e.classList.remove('show'),dur); }
+function sendSig(msg)    { try{ if(conn?.open) conn.send(msg); }catch(e){} }
 
-// ── SOURCE PICKER ──────────────────────────────
-function setSource(src) {
-  videoSource = src;
-  document.getElementById('src-cam').classList.toggle('active', src==='camera');
-  document.getElementById('src-file').classList.toggle('active', src==='file');
-  document.getElementById('file-area').style.display   = src==='file' ? 'block' : 'none';
-  if (src !== 'file') { document.getElementById('lag-row').classList.remove('show'); }
+// ── TIMER ──────────────────────────────────────────
+function startTimer(){ timerSecs=0; clearInterval(timerInt); timerInt=setInterval(()=>{ timerSecs++; const m=String(Math.floor(timerSecs/60)).padStart(2,'0'); const s=String(timerSecs%60).padStart(2,'0'); $('t-timer').textContent=`${m}:${s}`; },1000); }
+function stopTimer() { clearInterval(timerInt); $('t-timer').textContent='—'; }
+
+// ── VIDEO SOURCE PICKER ────────────────────────────
+function setSrc(src){
+  videoSrc=src;
+  $('src-cam').classList.toggle('active',src==='camera');
+  $('src-file').classList.toggle('active',src==='file');
+  $('file-area').style.display = src==='file' ? 'block' : 'none';
+  if(src!=='file'){ $('lag-row').classList.remove('show'); $('vid-preview-wrap').style.display='none'; }
 }
 
-function onFileSelected(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  uploadedFile = file;
-  document.getElementById('file-name').textContent = file.name;
-  document.getElementById('lag-row').classList.add('show');
-  const vid = document.getElementById('file-vid');
-  vid.src = URL.createObjectURL(file);
+function onFilePick(e){
+  const f=e.target.files[0]; if(!f) return;
+  uploadedFile=f;
+  $('file-name').textContent=f.name;
+  // Show preview
+  const prev=$('vid-preview');
+  prev.src=URL.createObjectURL(f);
+  $('vid-preview-wrap').style.display='block';
+  $('preview-overlay').style.display='flex';
+  $('lag-row').classList.add('show');
 }
 
-function toggleLagSetup() {
-  lagSetupEnabled = !lagSetupEnabled;
-  document.getElementById('lag-toggle').classList.toggle('on', lagSetupEnabled);
+let previewPlayed=false;
+function previewPlay(){
+  const prev=$('vid-preview');
+  prev.play();
+  $('preview-overlay').style.display='none';
+  previewPlayed=true;
+  // Let them watch then pause — they control when to start
+  prev.onpause=()=>{ $('preview-overlay').style.display='flex'; $('preview-overlay').querySelector('.preview-hint').textContent='Ready! Tap Start Meeting.'; }
 }
 
-// ── TIMER ──────────────────────────────────────
-function startTimer() { timerSecs=0; clearInterval(timerInt); timerInt=setInterval(()=>{ timerSecs++; const m=String(Math.floor(timerSecs/60)).padStart(2,'0'); const s=String(timerSecs%60).padStart(2,'0'); document.getElementById('t-timer').textContent=`${m}:${s}`; },1000); }
-function stopTimer()  { clearInterval(timerInt); document.getElementById('t-timer').textContent='—'; }
+function togLagSetup(){
+  lagSetup=!lagSetup;
+  $('lag-tog').classList.toggle('on',lagSetup);
+}
 
-// ── MEDIA ──────────────────────────────────────
-async function getMedia() {
-  if (videoSource === 'file' && uploadedFile) {
-    // Use canvas to stream the video file
-    await setupCanvasStream();
+// ── MEDIA ──────────────────────────────────────────
+async function getMedia(){
+  if(videoSrc==='file' && uploadedFile){
+    await setupFileStream();
   } else {
-    try {
-      localStream = await navigator.mediaDevices.getUserMedia(MEDIA_CONSTRAINTS);
-    } catch {
-      try { localStream = await navigator.mediaDevices.getUserMedia({video:false,audio:true}); camOn=false; }
-      catch { localStream = new MediaStream(); camOn=false; micOn=false; }
-    }
-    document.getElementById('local-vid').srcObject = localStream;
+    try { localStream=await navigator.mediaDevices.getUserMedia(MED); }
+    catch{ try{ localStream=await navigator.mediaDevices.getUserMedia({video:false,audio:true}); camOn=false; }
+           catch{ localStream=new MediaStream(); camOn=false; micOn=false; } }
   }
-  updateLocalUI();
 }
 
-async function setupCanvasStream() {
-  const canvas = document.getElementById('canvas-feed');
-  const fileVid = document.getElementById('file-vid');
+async function setupFileStream(){
+  const canvas=document.createElement('canvas');
+  canvas.width=320; canvas.height=240;
+  const ctx=canvas.getContext('2d');
+  const fv=$('vid-preview'); // reuse the preview video element
+  fv.currentTime=0; fv.play();
 
-  // Get audio from mic
+  canvasInt=setInterval(()=>{
+    if(!fv.paused&&!fv.ended) ctx.drawImage(fv,0,0,320,240);
+  },1000/15);
+
   let audioStream;
-  try { audioStream = await navigator.mediaDevices.getUserMedia({audio:MEDIA_CONSTRAINTS.audio,video:false}); }
-  catch { audioStream = new MediaStream(); }
+  try{ audioStream=await navigator.mediaDevices.getUserMedia({audio:MED.audio,video:false}); }
+  catch{ audioStream=new MediaStream(); }
 
-  canvas.width  = 320;
-  canvas.height = 240;
-  const ctx = canvas.getContext('2d');
+  const cvStream=canvas.captureStream(15);
+  localStream=new MediaStream([...cvStream.getTracks(),...audioStream.getTracks()]);
 
-  fileVid.play();
+  // Show file controls during call
+  $('vid-play-controls').classList.add('show');
+  $('btn-lag').classList.remove('hidden');
+  if(lagSetup){ lagEnabled=true; $('btn-lag').classList.add('on'); }
 
-  // Draw video frames onto canvas
-  canvasInt = setInterval(() => {
-    if (!fileVid.paused && !fileVid.ended) {
-      ctx.drawImage(fileVid, 0, 0, canvas.width, canvas.height);
+  // Sync time display
+  fv.ontimeupdate=()=>{
+    const t=fv.currentTime;
+    const m=Math.floor(t/60); const s=Math.floor(t%60);
+    $('vc-time').textContent=`${m}:${String(s).padStart(2,'0')}`;
+  };
+}
+
+// ── VIDEO PLAYBACK CONTROLS ────────────────────────
+function toggleVidPlay(){
+  const fv=$('vid-preview');
+  if(fv.paused){
+    fv.play();
+    $('pp-btn').textContent='⏸';
+    // Sync: tell remote to resume at this timestamp
+    sendSig({type:'vidsync', playing:true, time:fv.currentTime});
+  } else {
+    fv.pause();
+    $('pp-btn').textContent='▶';
+    // Sync: tell remote to pause
+    sendSig({type:'vidsync', playing:false, time:fv.currentTime});
+  }
+}
+
+function restartVid(){
+  const fv=$('vid-preview');
+  fv.currentTime=0; fv.play();
+  $('pp-btn').textContent='⏸';
+  sendSig({type:'vidsync', playing:true, time:0});
+}
+
+// Called on remote side when host sends vidsync
+function applyVidSync(msg){
+  // Show a freeze/resume effect on the remote's big video
+  const bv=$('big-vid');
+  if(!msg.playing){
+    bv.style.filter='blur(2px) brightness(.6)';
+    toast('⏸ Video paused');
+  } else {
+    bv.style.filter='';
+    toast('▶ Video resumed');
+  }
+}
+
+// ── LAG MODE ───────────────────────────────────────
+function toggleLagLive(){
+  lagEnabled=!lagEnabled;
+  $('btn-lag').classList.toggle('on',lagEnabled);
+  sendSig({type:'lag',enabled:lagEnabled});
+  toast(lagEnabled ? '😂 Lag ON — they look glitchy to you!' : '✅ Lag OFF',3000);
+}
+
+function applyLag(enabled){
+  $('vid-bg').classList.toggle('lagging',enabled);
+}
+
+// ── CALL LAYOUT ────────────────────────────────────
+// Big = remote video. PIP = local.
+// When alone: big = local, no PIP shown.
+// Tap PIP = swap.
+
+function setupAloneLayout(){
+  $('big-vid').srcObject = localStream;
+  $('big-vid').muted     = true;
+  $('big-nametag-txt').textContent = myName||'You';
+  updateBigAvatar(false, myName);
+  $('vid-pip').style.display='none';
+  // Only host sees the waiting/share overlay
+  if(isHost){
+    $('wait-overlay').classList.remove('gone');
+    $('wait-link').textContent=shareURL();
+  } else {
+    $('wait-overlay').classList.add('gone');
+  }
+}
+
+function updateBigAvatar(show, name){
+  $('big-avatar').style.display = show ? 'flex' : 'none';
+  $('big-av-letter').textContent = (name||'?')[0].toUpperCase();
+  $('big-av-name').textContent   = name||'Waiting…';
+}
+
+function showRemoteJoined(remoteStream, rName){
+  remoteJoined=true;
+  $('wait-overlay').classList.add('gone');
+
+  if(!localIsBig){
+    // Default: remote = big, local = PIP
+    $('big-vid').srcObject=remoteStream;
+    $('big-vid').muted=false;
+    $('big-nametag-txt').textContent=rName;
+    const hasV=remoteStream.getVideoTracks().length>0;
+    updateBigAvatar(!hasV, rName);
+
+    $('pip-vid').srcObject=localStream;
+    $('pip-vid').muted=true;
+    updatePipAvatar(false, myName);
+  } else {
+    // Local was swapped to big — keep it
+    $('pip-vid').srcObject=remoteStream;
+    updatePipAvatar(remoteStream.getVideoTracks().length===0, rName);
+  }
+
+  $('vid-pip').style.display='';
+  startTimer();
+  toast(`${rName} joined 🎉`,4000);
+}
+
+function updatePipAvatar(show, name){
+  $('pip-avatar').style.display=show?'flex':'none';
+  $('pip-av-letter').textContent=(name||'?')[0].toUpperCase();
+  $('pip-av-name').textContent=name||'Guest';
+}
+
+let lastRemoteStream=null, lastRemoteName='Guest';
+
+function swapVids(){
+  if(!remoteJoined) return;
+  localIsBig=!localIsBig;
+
+  if(localIsBig){
+    // Local → big, remote → PIP
+    $('big-vid').srcObject=localStream;
+    $('big-vid').muted=true;
+    $('big-nametag-txt').textContent=myName+' (You)';
+    updateBigAvatar(false,myName);
+    if(lastRemoteStream){
+      $('pip-vid').srcObject=lastRemoteStream;
+      updatePipAvatar(lastRemoteStream.getVideoTracks().length===0, lastRemoteName);
     }
-  }, 1000/15); // 15fps
-
-  canvasStream = canvas.captureStream(15);
-
-  // Merge canvas video + mic audio
-  const tracks = [...canvasStream.getTracks(), ...audioStream.getTracks()];
-  localStream = new MediaStream(tracks);
-
-  // Show the file video in local tile
-  document.getElementById('local-vid').srcObject = canvasStream;
-  document.getElementById('vid-controls').classList.add('show');
-  document.getElementById('btn-vid-pause').style.display = 'flex';
-
-  // Show lag button in toolbar if lag was enabled
-  if (lagSetupEnabled) {
-    lagEnabled = true;
-    document.getElementById('lag-toolbar-btn').style.display = 'flex';
-    document.getElementById('lag-toolbar-btn').classList.add('active');
   } else {
-    document.getElementById('lag-toolbar-btn').style.display = 'flex';
+    // Remote → big, local → PIP
+    if(lastRemoteStream){
+      $('big-vid').srcObject=lastRemoteStream;
+      $('big-vid').muted=false;
+      $('big-nametag-txt').textContent=lastRemoteName;
+      updateBigAvatar(lastRemoteStream.getVideoTracks().length===0,lastRemoteName);
+    }
+    $('pip-vid').srcObject=localStream;
+    $('pip-vid').muted=true;
+    updatePipAvatar(false,myName);
   }
 }
 
-// ── VIDEO FILE CONTROLS ────────────────────────
-function toggleVideoFile() {
-  const vid = document.getElementById('file-vid');
-  if (vid.paused) {
-    vid.play();
-    document.getElementById('play-pause-btn').textContent = '⏸';
-    document.getElementById('btn-vid-pause').textContent  = '⏸';
-    // Tell remote to resume
-    sendSignal({ type:'vidplay', playing:true });
-  } else {
-    vid.pause();
-    document.getElementById('play-pause-btn').textContent = '▶️';
-    document.getElementById('btn-vid-pause').textContent  = '▶️';
-    // Tell remote to pause (freeze their view)
-    sendSignal({ type:'vidplay', playing:false });
-  }
+// ── MIC / CAM ──────────────────────────────────────
+function updateLocalUI(){
+  $('t-info').textContent=roomId.slice(0,10).toUpperCase();
+  $('btn-mic').textContent=micOn?'🎤':'🔇';
+  $('btn-mic').classList.toggle('off',!micOn);
+  $('btn-cam').textContent=(videoSrc==='file')?'🎬':(camOn?'📷':'🚫');
+  $('btn-cam').classList.toggle('off',videoSrc!=='file'&&!camOn);
 }
-function restartVideo() {
-  const vid = document.getElementById('file-vid');
-  vid.currentTime = 0;
-  vid.play();
+function toggleMic(){
+  micOn=!micOn;
+  localStream?.getAudioTracks().forEach(t=>t.enabled=micOn);
+  updateLocalUI();
+  sendSig({type:'mute',micOn});
+  // Show muted dot on big if local is big
+  if(localIsBig) $('big-muted-dot').classList.toggle('on',!micOn);
 }
-
-// ── LAG MODE ───────────────────────────────────
-function toggleLagLive() {
-  lagEnabled = !lagEnabled;
-  document.getElementById('lag-toolbar-btn').classList.toggle('active', lagEnabled);
-  // Tell remote to show/hide lag effect
-  sendSignal({ type:'lag', enabled:lagEnabled });
-  toast(lagEnabled ? '😂 Lag mode ON — they think you have bad connection!' : '✅ Lag mode OFF', 3000);
-}
-
-function applyLagToRemote(enabled) {
-  const tile = document.getElementById('remote-tile');
-  tile.classList.toggle('lagging', enabled);
-}
-
-// ── LOCAL UI ───────────────────────────────────
-function updateLocalUI() {
-  const hasV = (videoSource==='file') || (camOn && localStream?.getVideoTracks().length>0);
-  document.getElementById('local-av-wrap').style.display   = hasV ? 'none' : 'flex';
-  document.getElementById('local-av-letter').textContent   = (myName||'?')[0].toUpperCase();
-  document.getElementById('local-av-name').textContent     = myName||'You';
-  document.getElementById('local-vid-name').textContent    = myName||'You';
-  document.getElementById('t-room').textContent            = roomId.slice(0,10).toUpperCase();
-  document.getElementById('btn-mic').textContent           = micOn ? '🎤' : '🔇';
-  document.getElementById('btn-mic').classList.toggle('off',!micOn);
-  document.getElementById('local-muted-icon').classList.toggle('on',!micOn);
-  document.getElementById('btn-cam').textContent           = (videoSource==='file') ? '🎬' : (camOn ? '📷' : '🚫');
-  document.getElementById('btn-cam').classList.toggle('off', videoSource!=='file' && !camOn);
-}
-
-function toggleMic() { micOn=!micOn; localStream?.getAudioTracks().forEach(t=>t.enabled=micOn); updateLocalUI(); sendSignal({type:'mute',micOn}); }
-function toggleCam() {
-  if (videoSource==='file') { toast('Using video file as camera'); return; }
+function toggleCam(){
+  if(videoSrc==='file'){toast('Using video file as camera');return;}
   camOn=!camOn;
   localStream?.getVideoTracks().forEach(t=>t.enabled=camOn);
   updateLocalUI();
 }
 
-// ── PEERJS ─────────────────────────────────────
-function loadPeerJS(cb) {
-  if (window.Peer){cb();return;}
-  const s=document.createElement('script');
-  s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js';
-  s.onload=cb; document.head.appendChild(s);
-}
+// ── PEERJS SIGNALLING ──────────────────────────────
+function loadPeer(cb){ if(window.Peer){cb();return;} const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js'; s.onload=cb; document.head.appendChild(s); }
+const PCFG={ host:'0.peerjs.com',port:443,path:'/',secure:true,config:{iceServers:ICE} };
 
-const PEER_CFG = { host:'0.peerjs.com',port:443,path:'/',secure:true,config:{iceServers:ICE} };
-
-function initHost() {
-  peer = new Peer('wavemeet-'+roomId, PEER_CFG);
+function initHost(){
+  peer=new Peer('wavemeet-'+roomId,PCFG);
   peer.on('open',()=>{
-    setLoading(false);
-    document.getElementById('wait-link').textContent=shareURL();
+    setLoad(false);
     toast('Meeting ready! Share the link 🔗',6000);
   });
   peer.on('connection',dc=>{ conn=dc; setupDC(); });
   peer.on('call',call=>{
     call.answer(localStream);
-    call.on('stream',s=>{ document.getElementById('remote-vid').srcObject=s; showRemote(); });
+    call.on('stream',s=>{
+      lastRemoteStream=s; lastRemoteName=call.metadata?.name||'Guest';
+      showRemoteJoined(s,lastRemoteName);
+    });
+    call.on('close',()=>handleLeft());
   });
   peer.on('error',e=>{
     if(e.type==='unavailable-id'){ roomId=genRoom(); history.replaceState(null,'',`?room=${roomId}`); peer.destroy(); initHost(); }
-    else { setLoading(false); toast('Connection error — refresh and try again'); }
+    else { setLoad(false); toast('Connection error — refresh'); }
   });
 }
 
-function initGuest() {
-  peer = new Peer(PEER_CFG);
+function initGuest(){
+  peer=new Peer(PCFG);
   peer.on('open',()=>{
     conn=peer.connect('wavemeet-'+roomId,{reliable:true});
     conn.on('open',()=>{ conn.send({type:'hello',name:myName}); setupDC(); });
     const call=peer.call('wavemeet-'+roomId,localStream,{metadata:{name:myName}});
-    call.on('stream',s=>{ document.getElementById('remote-vid').srcObject=s; showRemote(); });
-    call.on('error',()=>toast('Could not reach host — check the link'));
-    setLoading(false); toast('Joined the meeting! 🎉',4000);
+    call.on('stream',s=>{
+      lastRemoteStream=s; lastRemoteName='Host';
+      showRemoteJoined(s,'Host');
+    });
+    call.on('error',()=>toast('Could not reach host'));
+    setLoad(false); toast('Connecting…',2000);
   });
   peer.on('error',e=>{
-    setLoading(false);
+    setLoad(false);
     if(e.type==='peer-unavailable'){ showErr('join-err','Meeting not found. Host may not have started.'); showPage('join-page'); }
-    else toast('Connection error — try again');
+    else toast('Connection error');
   });
 }
 
-function setupDC() {
+function setupDC(){
   if(!conn)return;
   conn.on('data',msg=>{
     if(msg.type==='hello'){
-      const n=msg.name||'Guest';
-      document.getElementById('remote-vid-name').textContent=n;
-      document.getElementById('remote-av-letter').textContent=n[0]?.toUpperCase()||'?';
-      document.getElementById('remote-av-name').textContent=n;
+      lastRemoteName=msg.name||'Guest';
+      $('big-nametag-txt').textContent=lastRemoteName;
+      $('pip-av-name').textContent=lastRemoteName;
+      $('pip-av-letter').textContent=lastRemoteName[0]?.toUpperCase()||'?';
     }
-    if(msg.type==='mute') document.getElementById('remote-muted-icon').classList.toggle('on',!msg.micOn);
-    if(msg.type==='lag')  applyLagToRemote(msg.enabled);
-    if(msg.type==='vidplay') {
-      // Host paused/resumed — show freeze effect on remote side
-      const remVid=document.getElementById('remote-vid');
-      if(msg.playing===false){
-        remVid.style.filter='blur(2px) brightness(.7)';
-        toast('⏸ Host paused the video');
-      } else {
-        remVid.style.filter='';
-        toast('▶️ Host resumed the video');
-      }
+    if(msg.type==='mute'){
+      // Show muted badge if remote is in big view
+      if(!localIsBig) $('big-muted-dot').classList.toggle('on',!msg.micOn);
     }
-    if(msg.type==='bye') handleRemoteLeft();
+    if(msg.type==='lag')    applyLag(msg.enabled);
+    if(msg.type==='vidsync') applyVidSync(msg);
+    if(msg.type==='bye')    handleLeft();
   });
-  conn.on('close',()=>handleRemoteLeft());
+  conn.on('close',()=>handleLeft());
   if(conn.open) conn.send({type:'hello',name:myName});
 }
 
-function sendSignal(msg) { try{if(conn?.open)conn.send(msg);}catch(e){} }
-
-function showRemote() {
-  document.getElementById('remote-tile').style.display='';
-  document.getElementById('videos-grid').className='videos-grid duo';
-  document.getElementById('wait-overlay').classList.add('gone');
-  const rv=document.getElementById('remote-vid');
-  const hasV=rv.srcObject?.getVideoTracks().length>0;
-  document.getElementById('remote-av-wrap').style.display=hasV?'none':'flex';
-  startTimer();
-  // Apply lag if already enabled
-  if(lagEnabled) applyLagToRemote(true);
-}
-
-function handleRemoteLeft() {
-  document.getElementById('remote-tile').style.display='none';
-  document.getElementById('videos-grid').className='videos-grid solo';
-  if(isHost) document.getElementById('wait-overlay').classList.remove('gone');
+function handleLeft(){
+  remoteJoined=false;
+  lastRemoteStream=null;
+  $('vid-pip').style.display='none';
+  // Go back to showing self in big
+  $('big-vid').srcObject=localStream;
+  $('big-vid').muted=true;
+  $('big-nametag-txt').textContent=myName+' (You)';
+  updateBigAvatar(false,myName);
+  if(isHost){
+    $('wait-overlay').classList.remove('gone');
+    $('wait-link').textContent=shareURL();
+  }
   stopTimer();
-  toast('The other person left the call');
+  applyLag(false);
+  toast('The other person left');
 }
 
-// ── CREATE / JOIN ──────────────────────────────
-async function createCall() {
-  myName=document.getElementById('host-name').value.trim();
-  if(!myName){showErr('home-err','Enter your name first.');return;}
-  if(videoSource==='file'&&!uploadedFile){showErr('home-err','Please select a video file first.');return;}
+// ── CREATE / JOIN ──────────────────────────────────
+async function createCall(){
+  myName=($('host-name').value||'').trim();
+  if(!myName){ showErr('home-err','Enter your name.'); return; }
+  if(videoSrc==='file'&&!uploadedFile){ showErr('home-err','Please choose a video file.'); return; }
+  if(videoSrc==='file'&&!previewPlayed){ showErr('home-err','Please preview your video first — tap play on the preview.'); return; }
   isHost=true; roomId=genRoom();
   history.replaceState(null,'',`?room=${roomId}`);
-  setLoading(true,'Setting up your meeting…');
+  setLoad(true,'Setting up your meeting…');
   await getMedia();
-  showPage('call-page'); updateLocalUI();
-  loadPeerJS(initHost);
+  showPage('call-page');
+  setupAloneLayout();
+  updateLocalUI();
+  loadPeer(initHost);
 }
 
-function joinFromLink() {
-  const val=document.getElementById('join-link').value.trim();
-  if(!val){showErr('home-err','Paste a meeting link first.');return;}
-  try{ const url=new URL(val); roomId=url.searchParams.get('room')||url.pathname.replace('/',''); }
-  catch{ roomId=val; }
-  if(!roomId){showErr('home-err','Invalid link.');return;}
+function joinFromLink(){
+  const v=($('join-link').value||'').trim();
+  if(!v){ showErr('home-err','Paste a meeting link first.'); return; }
+  try{ const u=new URL(v); roomId=u.searchParams.get('room')||u.pathname.replace('/',''); }
+  catch{ roomId=v; }
+  if(!roomId){ showErr('home-err','Invalid link.'); return; }
   history.replaceState(null,'',`?room=${roomId}`);
   showPage('join-page');
-  setTimeout(()=>document.getElementById('join-name').focus(),200);
+  setTimeout(()=>$('join-name').focus(),200);
 }
 
-async function joinCall() {
-  myName=document.getElementById('join-name').value.trim();
-  if(!myName){showErr('join-err','Enter your name.');return;}
-  isHost=false;
-  setLoading(true,'Joining meeting…');
-  // Guests always use camera
-  videoSource='camera';
+async function joinCall(){
+  myName=($('join-name').value||'').trim();
+  if(!myName){ showErr('join-err','Enter your name.'); return; }
+  isHost=false; videoSrc='camera';
+  setLoad(true,'Joining meeting…');
   await getMedia();
-  showPage('call-page'); updateLocalUI();
-  document.getElementById('wait-overlay').classList.add('gone');
-  loadPeerJS(initGuest);
+  showPage('call-page');
+  setupAloneLayout();
+  updateLocalUI();
+  loadPeer(initGuest);
 }
 
-function endCall() {
-  sendSignal({type:'bye'});
+function endCall(){
+  sendSig({type:'bye'});
   localStream?.getTracks().forEach(t=>t.stop());
   clearInterval(canvasInt);
   try{peer?.destroy();}catch(e){}
@@ -1064,19 +1106,19 @@ function endCall() {
   location.reload();
 }
 
-// ── SHARE ──────────────────────────────────────
-function copyLink() { navigator.clipboard.writeText(shareURL()).then(()=>toast('Link copied! 📋')).catch(()=>toast(shareURL())); }
-function shareWA()  { window.open(`https://wa.me/?text=${encodeURIComponent('Join my WaveMeet call 👇\n'+shareURL())}`); }
-function shareSMS() { window.open(`sms:?body=${encodeURIComponent('Join my video call: '+shareURL())}`); }
+// ── SHARE ──────────────────────────────────────────
+function copyLink(){ navigator.clipboard.writeText(shareURL()).then(()=>toast('Link copied! 📋')).catch(()=>toast(shareURL())); }
+function shareWA() { window.open(`https://wa.me/?text=${encodeURIComponent('Join my WaveMeet call 👇\n'+shareURL())}`); }
+function shareSMS(){ window.open(`sms:?body=${encodeURIComponent('Join my call: '+shareURL())}`); }
 
-// ── INIT ───────────────────────────────────────
+// ── INIT ───────────────────────────────────────────
 window.addEventListener('DOMContentLoaded',()=>{
   const room=getRoomFromURL();
-  if(room){ roomId=room; isHost=false; showPage('join-page'); setTimeout(()=>document.getElementById('join-name').focus(),350); }
-  else    { showPage('home-page'); setTimeout(()=>document.getElementById('host-name').focus(),350); }
-  document.getElementById('host-name').addEventListener('keydown',e=>{if(e.key==='Enter')createCall();});
-  document.getElementById('join-name').addEventListener('keydown',e=>{if(e.key==='Enter')joinCall();});
-  document.getElementById('join-link').addEventListener('keydown',e=>{if(e.key==='Enter')joinFromLink();});
+  if(room){ roomId=room; isHost=false; showPage('join-page'); setTimeout(()=>$('join-name').focus(),350); }
+  else     { showPage('home-page'); setTimeout(()=>$('host-name').focus(),350); }
+  on('host-name','keydown',e=>{ if(e.key==='Enter') createCall(); });
+  on('join-name','keydown',e=>{ if(e.key==='Enter') joinCall();  });
+  on('join-link','keydown',e=>{ if(e.key==='Enter') joinFromLink(); });
 });
 </script>
 
