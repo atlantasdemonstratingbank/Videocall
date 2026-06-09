@@ -278,7 +278,7 @@ margin-bottom: 24px; line-height: 1.5;
 .join-card .field-group { text-align: left; }
 
 /* ── CALL PAGE ────────────────────────────── */
-#call-page {
+#call-page { position:fixed !important; inset:0 !important;
 position: fixed; inset: 0; z-index: 200;
 background: #1A1A1A;
 display: flex; flex-direction: column;
@@ -549,7 +549,7 @@ flex-direction: column; gap: 28px; padding: 20px 0;
 <!-- ── CALL PAGE ── -->
 
 <div id="call-page" class="hidden">
-  <div id="daily-container"></div>
+  <div id="daily-container" style="position:absolute;inset:0;width:100%;height:100%;background:#1A1A1A;"></div>
   <div class="call-bar">
     <div class="call-bar-info" id="call-bar-info">
       Wave Meet · <strong id="bar-room-name">—</strong>
@@ -690,6 +690,7 @@ async function launchCall() {
         border: 'none',
       },
       showLeaveButton: false,
+      allow: 'camera; microphone; display-capture; fullscreen; speaker-selection',
       showFullscreenButton: true,
       theme: {
         colors: {
