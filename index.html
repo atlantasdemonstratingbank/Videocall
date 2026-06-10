@@ -1,643 +1,732 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>WaveMeet</title>
+<meta name="apple-mobile-web-app-title" content="WaveMeet">
+<meta name="application-name" content="WaveMeet">
+<meta name="theme-color" content="#8338EC">
+<meta name="mobile-web-app-capable" content="yes">
+<title>WaveMeet — Video calls from the future</title>
+
+<!-- ── LINK PREVIEW (Open Graph + Twitter) ── -->
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="WaveMeet — Video calls from the future 🚀">
+<meta property="og:description" content="Create a call, share the link. Anyone joins instantly — no app, no download, no account needed to join.">
+<meta property="og:image"       content="/preview.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url"         content="https://wavemeet.vercel.app">
+<meta property="og:site_name"   content="WaveMeet">
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:title"       content="WaveMeet — Video calls from the future 🚀">
+<meta name="twitter:description" content="Create a call, share the link. Anyone joins instantly — no app, no download needed.">
+<meta name="twitter:image"       content="/preview.png">
+<meta name="description"         content="Free video calls. Create a meeting, share the link. Anyone joins instantly — no app, no download, no account needed.">
+
+<!-- ── PWA ICONS ── -->
+<link rel="manifest" href="/manifest.json">
+<link rel="icon"             type="image/png" sizes="512x512" href="/icon-512.png">
+<link rel="icon"             type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="192x192"  href="/icon-192.png">
+<link rel="apple-touch-icon" sizes="512x512"  href="/icon-512.png">
+<meta name="msapplication-TileImage" content="/icon-192.png">
+<meta name="msapplication-TileColor" content="#8338EC">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-–g1: #FF006E;
-–g2: #8338EC;
-–g3: #3A86FF;
-–g4: #06FFB4;
-–g5: #FFBE0B;
-–bg: #0A0A0F;
-–s1: #12121A;
-–s2: #1A1A26;
-–b1: rgba(255,255,255,0.08);
-–b2: rgba(255,255,255,0.13);
-–text: #F0F0FF;
-–t2: #9090B0;
-–muted: #505070;
-–red: #FF4060;
-–green: #06FFB4;
+  --g1:#FF006E; --g2:#8338EC; --g3:#3A86FF; --g4:#06FFB4; --g5:#FFBE0B;
+  --bg:#0A0A0F; --s1:#12121A; --s2:#1A1A26;
+  --b1:rgba(255,255,255,0.07); --b2:rgba(255,255,255,0.13);
+  --text:#F0F0FF; --t2:#9090B0; --muted:#505070;
+  --red:#FF4060; --green:#06FFB4;
 }
-
-/* ── HARD RESET ── */
 html,body {
-margin:0 !important; padding:0 !important;
-width:100% !important; height:100% !important;
-background:#0A0A0F !important;
-color:#F0F0FF !important;
-font-family:‘Space Grotesk’,-apple-system,BlinkMacSystemFont,‘Segoe UI’,sans-serif !important;
-overflow:hidden !important;
-position:fixed !important;
-inset:0 !important;
--webkit-font-smoothing:antialiased;
-overscroll-behavior:none;
-touch-action:pan-y;
+  margin:0!important; padding:0!important; width:100%!important; height:100%!important;
+  background:#0A0A0F!important; color:#F0F0FF!important;
+  font-family:'Space Grotesk',-apple-system,sans-serif!important;
+  -webkit-font-smoothing:antialiased; overscroll-behavior:none;
 }
 *,*::before,*::after { margin:0; padding:0; box-sizing:border-box; max-width:100%; }
+.hidden { display:none!important; }
 
-/* ── ANIMATED ORBS ── */
+/* ── ORBS ── */
 .orbs { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
-.orb  { position:absolute; border-radius:50%; filter:blur(90px); opacity:.22; animation:orbf 9s ease-in-out infinite; }
-.o1 { width:380px; height:380px; background:#8338EC; top:-80px; left:-80px; animation-delay:0s; }
-.o2 { width:320px; height:320px; background:#FF006E; bottom:-80px; right:-60px; animation-delay:-3.5s; }
-.o3 { width:260px; height:260px; background:#3A86FF; top:45%; left:45%; animation-delay:-6s; }
-@keyframes orbf { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(18px,-28px) scale(1.05)} 66%{transform:translate(-12px,18px) scale(.96)} }
-
-/* ── PAGES ── */
-.page {
-position:relative; z-index:1; width:100%; min-height:100vh;
-display:flex; flex-direction:column; align-items:center; justify-content:center;
-padding:70px 16px 36px; overflow-x:hidden;
-animation:pi .35s ease both;
-}
-/* Allow scrolling inside pages on small screens */
-html, body { overflow:hidden !important; }
-body > .page { position:absolute; inset:0; overflow-y:auto; height:100%; min-height:unset; }
-.page.hidden { display:none !important; }
-@keyframes pi { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+.orb  { position:absolute; border-radius:50%; filter:blur(90px); opacity:.2; animation:orbf 9s ease-in-out infinite; }
+.o1 { width:500px; height:500px; background:#8338EC; top:-150px; left:-100px; }
+.o2 { width:400px; height:400px; background:#FF006E; bottom:-100px; right:-80px; animation-delay:-4s; }
+.o3 { width:300px; height:300px; background:#3A86FF; top:40%; left:40%; animation-delay:-7s; }
+@keyframes orbf { 0%,100%{transform:translate(0,0) scale(1)} 33%{transform:translate(20px,-30px) scale(1.06)} 66%{transform:translate(-15px,20px) scale(.95)} }
 
 /* ── NAV ── */
 .nav {
-position:fixed; top:0; left:0; right:0; height:56px;
-display:flex; align-items:center; justify-content:space-between;
-padding:0 18px; z-index:200;
-background:rgba(10,10,15,.85);
-backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-border-bottom:1px solid var(–b1);
+  position:fixed; top:0; left:0; right:0; height:60px; z-index:500;
+  display:flex; align-items:center; justify-content:space-between; padding:0 24px;
+  background:rgba(10,10,15,.85); backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--b1);
 }
-.nav-logo { display:flex; align-items:center; gap:9px; }
+.nav-logo { display:flex; align-items:center; gap:10px; }
 .nav-icon {
-width:32px; height:32px; border-radius:9px;
-background:linear-gradient(135deg,var(–g2),var(–g1));
-display:flex; align-items:center; justify-content:center;
-box-shadow:0 0 18px rgba(131,56,236,.55);
+  width:34px; height:34px; border-radius:9px;
+  background:linear-gradient(135deg,var(--g2),var(--g1));
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 20px rgba(131,56,236,.5);
 }
 .nav-name {
-font-size:17px; font-weight:800; letter-spacing:-.02em;
-background:linear-gradient(90deg,var(–g2),var(–g3));
--webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  font-size:18px; font-weight:800; letter-spacing:-.02em;
+  background:linear-gradient(90deg,var(--g2),var(--g3));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
 }
-.nav-pill {
-font-size:11px; font-weight:700;
-font-family:‘Space Mono’,monospace;
-color:var(–g4); background:rgba(6,255,180,.08);
-border:1px solid rgba(6,255,180,.22);
-border-radius:20px; padding:4px 12px;
-letter-spacing:.05em; text-transform:uppercase;
+.nav-right { display:flex; align-items:center; gap:10px; }
+.nav-btn {
+  padding:8px 18px; border-radius:8px; border:none;
+  font-family:'Space Grotesk',sans-serif; font-size:13px; font-weight:700;
+  cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent;
 }
+.nav-login  { background:transparent; border:1px solid var(--b2); color:var(--t2); }
+.nav-signup { background:linear-gradient(135deg,var(--g2),var(--g1)); color:#fff; box-shadow:0 4px 14px rgba(131,56,236,.35); }
+.nav-user   { display:flex; align-items:center; gap:8px; }
+.nav-avatar {
+  width:32px; height:32px; border-radius:50%;
+  background:linear-gradient(135deg,var(--g2),var(--g1));
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:800; color:#fff; cursor:pointer;
+}
+.nav-signout { background:transparent; border:1px solid var(--b2); color:var(--t2); font-size:12px; padding:6px 12px; }
 
-/* ── HERO ── */
-.hero { text-align:center; margin-bottom:28px; width:100%; max-width:500px; }
+/* ── PAGES ── */
+.page { position:fixed; inset:0; z-index:1; overflow-y:auto; overflow-x:hidden; }
+.page.hidden { display:none!important; }
+
+/* ══════════════════════════════════════
+   LANDING PAGE
+══════════════════════════════════════ */
+#landing { background:var(--bg); }
+
+.hero-section {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  padding:100px 24px 60px; text-align:center; position:relative; z-index:1;
+}
 .hero-tag {
-display:inline-flex; align-items:center; gap:7px;
-background:rgba(255,255,255,.05); border:1px solid var(–b2);
-border-radius:40px; padding:5px 14px; margin-bottom:18px;
-font-size:11px; font-weight:700;
-font-family:‘Space Mono’,monospace;
-color:var(–t2); letter-spacing:.07em; text-transform:uppercase;
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(255,255,255,.05); border:1px solid var(--b2);
+  border-radius:40px; padding:6px 16px; margin-bottom:24px;
+  font-size:11px; font-weight:700; font-family:'Space Mono',monospace;
+  color:var(--t2); letter-spacing:.07em; text-transform:uppercase;
 }
-.hdot { width:7px; height:7px; border-radius:50%; background:var(–green); flex-shrink:0; animation:blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 6px var(–green)} 50%{opacity:.3;box-shadow:none} }
-h1 { font-size:clamp(30px,8vw,56px); font-weight:800; line-height:1.05; letter-spacing:-.03em; margin-bottom:12px; color:#fff; }
-.gt { background:linear-gradient(90deg,var(–g1),var(–g2),var(–g3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.hero p { font-size:14px; color:var(–t2); line-height:1.7; }
+.hdot { width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0; animation:blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 8px var(--green)} 50%{opacity:.3;box-shadow:none} }
 
-/* ── CARD ── */
-.card {
-background:rgba(18,18,26,.92);
-border:1px solid var(–b2); border-radius:20px;
-padding:26px 22px; width:100%; max-width:420px;
-backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-box-shadow:0 8px 48px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06);
+.hero-title {
+  font-size:clamp(42px,10vw,90px); font-weight:800;
+  line-height:1.0; letter-spacing:-.04em; color:#fff; margin-bottom:20px;
 }
-.card-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:3px; }
-.card-sub { font-size:11px; color:var(–muted); font-family:‘Space Mono’,monospace; margin-bottom:20px; }
+.hero-title .gt {
+  background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+  display:block;
+}
+.hero-sub { font-size:18px; color:var(--t2); line-height:1.7; margin-bottom:40px; max-width:500px; }
 
-.fl { display:block; font-size:11px; font-weight:700; color:var(–t2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
+.hero-btns { display:flex; gap:12px; flex-wrap:wrap; justify-content:center; }
+.hero-cta {
+  padding:16px 32px; border-radius:12px; border:none;
+  font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:800;
+  cursor:pointer; transition:all .2s; -webkit-tap-highlight-color:transparent;
+}
+.cta-primary { background:linear-gradient(135deg,var(--g2),var(--g1)); color:#fff; box-shadow:0 8px 30px rgba(131,56,236,.4); }
+.cta-primary:hover { transform:translateY(-2px); box-shadow:0 12px 40px rgba(131,56,236,.5); }
+.cta-secondary { background:rgba(255,255,255,.06); border:1.5px solid var(--b2); color:var(--text); }
+.cta-secondary:hover { background:rgba(255,255,255,.1); }
+
+/* Hero mockup */
+.hero-mockup {
+  margin-top:60px; position:relative; width:100%; max-width:700px;
+  border-radius:20px; overflow:hidden;
+  border:1px solid var(--b2); box-shadow:0 40px 100px rgba(0,0,0,.6);
+}
+.mockup-bar {
+  background:rgba(18,18,26,.95); padding:12px 16px;
+  display:flex; align-items:center; gap:8px; border-bottom:1px solid var(--b1);
+}
+.mockup-dot { width:10px; height:10px; border-radius:50%; }
+.mockup-screen {
+  background:linear-gradient(135deg,#0D0D14,#12121A);
+  aspect-ratio:16/9; display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden;
+}
+.mockup-vid1 {
+  position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(131,56,236,.3),rgba(58,134,255,.2));
+  display:flex; align-items:center; justify-content:center;
+}
+.mockup-pip {
+  position:absolute; top:16px; right:16px; width:25%; aspect-ratio:3/4;
+  background:linear-gradient(135deg,rgba(255,0,110,.3),rgba(131,56,236,.3));
+  border-radius:12px; border:2px solid rgba(255,255,255,.2);
+  display:flex; align-items:center; justify-content:center;
+}
+.mockup-av { width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg,var(--g2),var(--g1)); display:flex; align-items:center; justify-content:center; font-size:24px; font-weight:800; color:#fff; }
+.mockup-toolbar {
+  position:absolute; bottom:16px; left:50%; transform:translateX(-50%);
+  display:flex; gap:10px;
+}
+.mockup-tbtn { width:44px; height:44px; border-radius:50%; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; font-size:18px; }
+.mockup-tbtn-end { background:linear-gradient(135deg,#FF4060,#FF0040); border-color:transparent; }
+
+/* Features section */
+.features-section {
+  padding:80px 24px; position:relative; z-index:1;
+  display:flex; flex-direction:column; align-items:center;
+}
+.section-tag { font-size:12px; font-weight:700; font-family:'Space Mono',monospace; color:var(--g4); letter-spacing:.1em; text-transform:uppercase; margin-bottom:14px; }
+.section-title { font-size:clamp(28px,5vw,48px); font-weight:800; color:#fff; text-align:center; margin-bottom:12px; letter-spacing:-.02em; }
+.section-sub { font-size:15px; color:var(--t2); text-align:center; margin-bottom:48px; line-height:1.6; max-width:480px; }
+
+.features-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; width:100%; max-width:900px; }
+.feat-card {
+  background:rgba(18,18,26,.8); border:1px solid var(--b2);
+  border-radius:16px; padding:24px; backdrop-filter:blur(20px);
+  transition:transform .2s, border-color .2s;
+}
+.feat-card:hover { transform:translateY(-4px); border-color:rgba(131,56,236,.4); }
+.feat-icon { font-size:32px; margin-bottom:14px; display:block; }
+.feat-title { font-size:16px; font-weight:800; color:#fff; margin-bottom:8px; }
+.feat-desc { font-size:13px; color:var(--t2); line-height:1.6; }
+
+/* Pricing section */
+.pricing-section {
+  padding:80px 24px; position:relative; z-index:1;
+  display:flex; flex-direction:column; align-items:center;
+}
+.pricing-cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px; width:100%; max-width:640px; margin-top:48px; }
+.price-card {
+  background:rgba(18,18,26,.8); border:1px solid var(--b2);
+  border-radius:20px; padding:28px; backdrop-filter:blur(20px);
+  position:relative; overflow:hidden;
+}
+.price-card.pro { border-color:rgba(131,56,236,.5); background:rgba(131,56,236,.08); }
+.price-badge {
+  position:absolute; top:16px; right:16px;
+  background:linear-gradient(135deg,var(--g2),var(--g1));
+  color:#fff; font-size:11px; font-weight:800; padding:4px 10px; border-radius:20px;
+  font-family:'Space Mono',monospace; letter-spacing:.05em;
+}
+.price-name { font-size:15px; font-weight:700; color:var(--t2); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em; font-family:'Space Mono',monospace; }
+.price-amount { font-size:48px; font-weight:800; color:#fff; letter-spacing:-.03em; margin-bottom:4px; }
+.price-amount span { font-size:18px; color:var(--t2); font-weight:500; }
+.price-desc { font-size:13px; color:var(--muted); margin-bottom:24px; }
+.price-features { list-style:none; display:flex; flex-direction:column; gap:10px; margin-bottom:28px; }
+.price-features li { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--t2); }
+.pf-check { color:var(--green); font-size:14px; flex-shrink:0; }
+.pf-x { color:var(--muted); font-size:14px; flex-shrink:0; }
+.price-btn {
+  display:flex; align-items:center; justify-content:center;
+  width:100%; padding:13px; border-radius:10px; border:none;
+  font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:800;
+  cursor:pointer; transition:all .15s;
+}
+.price-btn-free { background:rgba(255,255,255,.07); border:1px solid var(--b2); color:var(--t2); }
+.price-btn-pro  { background:linear-gradient(135deg,var(--g2),var(--g1)); color:#fff; box-shadow:0 4px 20px rgba(131,56,236,.4); }
+
+/* Footer */
+.footer { padding:40px 24px; text-align:center; border-top:1px solid var(--b1); position:relative; z-index:1; }
+.footer-logo { font-size:20px; font-weight:800; background:linear-gradient(90deg,var(--g2),var(--g3)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; margin-bottom:10px; }
+.footer p { font-size:12px; color:var(--muted); font-family:'Space Mono',monospace; }
+
+/* ══════════════════════════════════════
+   AUTH PAGE
+══════════════════════════════════════ */
+#auth-page {
+  display:flex; align-items:center; justify-content:center;
+  min-height:100vh; padding:80px 20px 40px; background:var(--bg);
+}
+.auth-card {
+  background:rgba(18,18,26,.95); border:1px solid var(--b2);
+  border-radius:22px; padding:36px 28px; width:100%; max-width:400px;
+  backdrop-filter:blur(24px); box-shadow:0 20px 60px rgba(0,0,0,.5);
+}
+.auth-icon { font-size:44px; text-align:center; margin-bottom:16px; display:block; }
+.auth-title { font-size:24px; font-weight:800; color:#fff; text-align:center; margin-bottom:6px; }
+.auth-sub { font-size:13px; color:var(--t2); text-align:center; margin-bottom:28px; line-height:1.5; }
+
+.google-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:13px; border-radius:10px;
+  background:rgba(255,255,255,.06); border:1.5px solid var(--b2);
+  color:var(--text); font-family:'Space Grotesk',sans-serif;
+  font-size:14px; font-weight:700; cursor:pointer; transition:all .15s;
+  -webkit-tap-highlight-color:transparent; margin-bottom:6px;
+}
+.google-btn:active { background:rgba(255,255,255,.1); }
+.google-logo { width:18px; height:18px; flex-shrink:0; }
+
+.auth-div {
+  display:flex; align-items:center; gap:10px; margin:16px 0;
+  font-size:11px; font-weight:700; color:var(--muted);
+  font-family:'Space Mono',monospace; text-transform:uppercase; letter-spacing:.08em;
+}
+.auth-div::before,.auth-div::after { content:''; flex:1; height:1px; background:var(--b1); }
+
+.fl { display:block; font-size:11px; font-weight:700; color:var(--t2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:6px; }
 .fi {
-display:block; width:100%; background:rgba(255,255,255,.05);
-border:1.5px solid var(–b2); border-radius:10px; padding:12px 13px;
-color:var(–text); font-family:‘Space Grotesk’,sans-serif;
-font-size:16px; font-weight:500; outline:none;
-transition:border-color .2s,box-shadow .2s; -webkit-appearance:none; margin-bottom:13px;
+  display:block; width:100%; background:rgba(255,255,255,.05); border:1.5px solid var(--b2);
+  border-radius:10px; padding:12px 13px; color:var(--text);
+  font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:500; outline:none;
+  transition:border-color .2s,box-shadow .2s; -webkit-appearance:none; margin-bottom:12px;
 }
-.fi:focus { border-color:var(–g3); box-shadow:0 0 0 3px rgba(58,134,255,.2); background:rgba(255,255,255,.07); }
-.fi::placeholder { color:var(–muted); font-weight:400; }
+.fi:focus { border-color:var(--g3); box-shadow:0 0 0 3px rgba(58,134,255,.2); background:rgba(255,255,255,.07); }
+.fi::placeholder { color:var(--muted); font-weight:400; }
 
 .btn {
-display:flex; align-items:center; justify-content:center; gap:8px;
-width:100%; padding:13px; border-radius:10px; border:none;
-font-family:‘Space Grotesk’,sans-serif; font-size:15px; font-weight:800;
-cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent; letter-spacing:-.01em;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  width:100%; padding:13px; border-radius:10px; border:none;
+  font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:800;
+  cursor:pointer; transition:all .15s; -webkit-tap-highlight-color:transparent;
 }
-.btn-grad { background:linear-gradient(135deg,var(–g2),var(–g1)); color:#fff; box-shadow:0 4px 20px rgba(131,56,236,.4); }
-.btn-grad:active { transform:scale(.97); filter:brightness(.88); }
-.btn-out { background:transparent; border:1.5px solid var(–b2); color:var(–t2); margin-top:10px; }
-.btn-out:active { background:rgba(255,255,255,.05); }
+.btn-grad { background:linear-gradient(135deg,var(--g2),var(--g1)); color:#fff; box-shadow:0 4px 20px rgba(131,56,236,.4); }
+.btn-grad:active { transform:scale(.97); }
+.btn-out { background:transparent; border:1.5px solid var(--b2); color:var(--t2); margin-top:8px; }
 
-.div {
-display:flex; align-items:center; gap:10px; margin:16px 0;
-font-size:11px; font-weight:700; color:var(–muted);
-font-family:‘Space Mono’,monospace; text-transform:uppercase; letter-spacing:.08em;
-}
-.div::before,.div::after { content:’’; flex:1; height:1px; background:var(–b1); }
+.auth-switch { text-align:center; margin-top:16px; font-size:13px; color:var(--t2); }
+.auth-switch a { color:var(--g3); cursor:pointer; font-weight:700; text-decoration:none; }
+.auth-forgot { text-align:right; margin-top:-8px; margin-bottom:12px; }
+.auth-forgot a { font-size:12px; color:var(--g3); cursor:pointer; font-weight:600; }
 
-.err { display:none; background:rgba(255,64,96,.1); border:1px solid rgba(255,64,96,.3); border-radius:10px; padding:10px 13px; font-size:13px; color:var(–red); text-align:center; margin-bottom:12px; line-height:1.4; }
+.err { display:none; background:rgba(255,64,96,.1); border:1px solid rgba(255,64,96,.3); border-radius:10px; padding:10px 13px; font-size:13px; color:var(--red); text-align:center; margin-bottom:12px; line-height:1.4; }
 .err.on { display:block; }
+.suc { display:none; background:rgba(6,255,180,.08); border:1px solid rgba(6,255,180,.25); border-radius:10px; padding:10px 13px; font-size:13px; color:var(--green); text-align:center; margin-bottom:12px; }
+.suc.on { display:block; }
 
-/* ── SOURCE PICKER ── */
-.src-wrap { margin-bottom:16px; }
-.src-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:8px; }
-.src-opt {
-padding:12px 8px; border-radius:10px; border:1.5px solid var(–b2);
-background:rgba(255,255,255,.03); cursor:pointer; text-align:center;
-transition:all .2s; -webkit-tap-highlight-color:transparent;
+/* ══════════════════════════════════════
+   APP PAGE (logged in)
+══════════════════════════════════════ */
+#app-page { background:var(--bg); }
+
+.app-home {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center; padding:80px 20px 40px;
+  position:relative; z-index:1;
 }
-.src-opt.active { border-color:var(–g3); background:rgba(58,134,255,.1); box-shadow:0 0 14px rgba(58,134,255,.2); }
+.app-welcome { text-align:center; margin-bottom:32px; }
+.app-welcome h2 { font-size:clamp(26px,6vw,44px); font-weight:800; color:#fff; margin-bottom:8px; letter-spacing:-.02em; }
+.app-welcome p { font-size:14px; color:var(--t2); }
+
+.app-card {
+  background:rgba(18,18,26,.92); border:1px solid var(--b2);
+  border-radius:20px; padding:28px 24px; width:100%; max-width:420px;
+  backdrop-filter:blur(24px); box-shadow:0 8px 48px rgba(0,0,0,.5);
+}
+.app-card-title { font-size:17px; font-weight:800; color:#fff; margin-bottom:4px; }
+.app-card-sub { font-size:11px; color:var(--muted); font-family:'Space Mono',monospace; margin-bottom:20px; }
+
+/* Free badge */
+.free-badge {
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(255,190,11,.06); border:1px solid rgba(255,190,11,.2);
+  border-radius:10px; padding:10px 14px; margin-bottom:16px;
+}
+.free-badge-left { font-size:13px; font-weight:700; color:var(--g5); }
+.free-badge-sub  { font-size:11px; color:var(--muted); margin-top:2px; }
+.upgrade-link { font-size:12px; font-weight:800; color:var(--g3); cursor:pointer; white-space:nowrap; }
+
+.src-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+.src-opt { padding:12px 8px; border-radius:10px; border:1.5px solid var(--b2); background:rgba(255,255,255,.03); cursor:pointer; text-align:center; transition:all .2s; }
+.src-opt.active { border-color:var(--g3); background:rgba(58,134,255,.1); }
 .src-icon { font-size:22px; margin-bottom:5px; display:block; }
-.src-lbl { font-size:12px; font-weight:700; color:var(–t2); }
-.src-opt.active .src-lbl { color:var(–g3); }
+.src-lbl { font-size:12px; font-weight:700; color:var(--t2); }
+.src-opt.active .src-lbl { color:var(--g3); }
 
-/* File upload */
-#file-area {
-display:none; margin-bottom:12px;
-border:1.5px dashed var(–b2); border-radius:10px;
-padding:18px; text-align:center; cursor:pointer;
-background:rgba(255,255,255,.02); transition:border-color .2s;
-}
-#file-area:active { border-color:var(–g3); }
-#file-area p { font-size:13px; color:var(–muted); }
-#file-area strong { color:var(–t2); }
+#file-area { display:none; margin-bottom:12px; border:1.5px dashed var(--b2); border-radius:10px; padding:16px; text-align:center; cursor:pointer; background:rgba(255,255,255,.02); }
+#file-area p { font-size:13px; color:var(--muted); }
+#file-area strong { color:var(--t2); }
 #file-input { display:none; }
-
-/* Video preview before call */
-#vid-preview-wrap {
-display:none; margin-bottom:12px; border-radius:10px; overflow:hidden;
-border:1px solid var(–b2); position:relative; background:#000;
-}
-#vid-preview { width:100%; max-height:180px; display:block; object-fit:contain; background:#000; }
-.preview-overlay {
-position:absolute; inset:0; background:rgba(0,0,0,.55);
-display:flex; flex-direction:column; align-items:center; justify-content:center;
-gap:8px;
-}
-.preview-play-btn {
-width:56px; height:56px; border-radius:50%; border:none;
-background:linear-gradient(135deg,var(–g2),var(–g3));
-color:#fff; font-size:22px; cursor:pointer;
-display:flex; align-items:center; justify-content:center;
-box-shadow:0 0 24px rgba(58,134,255,.5);
--webkit-tap-highlight-color:transparent;
-}
+#vid-preview-wrap { display:none; margin-bottom:12px; border-radius:10px; overflow:hidden; border:1px solid var(--b2); position:relative; background:#000; }
+#vid-preview { width:100%; max-height:160px; display:block; object-fit:contain; background:#000; }
+.preview-overlay { position:absolute; inset:0; background:rgba(0,0,0,.6); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+.preview-play-btn { width:52px; height:52px; border-radius:50%; border:none; background:linear-gradient(135deg,var(--g2),var(--g3)); color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
 .preview-hint { font-size:12px; color:rgba(255,255,255,.7); font-weight:600; }
-
-/* Lag toggle */
-.lag-row {
-display:none; align-items:center; justify-content:space-between;
-background:rgba(255,190,11,.06); border:1px solid rgba(255,190,11,.2);
-border-radius:10px; padding:11px 13px; margin-bottom:13px;
-}
+.lag-row { display:none; align-items:center; justify-content:space-between; background:rgba(255,190,11,.06); border:1px solid rgba(255,190,11,.2); border-radius:10px; padding:11px 13px; margin-bottom:12px; }
 .lag-row.show { display:flex; }
-.lag-lbl { font-size:13px; font-weight:700; color:var(–g5); }
-.lag-sub { font-size:11px; color:var(–muted); margin-top:2px; }
-.tog {
-width:44px; height:24px; border-radius:12px;
-background:var(–s2); border:1px solid var(–b2);
-position:relative; cursor:pointer; transition:background .2s; flex-shrink:0;
-}
-.tog.on { background:var(–g5); }
-.tok { position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .2s; box-shadow:0 1px 4px rgba(0,0,0,.3); }
+.lag-lbl { font-size:13px; font-weight:700; color:var(--g5); }
+.lag-sub { font-size:11px; color:var(--muted); margin-top:2px; }
+.tog { width:44px; height:24px; border-radius:12px; background:var(--s2); border:1px solid var(--b2); position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
+.tog.on { background:var(--g5); }
+.tok { position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:transform .2s; }
 .tog.on .tok { transform:translateX(20px); }
 
-/* ── JOIN PAGE ── */
-.join-card {
-background:rgba(18,18,26,.92); border:1px solid var(–b2); border-radius:20px;
-padding:36px 22px; width:100%; max-width:400px;
-backdrop-filter:blur(24px); text-align:center;
-box-shadow:0 8px 48px rgba(0,0,0,.5);
-}
-.join-icon { font-size:52px; margin-bottom:14px; display:block; }
-.join-card h2 { font-size:24px; font-weight:800; color:#fff; margin-bottom:6px; }
-.join-card p { font-size:13px; color:var(–t2); margin-bottom:22px; line-height:1.5; }
-.join-card .fl { text-align:left; }
+.div { display:flex; align-items:center; gap:10px; margin:14px 0; font-size:11px; font-weight:700; color:var(--muted); font-family:'Space Mono',monospace; text-transform:uppercase; letter-spacing:.08em; }
+.div::before,.div::after { content:''; flex:1; height:1px; background:var(--b1); }
 
-/* ═══════════════════════════════════════════
-CALL PAGE — WhatsApp/Snap layout
-Remote = fullscreen bg
-Local  = small draggable overlay (top-right)
-Tap overlay = swap sizes
-═══════════════════════════════════════════ */
+/* ══════════════════════════════════════
+   CALL PAGE
+══════════════════════════════════════ */
 #call-page {
-position:fixed; inset:0; z-index:300;
-background:#050508;
-display:flex; flex-direction:column;
-width:100%; height:100%; overflow:hidden;
+  position:fixed; inset:0; z-index:600; background:#050508;
+  display:flex; flex-direction:column; overflow:hidden;
 }
-#call-page.hidden { display:none !important; }
-
-/* BIG video (remote or local when alone) */
-.vid-bg {
-position:absolute; inset:0;
-background:#0A0A0F;
-}
-.vid-bg video {
-width:100%; height:100%; object-fit:cover; display:block;
-}
-
-/* Avatar fallback for big video */
-.big-avatar {
-position:absolute; inset:0;
-display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
-}
-.big-av-circle {
-width:90px; height:90px; border-radius:50%;
-background:linear-gradient(135deg,var(–g2),var(–g1));
-display:flex; align-items:center; justify-content:center;
-font-size:36px; font-weight:800; color:#fff;
-box-shadow:0 0 40px rgba(131,56,236,.5);
-}
-.big-av-name { font-size:16px; font-weight:700; color:rgba(255,255,255,.6); }
-
-/* Name tag on big video */
-.big-nametag {
-position:absolute; bottom:90px; left:16px;
-background:rgba(0,0,0,.55); backdrop-filter:blur(10px);
-border-radius:20px; padding:5px 14px;
-font-size:13px; font-weight:700; color:#fff;
-display:flex; align-items:center; gap:6px;
-}
-.muted-dot { width:8px; height:8px; border-radius:50%; background:var(–red); display:none; }
+.vid-bg { position:absolute; inset:0; background:#0A0A0F; }
+.vid-bg video { width:100%; height:100%; object-fit:cover; display:block; }
+.big-avatar { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; }
+.big-av-circle { width:90px; height:90px; border-radius:50%; background:linear-gradient(135deg,var(--g2),var(--g1)); display:flex; align-items:center; justify-content:center; font-size:36px; font-weight:800; color:#fff; box-shadow:0 0 40px rgba(131,56,236,.5); }
+.big-av-name { font-size:16px; font-weight:700; color:rgba(255,255,255,.5); }
+.big-nametag { position:absolute; bottom:90px; left:16px; background:rgba(0,0,0,.55); backdrop-filter:blur(10px); border-radius:20px; padding:5px 14px; font-size:13px; font-weight:700; color:#fff; display:flex; align-items:center; gap:6px; z-index:10; }
+.muted-dot { width:8px; height:8px; border-radius:50%; background:var(--red); display:none; }
 .muted-dot.on { display:block; }
-
-/* SMALL overlay (picture-in-picture) */
-.vid-pip {
-position:absolute; top:70px; right:12px;
-width:110px; height:155px;
-border-radius:16px; overflow:hidden;
-border:2px solid rgba(255,255,255,.2);
-box-shadow:0 8px 32px rgba(0,0,0,.6);
-cursor:pointer; z-index:10;
-transition:all .3s cubic-bezier(.34,1.56,.64,1);
-background:#111;
-}
+.vid-pip { position:absolute; top:70px; right:12px; width:110px; height:155px; border-radius:16px; overflow:hidden; border:2px solid rgba(255,255,255,.2); box-shadow:0 8px 32px rgba(0,0,0,.6); cursor:pointer; z-index:10; background:#111; transition:all .3s cubic-bezier(.34,1.56,.64,1); }
 .vid-pip video { width:100%; height:100%; object-fit:cover; display:block; }
-.pip-avatar {
-position:absolute; inset:0;
-display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
-}
-.pip-av-circle {
-width:40px; height:40px; border-radius:50%;
-background:linear-gradient(135deg,var(–g2),var(–g1));
-display:flex; align-items:center; justify-content:center;
-font-size:16px; font-weight:800; color:#fff;
-}
+.pip-avatar { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; }
+.pip-av-circle { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--g2),var(--g1)); display:flex; align-items:center; justify-content:center; font-size:16px; font-weight:800; color:#fff; }
 .pip-av-name { font-size:10px; color:rgba(255,255,255,.5); font-weight:600; }
-.pip-tap-hint {
-position:absolute; bottom:6px; left:50%;
-transform:translateX(-50%);
-font-size:9px; color:rgba(255,255,255,.4);
-font-family:‘Space Mono’,monospace; white-space:nowrap;
-}
+.pip-tap-hint { position:absolute; bottom:6px; left:50%; transform:translateX(-50%); font-size:9px; color:rgba(255,255,255,.4); font-family:'Space Mono',monospace; white-space:nowrap; }
 
-/* Lag effect */
+/* Lag */
 .vid-bg.lagging video { animation:lagEff .5s steps(1) infinite; filter:blur(1px); }
-@keyframes lagEff {
-0%{opacity:1;transform:none}
-15%{opacity:.3;transform:translateX(4px)}
-30%{opacity:1;transform:none}
-55%{opacity:.5;transform:translateX(-3px) scaleY(.98)}
-80%{opacity:1;transform:none}
-95%{opacity:.4;filter:blur(4px)}
-}
-.lag-overlay {
-position:absolute; top:50%; left:50%;
-transform:translate(-50%,-50%);
-background:rgba(0,0,0,.72); border-radius:10px;
-padding:10px 16px; text-align:center;
-font-size:13px; font-weight:700; color:#fff;
-font-family:‘Space Mono’,monospace;
-display:none; pointer-events:none; line-height:1.6;
-}
+@keyframes lagEff { 0%{opacity:1;transform:none} 20%{opacity:.3;transform:translateX(4px)} 40%{opacity:1} 60%{opacity:.5;transform:translateX(-3px)} 80%{opacity:1} 95%{filter:blur(4px)} }
+.lag-overlay { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:rgba(0,0,0,.72); border-radius:10px; padding:10px 16px; text-align:center; font-size:13px; font-weight:700; color:#fff; font-family:'Space Mono',monospace; display:none; pointer-events:none; line-height:1.6; }
 .vid-bg.lagging .lag-overlay { display:block; }
 
-/* Wait overlay (when alone) */
-.wait-overlay {
-position:absolute; inset:0;
-background:rgba(5,5,8,.88); backdrop-filter:blur(14px);
-display:flex; flex-direction:column;
-align-items:center; justify-content:center;
-gap:14px; z-index:5; padding:24px;
-}
+/* Wait overlay */
+.wait-overlay { position:absolute; inset:0; background:rgba(5,5,8,.88); backdrop-filter:blur(14px); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:5; padding:24px; }
 .wait-overlay.gone { display:none; }
-.wait-ring { width:48px; height:48px; border-radius:50%; border:2px solid rgba(255,255,255,.1); border-top-color:var(–g3); animation:spin 1s linear infinite; }
+.wait-ring { width:48px; height:48px; border-radius:50%; border:2px solid rgba(255,255,255,.1); border-top-color:var(--g3); animation:spin 1s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .wait-title { font-size:18px; font-weight:800; color:#fff; }
-.wait-sub   { font-size:13px; color:var(–t2); text-align:center; line-height:1.5; }
-.link-pill {
-display:flex; align-items:center;
-background:rgba(255,255,255,.06); border:1px solid var(–b2);
-border-radius:10px; overflow:hidden; width:100%; max-width:300px;
-}
-.link-txt { flex:1; padding:9px 12px; font-size:11px; font-family:‘Space Mono’,monospace; color:var(–g4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
-.link-copy { padding:9px 14px; background:linear-gradient(135deg,var(–g2),var(–g3)); border:none; color:#fff; font-family:‘Space Grotesk’,sans-serif; font-size:12px; font-weight:800; cursor:pointer; flex-shrink:0; }
+.wait-sub { font-size:13px; color:var(--t2); text-align:center; line-height:1.5; }
+.link-pill { display:flex; align-items:center; background:rgba(255,255,255,.06); border:1px solid var(--b2); border-radius:10px; overflow:hidden; width:100%; max-width:300px; }
+.link-txt { flex:1; padding:9px 12px; font-size:11px; font-family:'Space Mono',monospace; color:var(--g4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.link-copy { padding:9px 14px; background:linear-gradient(135deg,var(--g2),var(--g3)); border:none; color:#fff; font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:800; cursor:pointer; flex-shrink:0; }
 .share-btns { display:flex; gap:8px; }
-.swa  { padding:9px 16px; border-radius:8px; border:none; background:#25D366; color:#fff; font-family:‘Space Grotesk’,sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
-.ssms { padding:9px 16px; border-radius:8px; border:1px solid var(–b2); background:rgba(255,255,255,.06); color:#fff; font-family:‘Space Grotesk’,sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
+.swa { padding:9px 16px; border-radius:8px; border:none; background:#25D366; color:#fff; font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
+.ssms { padding:9px 16px; border-radius:8px; border:1px solid var(--b2); background:rgba(255,255,255,.06); color:#fff; font-family:'Space Grotesk',sans-serif; font-size:12px; font-weight:700; cursor:pointer; }
 
-/* Video playback controls overlay */
-.vid-play-controls {
-position:absolute; bottom:86px; left:50%;
-transform:translateX(-50%);
-display:none; align-items:center; gap:10px;
-background:rgba(0,0,0,.65); backdrop-filter:blur(10px);
-border-radius:30px; padding:8px 16px; z-index:10;
-}
+/* Video controls */
+.vid-play-controls { position:absolute; bottom:86px; left:50%; transform:translateX(-50%); display:none; align-items:center; gap:10px; background:rgba(0,0,0,.65); backdrop-filter:blur(10px); border-radius:30px; padding:8px 16px; z-index:10; }
 .vid-play-controls.show { display:flex; }
-.vc-btn {
-width:36px; height:36px; border-radius:50%; border:none;
-background:rgba(255,255,255,.12); color:#fff; font-size:15px;
-cursor:pointer; display:flex; align-items:center; justify-content:center;
--webkit-tap-highlight-color:transparent; transition:background .15s;
-}
-.vc-btn:active { background:rgba(255,255,255,.25); }
-.vc-time { font-size:12px; font-family:‘Space Mono’,monospace; color:rgba(255,255,255,.7); }
+.vc-btn { width:36px; height:36px; border-radius:50%; border:none; background:rgba(255,255,255,.12); color:#fff; font-size:15px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.vc-time { font-size:12px; font-family:'Space Mono',monospace; color:rgba(255,255,255,.7); }
 
-/* ── TOOLBAR ── */
-.toolbar {
-position:absolute; bottom:0; left:0; right:0;
-height:72px; z-index:20;
-display:flex; align-items:center; justify-content:center;
-gap:14px;
-padding-bottom:env(safe-area-inset-bottom);
-background:linear-gradient(to top,rgba(5,5,8,.9) 0%,transparent 100%);
-}
-.t-info {
-position:absolute; left:14px; top:50%; transform:translateY(-50%);
-font-size:10px; font-weight:700; font-family:‘Space Mono’,monospace;
-color:rgba(255,255,255,.3); text-transform:uppercase; letter-spacing:.08em;
-}
-.t-timer {
-position:absolute; right:14px; top:50%; transform:translateY(-50%);
-font-size:12px; font-weight:700; font-family:‘Space Mono’,monospace; color:rgba(255,255,255,.4);
-}
-.tbtn {
-width:50px; height:50px; border-radius:50%; border:none;
-background:rgba(255,255,255,.1); color:#fff; font-size:18px;
-cursor:pointer; display:flex; align-items:center; justify-content:center;
-transition:all .15s; -webkit-tap-highlight-color:transparent;
-border:1px solid rgba(255,255,255,.1); flex-shrink:0;
-}
+/* Toolbar */
+.toolbar { position:absolute; bottom:0; left:0; right:0; height:72px; z-index:20; display:flex; align-items:center; justify-content:center; gap:14px; padding-bottom:env(safe-area-inset-bottom); background:linear-gradient(to top,rgba(5,5,8,.9),transparent); }
+.t-info { position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:10px; font-weight:700; font-family:'Space Mono',monospace; color:rgba(255,255,255,.3); text-transform:uppercase; }
+.t-timer { position:absolute; right:14px; top:50%; transform:translateY(-50%); font-size:12px; font-weight:700; font-family:'Space Mono',monospace; color:rgba(255,255,255,.4); }
+.tbtn { width:50px; height:50px; border-radius:50%; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.1); color:#fff; font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; flex-shrink:0; -webkit-tap-highlight-color:transparent; }
 .tbtn:active { transform:scale(.88); }
 .tbtn.off { background:rgba(255,64,96,.18); border-color:rgba(255,64,96,.35); }
-.tbtn-end {
-width:58px; height:58px; border-radius:50%; border:none;
-background:linear-gradient(135deg,#FF4060,#FF0040);
-color:#fff; font-size:20px;
-cursor:pointer; display:flex; align-items:center; justify-content:center;
-box-shadow:0 4px 22px rgba(255,64,96,.55); flex-shrink:0;
--webkit-tap-highlight-color:transparent;
+.tbtn-end { width:58px; height:58px; border-radius:50%; border:none; background:linear-gradient(135deg,#FF4060,#FF0040); color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 22px rgba(255,64,96,.55); flex-shrink:0; }
+.tbtn-lag { width:50px; height:50px; border-radius:50%; border:1px solid rgba(255,190,11,.2); background:rgba(255,190,11,.1); color:var(--g5); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.tbtn-lag.on { background:rgba(255,190,11,.25); border-color:var(--g5); box-shadow:0 0 16px rgba(255,190,11,.45); }
+
+/* ── FREE LIMIT PAYWALL ── */
+#paywall-overlay {
+  position:absolute; inset:0; z-index:50;
+  background:rgba(5,5,8,.95); backdrop-filter:blur(20px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:16px; padding:32px; text-align:center;
 }
-.tbtn-end:active { transform:scale(.88); }
-.tbtn-lag {
-width:50px; height:50px; border-radius:50%; border:none;
-background:rgba(255,190,11,.1); border:1px solid rgba(255,190,11,.2);
-color:var(–g5); font-size:16px;
-cursor:pointer; display:flex; align-items:center; justify-content:center;
-transition:all .15s; -webkit-tap-highlight-color:transparent; flex-shrink:0;
-position:relative;
-}
-.tbtn-lag.on { background:rgba(255,190,11,.25); border-color:var(–g5); box-shadow:0 0 16px rgba(255,190,11,.45); animation:lagPulse 1.2s infinite; }
-@keyframes lagPulse { 0%,100%{box-shadow:0 0 10px rgba(255,190,11,.4)} 50%{box-shadow:0 0 26px rgba(255,190,11,.75)} }
+#paywall-overlay.hidden { display:none; }
+.paywall-icon { font-size:52px; margin-bottom:8px; }
+.paywall-title { font-size:24px; font-weight:800; color:#fff; letter-spacing:-.02em; }
+.paywall-sub { font-size:14px; color:var(--t2); line-height:1.6; max-width:300px; }
+.paywall-price { font-size:32px; font-weight:800; color:#fff; }
+.paywall-price span { font-size:14px; color:var(--t2); font-weight:500; }
+.paywall-btn { padding:14px 32px; border-radius:12px; border:none; background:linear-gradient(135deg,var(--g2),var(--g1)); color:#fff; font-family:'Space Grotesk',sans-serif; font-size:16px; font-weight:800; cursor:pointer; box-shadow:0 8px 30px rgba(131,56,236,.4); width:100%; max-width:280px; }
+.paywall-dismiss { font-size:13px; color:var(--muted); cursor:pointer; text-decoration:underline; }
 
 /* ── LOADING ── */
-#loading {
-position:fixed; inset:0; z-index:999;
-background:rgba(10,10,15,.97);
-display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
-}
-#loading.hidden { display:none; }
-.lring { width:52px; height:52px; border-radius:50%; border:3px solid rgba(255,255,255,.1); border-top-color:var(–g3); animation:spin 1s linear infinite; }
-.licon {
-width:62px; height:62px; border-radius:18px;
-background:linear-gradient(135deg,var(–g2),var(–g1));
-display:flex; align-items:center; justify-content:center;
-box-shadow:0 0 44px rgba(131,56,236,.65); animation:lp 2s infinite;
-}
-@keyframes lp { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+#loading { position:fixed; inset:0; z-index:999; background:rgba(10,10,15,.97); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+.lring { width:52px; height:52px; border-radius:50%; border:3px solid rgba(255,255,255,.1); border-top-color:var(--g3); animation:spin 1s linear infinite; }
+.licon { width:62px; height:62px; border-radius:18px; background:linear-gradient(135deg,var(--g2),var(--g1)); display:flex; align-items:center; justify-content:center; box-shadow:0 0 44px rgba(131,56,236,.65); }
 .ltxt { font-size:16px; font-weight:800; color:#fff; }
-.lsub { font-size:13px; color:var(–t2); margin-top:-12px; }
+.lsub { font-size:13px; color:var(--t2); margin-top:-12px; }
 
 /* ── TOAST ── */
-#toast {
-position:fixed; bottom:90px; left:50%;
-transform:translateX(-50%) translateY(10px);
-background:rgba(26,26,38,.96); border:1px solid var(–b2);
-color:#fff; border-radius:10px; padding:10px 18px;
-font-size:13px; font-weight:700; opacity:0; pointer-events:none;
-transition:all .3s cubic-bezier(.34,1.56,.64,1);
-z-index:9999; white-space:nowrap; max-width:90vw;
-overflow:hidden; text-overflow:ellipsis; box-shadow:0 8px 32px rgba(0,0,0,.5);
-}
+#toast { position:fixed; bottom:90px; left:50%; transform:translateX(-50%) translateY(10px); background:rgba(26,26,38,.96); border:1px solid var(--b2); color:#fff; border-radius:10px; padding:10px 18px; font-size:13px; font-weight:700; opacity:0; pointer-events:none; transition:all .3s cubic-bezier(.34,1.56,.64,1); z-index:9999; white-space:nowrap; max-width:90vw; }
 #toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-
-/* Utility */
-.hidden { display:none !important; }
 </style>
-
 </head>
 <body>
 
-<!-- BG ORBS -->
-
 <div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
 <div id="toast"></div>
-
-<!-- LOADING -->
-
-<div id="loading" class="hidden">
-  <div class="licon">
-    <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-      <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/>
-      <rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/>
-    </svg>
-  </div>
+<div id="loading">
+  <div class="licon"><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/><rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/></svg></div>
   <div class="lring"></div>
-  <div class="ltxt" id="ltxt">Setting up…</div>
-  <div class="lsub">Connecting securely</div>
+  <div class="ltxt" id="ltxt">Loading WaveMeet…</div>
+  <div class="lsub">Hang tight</div>
 </div>
 
 <!-- NAV -->
-
 <nav class="nav">
   <div class="nav-logo">
-    <div class="nav-icon">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-        <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/>
-        <rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/>
-      </svg>
-    </div>
+    <div class="nav-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14V10z" fill="white"/><rect x="3" y="6" width="12" height="12" rx="2.5" fill="white"/></svg></div>
     <span class="nav-name">WaveMeet</span>
   </div>
-  <div class="nav-pill">● Live</div>
+  <div class="nav-right" id="nav-right">
+    <button class="nav-btn nav-login" onclick="showAuth('login')">Log in</button>
+    <button class="nav-btn nav-signup" onclick="showAuth('signup')">Sign up free</button>
+  </div>
+  <div class="nav-user hidden" id="nav-user">
+    <div class="nav-avatar" id="nav-avatar">?</div>
+    <button class="nav-btn nav-signout" onclick="signOut()">Sign out</button>
+  </div>
 </nav>
 
-<!-- HOME PAGE -->
-
-<div id="home-page" class="page">
-  <div class="hero">
-    <div class="hero-tag"><span class="hdot"></span> No account · No download</div>
-    <h1>Meetings from<br><span class="gt">the future.</span></h1>
-    <p>Create a call, share the link.<br>Your people join instantly — anywhere.</p>
-  </div>
-
-  <div class="card">
-    <div class="card-title">Start a meeting</div>
-    <div class="card-sub">// configure your setup</div>
-
-```
-<label class="fl">Your name</label>
-<input class="fi" type="text" id="host-name" placeholder="e.g. Viccy" maxlength="28" autocomplete="off" />
-
-<!-- Video source -->
-<div class="src-wrap">
-  <span class="fl">Video source</span>
-  <div class="src-grid">
-    <div class="src-opt active" id="src-cam" onclick="setSrc('camera')">
-      <span class="src-icon">📷</span>
-      <span class="src-lbl">My Camera</span>
+<!-- ═══════════ LANDING PAGE ═══════════ -->
+<div id="landing" class="page hidden">
+  <!-- Hero -->
+  <section class="hero-section">
+    <div class="hero-tag"><span class="hdot"></span> No downloads · Works everywhere</div>
+    <h1 class="hero-title">
+      Video meetings<br>
+      <span class="gt">from the future.</span>
+    </h1>
+    <p class="hero-sub">Create a call in seconds, share the link. Anyone clicks it and joins instantly — no app, no account needed to join.</p>
+    <div class="hero-btns">
+      <button class="hero-cta cta-primary" onclick="showAuth('signup')">🚀 Get started free</button>
+      <button class="hero-cta cta-secondary" onclick="showAuth('login')">Log in</button>
     </div>
-    <div class="src-opt" id="src-file" onclick="setSrc('file')">
-      <span class="src-icon">🎬</span>
-      <span class="src-lbl">Upload Video</span>
+
+    <!-- Mockup -->
+    <div class="hero-mockup">
+      <div class="mockup-bar">
+        <div class="mockup-dot" style="background:#FF5F57"></div>
+        <div class="mockup-dot" style="background:#FFBD2E;margin-left:6px"></div>
+        <div class="mockup-dot" style="background:#28C840;margin-left:6px"></div>
+        <div style="flex:1;text-align:center;font-size:11px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace">wavemeet.vercel.app</div>
+      </div>
+      <div class="mockup-screen">
+        <div class="mockup-vid1">
+          <div class="mockup-av" style="width:80px;height:80px;font-size:30px">V</div>
+        </div>
+        <div class="mockup-pip">
+          <div class="mockup-av" style="width:36px;height:36px;font-size:14px;background:linear-gradient(135deg,#3A86FF,#06FFB4)">J</div>
+        </div>
+        <div class="mockup-toolbar">
+          <div class="mockup-tbtn">🎤</div>
+          <div class="mockup-tbtn mockup-tbtn-end">📵</div>
+          <div class="mockup-tbtn">📷</div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features-section">
+    <div class="section-tag">// Features</div>
+    <h2 class="section-title">Everything you need,<br>nothing you don't.</h2>
+    <p class="section-sub">Built for real people who just want calls that work.</p>
+    <div class="features-grid">
+      <div class="feat-card"><span class="feat-icon">🔗</span><div class="feat-title">One-tap join</div><div class="feat-desc">Share a link. Your friend taps it and joins instantly — no account, no download, nothing to install.</div></div>
+      <div class="feat-card"><span class="feat-icon">📱</span><div class="feat-title">Works on iPhone</div><div class="feat-desc">Fully optimized for mobile. Camera, mic, all controls work perfectly on iOS and Android.</div></div>
+      <div class="feat-card"><span class="feat-icon">🎬</span><div class="feat-title">Virtual camera</div><div class="feat-desc">Upload a video and use it as your camera feed. Play, pause, sync with the other person.</div></div>
+      <div class="feat-card"><span class="feat-icon">😂</span><div class="feat-title">Lag mode</div><div class="feat-desc">Make yourself look like you have terrible internet. Your friend has no idea it's fake.</div></div>
+      <div class="feat-card"><span class="feat-icon">🔒</span><div class="feat-title">Encrypted</div><div class="feat-desc">Peer-to-peer WebRTC. Your video goes directly between devices — we can't see your calls.</div></div>
+      <div class="feat-card"><span class="feat-icon">⚡</span><div class="feat-title">Zero lag</div><div class="feat-desc">Powered by global TURN servers. Works even on mobile data and behind firewalls.</div></div>
+    </div>
+  </section>
+
+  <!-- Pricing -->
+  <section class="pricing-section">
+    <div class="section-tag">// Pricing</div>
+    <h2 class="section-title">Simple, honest pricing.</h2>
+    <p class="section-sub">Try it free. Upgrade when you're ready.</p>
+    <div class="pricing-cards">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amount">$0 <span>/ forever</span></div>
+        <div class="price-desc">Try it out, see if you love it</div>
+        <ul class="price-features">
+          <li><span class="pf-check">✓</span> 30 second calls</li>
+          <li><span class="pf-check">✓</span> Google + email login</li>
+          <li><span class="pf-check">✓</span> Share links</li>
+          <li><span class="pf-x">✗</span> Unlimited calls</li>
+          <li><span class="pf-x">✗</span> Virtual camera</li>
+          <li><span class="pf-x">✗</span> Lag mode</li>
+        </ul>
+        <button class="price-btn price-btn-free" onclick="showAuth('signup')">Get started</button>
+      </div>
+      <div class="price-card pro">
+        <div class="price-badge">PRO</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount" id="landing-price">— <span id="landing-price-period">/ 3 months</span></div>
+        <div class="price-desc">Everything, unlimited</div>
+        <ul class="price-features">
+          <li><span class="pf-check">✓</span> Unlimited call time</li>
+          <li><span class="pf-check">✓</span> Virtual camera</li>
+          <li><span class="pf-check">✓</span> Lag mode prank</li>
+          <li><span class="pf-check">✓</span> Priority support</li>
+          <li><span class="pf-check">✓</span> Early access features</li>
+        </ul>
+        <button class="price-btn price-btn-pro" onclick="showAuth('signup')">Upgrade to Pro</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-logo">WaveMeet</div>
+    <p>© 2025 WaveMeet. Video calls from the future.</p>
+  </footer>
 </div>
 
-<!-- File upload -->
-<div id="file-area" onclick="document.getElementById('file-input').click()">
-  <p>📁 <strong id="file-name">Tap to choose a video</strong></p>
-  <p style="font-size:11px;margin-top:3px;color:var(--muted)">MP4 · MOV · WebM</p>
-</div>
-<input type="file" id="file-input" accept="video/*" onchange="onFilePick(event)" />
-
-<!-- Video preview — must press play before starting -->
-<div id="vid-preview-wrap">
-  <video id="vid-preview" playsinline preload="metadata"></video>
-  <div class="preview-overlay" id="preview-overlay">
-    <button class="preview-play-btn" onclick="previewPlay()">▶</button>
-    <span class="preview-hint">Press play to preview & confirm</span>
-  </div>
-</div>
-
-<!-- Lag toggle -->
-<div class="lag-row" id="lag-row">
-  <div>
-    <div class="lag-lbl">😂 Lag Mode</div>
-    <div class="lag-sub">Makes you look like bad connection</div>
-  </div>
-  <div class="tog" id="lag-tog" onclick="togLagSetup()"><div class="tok"></div></div>
-</div>
-
-<div class="err" id="home-err"></div>
-
-<button class="btn btn-grad" onclick="createCall()">
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-    <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/>
-    <rect x="3" y="6" width="12" height="12" rx="2"/>
-  </svg>
-  Start Meeting
-</button>
-
-<div class="div">or join existing</div>
-<label class="fl">Meeting link</label>
-<input class="fi" type="text" id="join-link" placeholder="Paste invite link here" autocomplete="off" />
-<button class="btn btn-out" onclick="joinFromLink()">Join Meeting →</button>
-```
-
-  </div>
-</div>
-
-<!-- JOIN PAGE -->
-
-<div id="join-page" class="page hidden">
-  <div class="join-card">
-    <span class="join-icon">🚀</span>
-    <h2>You're invited!</h2>
-    <p>Enter your name to jump in.<br>No account or app needed.</p>
-    <label class="fl">Your name</label>
-    <input class="fi" type="text" id="join-name" placeholder="Your name" maxlength="28" autocomplete="off" />
-    <div class="err" id="join-err"></div>
-    <button class="btn btn-grad" onclick="joinCall()">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/>
-        <rect x="3" y="6" width="12" height="12" rx="2"/>
-      </svg>
-      Jump In
+<!-- ═══════════ AUTH PAGE ═══════════ -->
+<div id="auth-page" class="page hidden">
+  <!-- LOGIN -->
+  <div id="login-form" class="auth-card">
+    <span class="auth-icon">👋</span>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Sign in to your WaveMeet account</div>
+    <button class="google-btn" onclick="signInGoogle()">
+      <svg class="google-logo" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
     </button>
-    <button class="btn btn-out" onclick="goHome()">← Back</button>
+    <div class="auth-div">or</div>
+    <label class="fl">Email</label>
+    <input class="fi" type="email" id="login-email" placeholder="you@email.com" autocomplete="email" />
+    <label class="fl">Password</label>
+    <input class="fi" type="password" id="login-pass" placeholder="Your password" autocomplete="current-password" />
+    <div class="auth-forgot"><a onclick="showForgot()">Forgot password?</a></div>
+    <div class="err" id="login-err"></div>
+    <button class="btn btn-grad" onclick="signInEmail()">Sign in</button>
+    <div class="auth-switch">Don't have an account? <a onclick="showAuth('signup')">Sign up free</a></div>
+    <div style="text-align:center;margin-top:12px"><a style="font-size:12px;color:var(--muted);cursor:pointer" onclick="showPage('landing')">← Back to home</a></div>
+  </div>
+
+  <!-- SIGNUP -->
+  <div id="signup-form" class="auth-card hidden">
+    <span class="auth-icon">🚀</span>
+    <div class="auth-title">Create account</div>
+    <div class="auth-sub">Join WaveMeet — it's free to start</div>
+    <button class="google-btn" onclick="signInGoogle()">
+      <svg class="google-logo" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Sign up with Google
+    </button>
+    <div class="auth-div">or</div>
+    <label class="fl">Email</label>
+    <input class="fi" type="email" id="signup-email" placeholder="you@email.com" autocomplete="email" />
+    <label class="fl">Password</label>
+    <input class="fi" type="password" id="signup-pass" placeholder="Min 6 characters" autocomplete="new-password" />
+    <div class="err" id="signup-err"></div>
+    <div class="suc" id="signup-suc"></div>
+    <button class="btn btn-grad" onclick="signUpEmail()">Create account</button>
+    <div class="auth-switch">Already have an account? <a onclick="showAuth('login')">Sign in</a></div>
+    <div style="text-align:center;margin-top:12px"><a style="font-size:12px;color:var(--muted);cursor:pointer" onclick="showPage('landing')">← Back to home</a></div>
+  </div>
+
+  <!-- FORGOT PASSWORD -->
+  <div id="forgot-form" class="auth-card hidden">
+    <span class="auth-icon">🔑</span>
+    <div class="auth-title">Reset password</div>
+    <div class="auth-sub">Enter your email and we'll send you a reset link</div>
+    <label class="fl">Email</label>
+    <input class="fi" type="email" id="forgot-email" placeholder="you@email.com" />
+    <div class="err" id="forgot-err"></div>
+    <div class="suc" id="forgot-suc"></div>
+    <button class="btn btn-grad" onclick="sendReset()">Send reset email</button>
+    <button class="btn btn-out" onclick="showAuth('login')">← Back to login</button>
   </div>
 </div>
 
-<!-- CALL PAGE -->
+<!-- ═══════════ APP PAGE ═══════════ -->
+<div id="app-page" class="page hidden">
+  <div class="app-home" id="app-home">
+    <div class="app-welcome">
+      <h2>Hey, <span id="user-display-name">there</span> 👋</h2>
+      <p id="user-plan-status">Free plan · 30 second calls</p>
+    </div>
 
-<div id="call-page" class="hidden">
+    <div class="app-card">
+      <div class="app-card-title">Start a meeting</div>
+      <div class="app-card-sub">// your link, your call</div>
 
-  <!-- BIG background video (remote, or self when alone) -->
+      <!-- Free tier notice -->
+      <div class="free-badge" id="free-badge">
+        <div>
+          <div class="free-badge-left">⚡ Free plan</div>
+          <div class="free-badge-sub">30 second calls</div>
+        </div>
+        <span class="upgrade-link" onclick="showPaywall()">Upgrade →</span>
+      </div>
 
+      <label class="fl">Video source</label>
+      <div class="src-grid">
+        <div class="src-opt active" id="src-cam" onclick="setSrc('camera')"><span class="src-icon">📷</span><span class="src-lbl">My Camera</span></div>
+        <div class="src-opt" id="src-file" onclick="setSrc('file')"><span class="src-icon">🎬</span><span class="src-lbl">Upload Video</span></div>
+      </div>
+
+      <div id="file-area" onclick="document.getElementById('file-input').click()">
+        <p>📁 <strong id="file-name">Tap to choose a video</strong></p>
+        <p style="font-size:11px;margin-top:3px;color:var(--muted)">MP4 · MOV · WebM</p>
+      </div>
+      <input type="file" id="file-input" accept="video/*" onchange="onFilePick(event)" />
+
+      <div id="vid-preview-wrap">
+        <video id="vid-preview" playsinline preload="metadata"></video>
+        <div class="preview-overlay" id="preview-overlay">
+          <button class="preview-play-btn" onclick="previewPlay()">▶</button>
+          <span class="preview-hint">Press play to confirm video</span>
+        </div>
+      </div>
+
+      <div class="lag-row" id="lag-row">
+        <div><div class="lag-lbl">😂 Lag Mode</div><div class="lag-sub">Look like bad connection</div></div>
+        <div class="tog" id="lag-tog" onclick="togLag()"><div class="tok"></div></div>
+      </div>
+
+      <div class="err" id="app-err"></div>
+
+      <button class="btn btn-grad" onclick="createCall()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
+        Start Meeting
+      </button>
+
+      <div class="div">or join existing</div>
+      <label class="fl">Meeting link</label>
+      <input class="fi" type="text" id="join-link" placeholder="Paste invite link here" autocomplete="off" />
+      <button class="btn btn-out" onclick="joinFromLink()">Join Meeting →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ CALL PAGE ═══════════ -->
+<div id="call-page" class="page hidden">
   <div class="vid-bg" id="vid-bg">
     <video id="big-vid" autoplay playsinline></video>
     <div class="big-avatar" id="big-avatar" style="display:none">
       <div class="big-av-circle" id="big-av-letter">?</div>
-      <div class="big-av-name"  id="big-av-name">Waiting…</div>
+      <div class="big-av-name" id="big-av-name">Waiting…</div>
     </div>
-    <!-- Lag overlay -->
     <div class="lag-overlay">📡 Poor connection<br><span style="font-size:10px;opacity:.6">Buffering…</span></div>
   </div>
-
-  <!-- Name tag on big video -->
 
   <div class="big-nametag" id="big-nametag">
     <span id="big-nametag-txt">You</span>
     <span class="muted-dot" id="big-muted-dot"></span>
   </div>
 
-  <!-- PIP overlay (small, tappable) -->
-
-  <div class="vid-pip" id="vid-pip" onclick="swapVids()">
+  <div class="vid-pip" id="vid-pip" onclick="swapVids()" style="display:none">
     <video id="pip-vid" autoplay muted playsinline></video>
     <div class="pip-avatar" id="pip-avatar" style="display:none">
       <div class="pip-av-circle" id="pip-av-letter">?</div>
-      <div class="pip-av-name"  id="pip-av-name">Guest</div>
+      <div class="pip-av-name" id="pip-av-name">Guest</div>
     </div>
     <span class="pip-tap-hint">tap to swap</span>
   </div>
-
-  <!-- Wait overlay -->
 
   <div class="wait-overlay" id="wait-overlay">
     <div class="wait-ring"></div>
     <div class="wait-title">Waiting for someone</div>
     <div class="wait-sub">Share this link to invite</div>
-    <div class="link-pill">
-      <div class="link-txt" id="wait-link">—</div>
-      <button class="link-copy" onclick="copyLink()">Copy</button>
-    </div>
+    <div class="link-pill"><div class="link-txt" id="wait-link">—</div><button class="link-copy" onclick="copyLink()">Copy</button></div>
     <div class="share-btns">
       <button class="swa" onclick="shareWA()">WhatsApp</button>
       <button class="ssms" onclick="shareSMS()">SMS</button>
     </div>
   </div>
-
-  <!-- Video file playback controls -->
 
   <div class="vid-play-controls" id="vid-play-controls">
     <button class="vc-btn" onclick="restartVid()">⏮</button>
@@ -645,56 +734,259 @@ overflow:hidden; text-overflow:ellipsis; box-shadow:0 8px 32px rgba(0,0,0,.5);
     <span class="vc-time" id="vc-time">0:00</span>
   </div>
 
-  <!-- Toolbar -->
+  <!-- FREE TIMER PAYWALL -->
+  <div id="paywall-overlay" class="hidden">
+    <div class="paywall-icon">⏰</div>
+    <div class="paywall-title">Free call ended</div>
+    <div class="paywall-sub">Your 30 second free call is up. Upgrade to Pro for unlimited calls.</div>
+    <div class="paywall-price" id="paywall-price-display">— <span>/ 3 months</span></div>
+    <button class="paywall-btn" onclick="startPayment()">Upgrade to Pro 🚀</button>
+    <span class="paywall-dismiss" onclick="endCallFromPaywall()">End call</span>
+  </div>
 
   <div class="toolbar">
     <div class="t-info" id="t-info">WAVE</div>
     <button class="tbtn" id="btn-mic" onclick="toggleMic()">🎤</button>
     <button class="tbtn-end" onclick="endCall()">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.38 1.02-.22 1.14.44 2.35.68 3.58.68.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C6.84 21 2 16.16 2 10c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.12.36.03.76-.22 1.02L6.6 10.8z"/>
-      </svg>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.38 1.02-.22 1.14.44 2.35.68 3.58.68.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C6.84 21 2 16.16 2 10c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.12.36.03.76-.22 1.02L6.6 10.8z"/></svg>
     </button>
     <button class="tbtn" id="btn-cam" onclick="toggleCam()">📷</button>
     <button class="tbtn-lag hidden" id="btn-lag" onclick="toggleLagLive()">📡</button>
     <div class="t-timer" id="t-timer">—</div>
   </div>
-
 </div>
 
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut as fbSignOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const FB_CFG = {
+  apiKey:"AIzaSyCduZGxLq_pwSE2BustK4Z5suKV83vdknw",
+  authDomain:"wave-220b6.firebaseapp.com",
+  projectId:"wave-220b6",
+  storageBucket:"wave-220b6.firebasestorage.app",
+  messagingSenderId:"634835256647",
+  appId:"1:634835256647:web:fcfc069523a81d2bdaf862"
+};
+
+const app  = initializeApp(FB_CFG);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+// ── EXPOSE TO GLOBAL ──────────────────────────
+window._auth = auth;
+window._db   = db;
+window._GoogleProvider = new GoogleAuthProvider();
+window._fbModules = { signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, fbSignOut, doc, getDoc, setDoc, onSnapshot };
+
+// ── AUTH STATE ────────────────────────────────
+onAuthStateChanged(auth, async user => {
+  document.getElementById('loading').classList.add('hidden');
+  if (user) {
+    window._currentUser = user;
+    // Load user data from Firestore
+    const uRef = doc(db, 'users', user.uid);
+    const uDoc = await getDoc(uRef);
+    const uData = uDoc.exists() ? uDoc.data() : {};
+    window._userData = uData;
+
+    // Load subscription config
+    try {
+      const cfg = (await getDoc(doc(db,'config','subscription'))).data() || {};
+      window._subConfig = cfg;
+      updatePricingDisplay(cfg);
+    } catch(e) { window._subConfig = {}; }
+
+    // Update nav
+    document.getElementById('nav-right').classList.add('hidden');
+    document.getElementById('nav-user').classList.remove('hidden');
+    const av = document.getElementById('nav-avatar');
+    av.textContent = (user.displayName||user.email||'U')[0].toUpperCase();
+
+    // Update app UI
+    const dname = user.displayName || user.email?.split('@')[0] || 'there';
+    document.getElementById('user-display-name').textContent = dname;
+    window._myName = dname;
+
+    const isPro = isSubscribed(uData);
+    document.getElementById('user-plan-status').textContent = isPro ? '✨ Pro plan · Unlimited calls' : 'Free plan · 30 second calls';
+    document.getElementById('free-badge').style.display = isPro ? 'none' : '';
+
+    // Check if joining a room via link
+    const room = getRoomFromURL();
+    if (room) {
+      window._roomId = room;
+      showPage('call-page');
+      startCallAsGuest();
+    } else {
+      showPage('app-page');
+    }
+  } else {
+    window._currentUser = null;
+    window._userData = {};
+    document.getElementById('nav-right').classList.remove('hidden');
+    document.getElementById('nav-user').classList.add('hidden');
+
+    const room = getRoomFromURL();
+    if (room) {
+      // Not logged in but has room link — send to signup then auto-join
+      window._pendingRoom = room;
+      showPage('auth-page');
+      showAuthForm('signup');
+    } else {
+      showPage('landing');
+    }
+  }
+});
+
+function isSubscribed(data) {
+  if (!data?.subscribed) return false;
+  if (!data?.expiresAt) return false;
+  return new Date(data.expiresAt) > new Date();
+}
+
+function updatePricingDisplay(cfg) {
+  const price  = cfg.price || '—';
+  const months = cfg.months || 3;
+  const currency = cfg.currency || '';
+  const display = `${currency}${price}`;
+  const period  = `/ ${months} month${months > 1 ? 's' : ''}`;
+  // Landing page
+  const lp = document.getElementById('landing-price');
+  const lpp = document.getElementById('landing-price-period');
+  if(lp) lp.innerHTML = `${display} <span>${period}</span>`;
+  // Paywall
+  const pp = document.getElementById('paywall-price-display');
+  if(pp) pp.innerHTML = `${display} <span>${period}</span>`;
+}
+
+// ── AUTH FUNCTIONS ─────────────────────────────
+window.signInGoogle = async () => {
+  try {
+    const result = await signInWithPopup(auth, window._GoogleProvider);
+    // Create user doc if new
+    const uRef = doc(db,'users',result.user.uid);
+    const uDoc = await getDoc(uRef);
+    if(!uDoc.exists()) {
+      await setDoc(uRef,{ email:result.user.email, name:result.user.displayName, createdAt:new Date().toISOString(), subscribed:false });
+    }
+  } catch(e) { showErr('login-err', e.message); showErr('signup-err', e.message); }
+};
+
+window.signUpEmail = async () => {
+  const email = document.getElementById('signup-email').value.trim();
+  const pass  = document.getElementById('signup-pass').value;
+  if(!email || !pass) { showErr('signup-err','Fill in all fields.'); return; }
+  if(pass.length < 6) { showErr('signup-err','Password must be at least 6 characters.'); return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await sendEmailVerification(cred.user);
+    // Create user doc
+    await setDoc(doc(db,'users',cred.user.uid),{ email, createdAt:new Date().toISOString(), subscribed:false });
+    document.getElementById('signup-suc').textContent = '✅ Account created! Check your email to verify.';
+    document.getElementById('signup-suc').classList.add('on');
+  } catch(e) {
+    const msg = e.code === 'auth/email-already-in-use' ? 'This email is already registered.' : e.message;
+    showErr('signup-err', msg);
+  }
+};
+
+window.signInEmail = async () => {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email || !pass) { showErr('login-err','Fill in all fields.'); return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    const msg = e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found' ? 'Invalid email or password.' : e.message;
+    showErr('login-err', msg);
+  }
+};
+
+window.sendReset = async () => {
+  const email = document.getElementById('forgot-email').value.trim();
+  if(!email) { showErr('forgot-err','Enter your email.'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email);
+    document.getElementById('forgot-suc').textContent = '✅ Reset email sent! Check your inbox.';
+    document.getElementById('forgot-suc').classList.add('on');
+  } catch(e) { showErr('forgot-err', e.message); }
+};
+
+window.signOut = async () => {
+  await fbSignOut(auth);
+};
+
+// ── PAYMENT ───────────────────────────────────
+window.startPayment = () => {
+  const cfg    = window._subConfig || {};
+  const amount = cfg.price || 1000;
+  const currency = cfg.currency || 'NGN';
+  const user   = window._currentUser;
+  if(!user) { showAuth('login'); return; }
+
+  FlutterwaveCheckout({
+    public_key: 'FLWPUBK-d1231ee5582659ed92eca52b827332f8-X',
+    tx_ref:     'wave_' + Date.now(),
+    amount,
+    currency,
+    customer: { email: user.email, name: user.displayName || user.email },
+    customizations: { title:'WaveMeet Pro', description:'Unlock unlimited calls', logo:'https://wavemeet.vercel.app/logo.png' },
+    callback: async (response) => {
+      if(response.status === 'successful') {
+        try {
+          const res = await fetch('/api/verify-payment', {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ transaction_id: response.transaction_id, uid: user.uid })
+          });
+          const data = await res.json();
+          if(data.success) {
+            window._userData.subscribed = true;
+            window._userData.expiresAt  = data.expiresAt;
+            document.getElementById('paywall-overlay').classList.add('hidden');
+            document.getElementById('free-badge').style.display = 'none';
+            document.getElementById('user-plan-status').textContent = '✨ Pro plan · Unlimited calls';
+            toast('🎉 Welcome to Pro! Enjoy unlimited calls.');
+            // Resume call
+            window._callTimerPaused = false;
+          }
+        } catch(e) { toast('Payment error — contact support'); }
+      }
+    },
+    onclose: () => {}
+  });
+};
+
+window.showPaywall = () => {
+  document.getElementById('paywall-overlay').classList.remove('hidden');
+};
+
+window.endCallFromPaywall = () => {
+  document.getElementById('paywall-overlay').classList.add('hidden');
+  endCall();
+};
+
+</script>
+
+<!-- Flutterwave -->
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+
 <script>
-// ═══════════════════════════════════════════════════════════
-//  WAVE MEET 2070
-//  Pure WebRTC + Metered TURN — real video, your domain
-//
-//  Layout: WhatsApp/Snap style
-//    - Remote = fullscreen bg
-//    - Local  = small PIP overlay (tap to swap)
-//    - When alone = see yourself fullscreen + wait overlay
-//
-//  Features:
-//    - Camera OR video file as source
-//    - Must preview/play video before starting
-//    - Pause/resume syncs to remote in real time
-//    - Seek sync — remote jumps to same timestamp
-//    - Lag mode prank
-//    - Mute mic / toggle cam
-//    - Call timer
-// ═══════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════
+//  WAVE MEET — Main App Logic
+//  Auth handled by Firebase module above
+// ═══════════════════════════════════════════════════════
 
 const ICE = [
   { urls:'stun:stun.l.google.com:19302' },
   { urls:'stun:stun1.l.google.com:19302' },
   {
-    urls:[
-      'turn:a.relay.metered.ca:80',
-      'turn:a.relay.metered.ca:80?transport=tcp',
-      'turn:a.relay.metered.ca:443',
-      'turn:a.relay.metered.ca:443?transport=tcp',
-      'turns:a.relay.metered.ca:443?transport=tcp',
-    ],
-    username:   'bdd71e02060e1c9aec7db3b3',
-    credential: 'FvAwsOkY/+2FLFJ0',
+    urls:['turn:a.relay.metered.ca:80','turn:a.relay.metered.ca:80?transport=tcp','turn:a.relay.metered.ca:443','turn:a.relay.metered.ca:443?transport=tcp','turns:a.relay.metered.ca:443?transport=tcp'],
+    username:'bdd71e02060e1c9aec7db3b3',
+    credential:'FvAwsOkY/+2FLFJ0'
   }
 ];
 
@@ -703,45 +995,81 @@ const MED = {
   audio:{ echoCancellation:true, noiseSuppression:true, sampleRate:16000, channelCount:1 }
 };
 
-// ── STATE ──────────────────────────────────────────
-let localStream = null;
-let myName='', roomId='', isHost=false;
+// ── STATE ──────────────────────────────────────
+let localStream=null, peer=null, conn=null;
+let roomId='', isHost=false;
 let micOn=true, camOn=true;
 let timerInt=null, timerSecs=0;
-let peer=null, conn=null;
-let videoSrc='camera';
-let uploadedFile=null;
+let videoSrc='camera', uploadedFile=null;
 let lagEnabled=false, lagSetup=false;
 let canvasInt=null;
-// PIP swap state: false = remote is big, true = local is big
-let localIsBig = false;
-// Are we currently in a call with someone?
-let remoteJoined = false;
+let localIsBig=false, remoteJoined=false;
+let lastRemoteStream=null, lastRemoteName='Guest';
+let previewPlayed=false;
+let freeTimerInt=null;
+const FREE_LIMIT = 30; // seconds
 
-// ── HELPERS ────────────────────────────────────────
-const $  = id => document.getElementById(id);
-const on = (id,ev,fn) => $(id).addEventListener(ev,fn);
+// ── HELPERS ────────────────────────────────────
+const $ = id => document.getElementById(id);
 function getRoomFromURL(){ return new URLSearchParams(location.search).get('room')||''; }
-function shareURL()      { return `${location.origin}${location.pathname}?room=${roomId}`; }
-function genRoom()       { const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++)r+=c[Math.floor(Math.random()*c.length)]; return r; }
-function showPage(id)    { ['home-page','join-page','call-page'].forEach(p=>$(p)?.classList.add('hidden')); $(id)?.classList.remove('hidden'); }
-function goHome()        { history.replaceState(null,'',location.pathname); showPage('home-page'); }
-function setLoad(s,m='Connecting…'){ $('ltxt').textContent=m; $('loading').classList.toggle('hidden',!s); }
-function showErr(id,msg) { const e=$(id); e.textContent=msg; e.classList.add('on'); setTimeout(()=>e.classList.remove('on'),5000); }
+function shareURL(){ return `${location.origin}${location.pathname}?room=${roomId}`; }
+function genRoom(){ const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++) r+=c[Math.floor(Math.random()*c.length)]; return r; }
+function setLoad(s,m='Loading…'){ $('ltxt').textContent=m; $('loading').classList.toggle('hidden',!s); }
+function showErr(id,msg){ const e=$(id); e.textContent=msg; e.classList.add('on'); setTimeout(()=>e.classList.remove('on'),5000); }
 let _tt;
 function toast(msg,dur=3000){ const e=$('toast'); e.textContent=msg; e.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>e.classList.remove('show'),dur); }
-function sendSig(msg)    { try{ if(conn?.open) conn.send(msg); }catch(e){} }
+function sendSig(msg){ try{ if(conn?.open) conn.send(msg); }catch(e){} }
 
-// ── TIMER ──────────────────────────────────────────
+function showPage(id){
+  ['landing','auth-page','app-page','call-page'].forEach(p=>$(p)?.classList.add('hidden'));
+  $(id)?.classList.remove('hidden');
+}
+
+function showAuth(mode){
+  showPage('auth-page');
+  showAuthForm(mode);
+}
+
+function showAuthForm(mode){
+  $('login-form').classList.toggle('hidden', mode!=='login');
+  $('signup-form').classList.toggle('hidden', mode!=='signup');
+  $('forgot-form').classList.add('hidden');
+}
+
+function showForgot(){
+  $('login-form').classList.add('hidden');
+  $('signup-form').classList.add('hidden');
+  $('forgot-form').classList.remove('hidden');
+}
+
+// ── FREE TIMER ─────────────────────────────────
+function startFreeTimer(){
+  const isPro = window._userData?.subscribed && new Date(window._userData?.expiresAt) > new Date();
+  if(isPro) return; // no limit for pro
+  let secs = 0;
+  freeTimerInt = setInterval(()=>{
+    secs++;
+    if(secs >= FREE_LIMIT){
+      clearInterval(freeTimerInt);
+      // Show paywall
+      $('paywall-overlay').classList.remove('hidden');
+      // Mute local stream but keep connection
+      localStream?.getAudioTracks().forEach(t=>t.enabled=false);
+      localStream?.getVideoTracks().forEach(t=>t.enabled=false);
+    }
+  },1000);
+}
+
+// ── CALL TIMER ─────────────────────────────────
 function startTimer(){ timerSecs=0; clearInterval(timerInt); timerInt=setInterval(()=>{ timerSecs++; const m=String(Math.floor(timerSecs/60)).padStart(2,'0'); const s=String(timerSecs%60).padStart(2,'0'); $('t-timer').textContent=`${m}:${s}`; },1000); }
-function stopTimer() { clearInterval(timerInt); $('t-timer').textContent='—'; }
+function stopTimer(){ clearInterval(timerInt); clearInterval(freeTimerInt); $('t-timer').textContent='—'; }
 
-// ── VIDEO SOURCE PICKER ────────────────────────────
+// ── SOURCE PICKER ──────────────────────────────
 function setSrc(src){
   videoSrc=src;
   $('src-cam').classList.toggle('active',src==='camera');
   $('src-file').classList.toggle('active',src==='file');
-  $('file-area').style.display = src==='file' ? 'block' : 'none';
+  $('file-area').style.display = src==='file'?'block':'none';
   if(src!=='file'){ $('lag-row').classList.remove('show'); $('vid-preview-wrap').style.display='none'; }
 }
 
@@ -749,7 +1077,6 @@ function onFilePick(e){
   const f=e.target.files[0]; if(!f) return;
   uploadedFile=f;
   $('file-name').textContent=f.name;
-  // Show preview
   const prev=$('vid-preview');
   prev.src=URL.createObjectURL(f);
   $('vid-preview-wrap').style.display='block';
@@ -757,370 +1084,302 @@ function onFilePick(e){
   $('lag-row').classList.add('show');
 }
 
-let previewPlayed=false;
 function previewPlay(){
   const prev=$('vid-preview');
   prev.play();
   $('preview-overlay').style.display='none';
   previewPlayed=true;
-  // Let them watch then pause — they control when to start
-  prev.onpause=()=>{ $('preview-overlay').style.display='flex'; $('preview-overlay').querySelector('.preview-hint').textContent='Ready! Tap Start Meeting.'; }
+  prev.onpause=()=>{
+    $('preview-overlay').style.display='flex';
+    $('preview-overlay').querySelector('.preview-hint').textContent='Ready! Tap Start Meeting.';
+  };
 }
 
-function togLagSetup(){
-  lagSetup=!lagSetup;
-  $('lag-tog').classList.toggle('on',lagSetup);
-}
+function togLag(){ lagSetup=!lagSetup; $('lag-tog').classList.toggle('on',lagSetup); }
 
-// ── MEDIA ──────────────────────────────────────────
+// ── MEDIA ──────────────────────────────────────
 async function getMedia(){
-  if(videoSrc==='file' && uploadedFile){
-    await setupFileStream();
-  } else {
-    try { localStream=await navigator.mediaDevices.getUserMedia(MED); }
-    catch{ try{ localStream=await navigator.mediaDevices.getUserMedia({video:false,audio:true}); camOn=false; }
-           catch{ localStream=new MediaStream(); camOn=false; micOn=false; } }
-  }
+  if(videoSrc==='file' && uploadedFile){ await setupFileStream(); return; }
+  try { localStream=await navigator.mediaDevices.getUserMedia(MED); }
+  catch{ try{ localStream=await navigator.mediaDevices.getUserMedia({video:false,audio:true}); camOn=false; }
+         catch{ localStream=new MediaStream(); camOn=false; micOn=false; } }
 }
 
 async function setupFileStream(){
   const canvas=document.createElement('canvas');
   canvas.width=320; canvas.height=240;
   const ctx=canvas.getContext('2d');
-  const fv=$('vid-preview'); // reuse the preview video element
+  const fv=$('vid-preview');
   fv.currentTime=0; fv.play();
-
-  canvasInt=setInterval(()=>{
-    if(!fv.paused&&!fv.ended) ctx.drawImage(fv,0,0,320,240);
-  },1000/15);
-
+  canvasInt=setInterval(()=>{ if(!fv.paused&&!fv.ended) ctx.drawImage(fv,0,0,320,240); },1000/15);
   let audioStream;
   try{ audioStream=await navigator.mediaDevices.getUserMedia({audio:MED.audio,video:false}); }
   catch{ audioStream=new MediaStream(); }
-
   const cvStream=canvas.captureStream(15);
   localStream=new MediaStream([...cvStream.getTracks(),...audioStream.getTracks()]);
-
-  // Show file controls during call
   $('vid-play-controls').classList.add('show');
   $('btn-lag').classList.remove('hidden');
   if(lagSetup){ lagEnabled=true; $('btn-lag').classList.add('on'); }
-
-  // Sync time display
-  fv.ontimeupdate=()=>{
-    const t=fv.currentTime;
-    const m=Math.floor(t/60); const s=Math.floor(t%60);
-    $('vc-time').textContent=`${m}:${String(s).padStart(2,'0')}`;
-  };
+  fv.ontimeupdate=()=>{ const t=fv.currentTime; $('vc-time').textContent=`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`; };
 }
 
-// ── VIDEO PLAYBACK CONTROLS ────────────────────────
+// ── VIDEO CONTROLS ─────────────────────────────
 function toggleVidPlay(){
   const fv=$('vid-preview');
-  if(fv.paused){
-    fv.play();
-    $('pp-btn').textContent='⏸';
-    // Sync: tell remote to resume at this timestamp
-    sendSig({type:'vidsync', playing:true, time:fv.currentTime});
-  } else {
-    fv.pause();
-    $('pp-btn').textContent='▶';
-    // Sync: tell remote to pause
-    sendSig({type:'vidsync', playing:false, time:fv.currentTime});
-  }
+  if(fv.paused){ fv.play(); $('pp-btn').textContent='⏸'; sendSig({type:'vidsync',playing:true,time:fv.currentTime}); }
+  else         { fv.pause(); $('pp-btn').textContent='▶'; sendSig({type:'vidsync',playing:false,time:fv.currentTime}); }
 }
+function restartVid(){ const fv=$('vid-preview'); fv.currentTime=0; fv.play(); $('pp-btn').textContent='⏸'; sendSig({type:'vidsync',playing:true,time:0}); }
 
-function restartVid(){
-  const fv=$('vid-preview');
-  fv.currentTime=0; fv.play();
-  $('pp-btn').textContent='⏸';
-  sendSig({type:'vidsync', playing:true, time:0});
-}
-
-// Called on remote side when host sends vidsync
 function applyVidSync(msg){
-  // Show a freeze/resume effect on the remote's big video
   const bv=$('big-vid');
-  if(!msg.playing){
-    bv.style.filter='blur(2px) brightness(.6)';
-    toast('⏸ Video paused');
-  } else {
-    bv.style.filter='';
-    toast('▶ Video resumed');
-  }
+  if(!msg.playing){ bv.style.filter='blur(2px) brightness(.6)'; }
+  else             { bv.style.filter=''; }
 }
 
-// ── LAG MODE ───────────────────────────────────────
-function toggleLagLive(){
-  lagEnabled=!lagEnabled;
-  $('btn-lag').classList.toggle('on',lagEnabled);
-  sendSig({type:'lag',enabled:lagEnabled});
-  toast(lagEnabled ? '😂 Lag ON — they look glitchy to you!' : '✅ Lag OFF',3000);
-}
+// ── LAG ────────────────────────────────────────
+function toggleLagLive(){ lagEnabled=!lagEnabled; $('btn-lag').classList.toggle('on',lagEnabled); sendSig({type:'lag',enabled:lagEnabled}); toast(lagEnabled?'😂 Lag ON!':'✅ Lag OFF'); }
+function applyLag(e){ $('vid-bg').classList.toggle('lagging',e); }
 
-function applyLag(enabled){
-  $('vid-bg').classList.toggle('lagging',enabled);
-}
-
-// ── CALL LAYOUT ────────────────────────────────────
-// Big = remote video. PIP = local.
-// When alone: big = local, no PIP shown.
-// Tap PIP = swap.
-
+// ── LAYOUT ─────────────────────────────────────
 function setupAloneLayout(){
-  $('big-vid').srcObject = localStream;
-  $('big-vid').muted     = true;
-  $('big-nametag-txt').textContent = myName||'You';
-  updateBigAvatar(false, myName);
+  $('big-vid').srcObject=localStream;
+  $('big-vid').muted=true;
+  $('big-nametag-txt').textContent=window._myName||'You';
+  updateBigAvatar(false,window._myName||'You');
   $('vid-pip').style.display='none';
-  // Only host sees the waiting/share overlay
-  if(isHost){
-    $('wait-overlay').classList.remove('gone');
-    $('wait-link').textContent=shareURL();
-  } else {
-    $('wait-overlay').classList.add('gone');
-  }
+  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=shareURL(); }
+  else       { $('wait-overlay').classList.add('gone'); }
 }
 
-function updateBigAvatar(show, name){
-  $('big-avatar').style.display = show ? 'flex' : 'none';
-  $('big-av-letter').textContent = (name||'?')[0].toUpperCase();
-  $('big-av-name').textContent   = name||'Waiting…';
-}
+function updateBigAvatar(show,name){ $('big-avatar').style.display=show?'flex':'none'; $('big-av-letter').textContent=(name||'?')[0].toUpperCase(); $('big-av-name').textContent=name||'Waiting…'; }
+function updatePipAvatar(show,name){ $('pip-avatar').style.display=show?'flex':'none'; $('pip-av-letter').textContent=(name||'?')[0].toUpperCase(); $('pip-av-name').textContent=name||'Guest'; }
 
-function showRemoteJoined(remoteStream, rName){
+function showRemoteJoined(stream,rName){
   remoteJoined=true;
   $('wait-overlay').classList.add('gone');
-
-  if(!localIsBig){
-    // Default: remote = big, local = PIP
-    $('big-vid').srcObject=remoteStream;
-    $('big-vid').muted=false;
-    $('big-nametag-txt').textContent=rName;
-    const hasV=remoteStream.getVideoTracks().length>0;
-    updateBigAvatar(!hasV, rName);
-
-    $('pip-vid').srcObject=localStream;
-    $('pip-vid').muted=true;
-    updatePipAvatar(false, myName);
-  } else {
-    // Local was swapped to big — keep it
-    $('pip-vid').srcObject=remoteStream;
-    updatePipAvatar(remoteStream.getVideoTracks().length===0, rName);
-  }
-
+  $('big-vid').srcObject=stream; $('big-vid').muted=false;
+  $('big-nametag-txt').textContent=rName;
+  updateBigAvatar(stream.getVideoTracks().length===0,rName);
+  $('pip-vid').srcObject=localStream; $('pip-vid').muted=true;
+  updatePipAvatar(false,window._myName||'You');
   $('vid-pip').style.display='';
+  localIsBig=false;
   startTimer();
+  startFreeTimer();
   toast(`${rName} joined 🎉`,4000);
 }
-
-function updatePipAvatar(show, name){
-  $('pip-avatar').style.display=show?'flex':'none';
-  $('pip-av-letter').textContent=(name||'?')[0].toUpperCase();
-  $('pip-av-name').textContent=name||'Guest';
-}
-
-let lastRemoteStream=null, lastRemoteName='Guest';
 
 function swapVids(){
   if(!remoteJoined) return;
   localIsBig=!localIsBig;
-
   if(localIsBig){
-    // Local → big, remote → PIP
-    $('big-vid').srcObject=localStream;
-    $('big-vid').muted=true;
-    $('big-nametag-txt').textContent=myName+' (You)';
-    updateBigAvatar(false,myName);
-    if(lastRemoteStream){
-      $('pip-vid').srcObject=lastRemoteStream;
-      updatePipAvatar(lastRemoteStream.getVideoTracks().length===0, lastRemoteName);
-    }
+    $('big-vid').srcObject=localStream; $('big-vid').muted=true;
+    $('big-nametag-txt').textContent=(window._myName||'You')+' (You)';
+    updateBigAvatar(false,window._myName);
+    if(lastRemoteStream){ $('pip-vid').srcObject=lastRemoteStream; updatePipAvatar(lastRemoteStream.getVideoTracks().length===0,lastRemoteName); }
   } else {
-    // Remote → big, local → PIP
-    if(lastRemoteStream){
-      $('big-vid').srcObject=lastRemoteStream;
-      $('big-vid').muted=false;
-      $('big-nametag-txt').textContent=lastRemoteName;
-      updateBigAvatar(lastRemoteStream.getVideoTracks().length===0,lastRemoteName);
-    }
-    $('pip-vid').srcObject=localStream;
-    $('pip-vid').muted=true;
-    updatePipAvatar(false,myName);
+    if(lastRemoteStream){ $('big-vid').srcObject=lastRemoteStream; $('big-vid').muted=false; $('big-nametag-txt').textContent=lastRemoteName; updateBigAvatar(lastRemoteStream.getVideoTracks().length===0,lastRemoteName); }
+    $('pip-vid').srcObject=localStream; $('pip-vid').muted=true; updatePipAvatar(false,window._myName);
   }
 }
 
-// ── MIC / CAM ──────────────────────────────────────
-function updateLocalUI(){
-  $('t-info').textContent=roomId.slice(0,10).toUpperCase();
-  $('btn-mic').textContent=micOn?'🎤':'🔇';
-  $('btn-mic').classList.toggle('off',!micOn);
-  $('btn-cam').textContent=(videoSrc==='file')?'🎬':(camOn?'📷':'🚫');
-  $('btn-cam').classList.toggle('off',videoSrc!=='file'&&!camOn);
-}
-function toggleMic(){
-  micOn=!micOn;
-  localStream?.getAudioTracks().forEach(t=>t.enabled=micOn);
-  updateLocalUI();
-  sendSig({type:'mute',micOn});
-  // Show muted dot on big if local is big
-  if(localIsBig) $('big-muted-dot').classList.toggle('on',!micOn);
-}
-function toggleCam(){
-  if(videoSrc==='file'){toast('Using video file as camera');return;}
-  camOn=!camOn;
-  localStream?.getVideoTracks().forEach(t=>t.enabled=camOn);
-  updateLocalUI();
+function handleLeft(){
+  remoteJoined=false; lastRemoteStream=null;
+  $('vid-pip').style.display='none';
+  $('big-vid').srcObject=localStream; $('big-vid').muted=true;
+  $('big-nametag-txt').textContent=(window._myName||'You')+' (You)';
+  updateBigAvatar(false,window._myName);
+  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=shareURL(); }
+  stopTimer(); applyLag(false);
+  toast('The other person left');
 }
 
-// ── PEERJS SIGNALLING ──────────────────────────────
+// ── MIC/CAM ────────────────────────────────────
+function updateLocalUI(){
+  $('t-info').textContent=(roomId||'WAVE').slice(0,10).toUpperCase();
+  $('btn-mic').textContent=micOn?'🎤':'🔇'; $('btn-mic').classList.toggle('off',!micOn);
+  $('btn-cam').textContent=videoSrc==='file'?'🎬':(camOn?'📷':'🚫'); $('btn-cam').classList.toggle('off',videoSrc!=='file'&&!camOn);
+}
+function toggleMic(){ micOn=!micOn; localStream?.getAudioTracks().forEach(t=>t.enabled=micOn); updateLocalUI(); sendSig({type:'mute',micOn}); if(localIsBig) $('big-muted-dot').classList.toggle('on',!micOn); }
+function toggleCam(){ if(videoSrc==='file'){toast('Using video file');return;} camOn=!camOn; localStream?.getVideoTracks().forEach(t=>t.enabled=camOn); updateLocalUI(); }
+
+// ── PEERJS ─────────────────────────────────────
 function loadPeer(cb){ if(window.Peer){cb();return;} const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js'; s.onload=cb; document.head.appendChild(s); }
 const PCFG={ host:'0.peerjs.com',port:443,path:'/',secure:true,config:{iceServers:ICE} };
 
 function initHost(){
   peer=new Peer('wavemeet-'+roomId,PCFG);
-  peer.on('open',()=>{
-    setLoad(false);
-    toast('Meeting ready! Share the link 🔗',6000);
-  });
+  peer.on('open',()=>{ setLoad(false); toast('Meeting ready! Share the link 🔗',6000); });
   peer.on('connection',dc=>{ conn=dc; setupDC(); });
-  peer.on('call',call=>{
-    call.answer(localStream);
-    call.on('stream',s=>{
-      lastRemoteStream=s; lastRemoteName=call.metadata?.name||'Guest';
-      showRemoteJoined(s,lastRemoteName);
-    });
-    call.on('close',()=>handleLeft());
-  });
-  peer.on('error',e=>{
-    if(e.type==='unavailable-id'){ roomId=genRoom(); history.replaceState(null,'',`?room=${roomId}`); peer.destroy(); initHost(); }
-    else { setLoad(false); toast('Connection error — refresh'); }
-  });
+  peer.on('call',call=>{ call.answer(localStream); call.on('stream',s=>{ lastRemoteStream=s; lastRemoteName=call.metadata?.name||'Guest'; showRemoteJoined(s,lastRemoteName); }); call.on('close',()=>handleLeft()); });
+  peer.on('error',e=>{ if(e.type==='unavailable-id'){ roomId=genRoom(); history.replaceState(null,'',`?room=${roomId}`); peer.destroy(); initHost(); } else { setLoad(false); toast('Connection error'); } });
 }
 
-function initGuest(){
-  peer=new Peer(PCFG);
-  peer.on('open',()=>{
-    conn=peer.connect('wavemeet-'+roomId,{reliable:true});
-    conn.on('open',()=>{ conn.send({type:'hello',name:myName}); setupDC(); });
-    const call=peer.call('wavemeet-'+roomId,localStream,{metadata:{name:myName}});
-    call.on('stream',s=>{
-      lastRemoteStream=s; lastRemoteName='Host';
-      showRemoteJoined(s,'Host');
+function startCallAsGuest(){
+  const name = window._myName || 'Guest';
+  setLoad(true,'Joining meeting…');
+  getMedia().then(()=>{
+    showPage('call-page');
+    $('wait-overlay').classList.add('gone');
+    updateLocalUI();
+    setupAloneLayout();
+    loadPeer(()=>{
+      peer=new Peer(PCFG);
+      peer.on('open',()=>{
+        conn=peer.connect('wavemeet-'+window._roomId,{reliable:true});
+        conn.on('open',()=>{ conn.send({type:'hello',name}); setupDC(); });
+        const call=peer.call('wavemeet-'+window._roomId,localStream,{metadata:{name}});
+        call.on('stream',s=>{ lastRemoteStream=s; lastRemoteName='Host'; showRemoteJoined(s,'Host'); });
+        call.on('error',()=>toast('Could not reach host'));
+        setLoad(false); toast('Connecting…',2000);
+      });
+      peer.on('error',e=>{ setLoad(false); if(e.type==='peer-unavailable') toast('Meeting not found'); else toast('Connection error'); });
     });
-    call.on('error',()=>toast('Could not reach host'));
-    setLoad(false); toast('Connecting…',2000);
-  });
-  peer.on('error',e=>{
-    setLoad(false);
-    if(e.type==='peer-unavailable'){ showErr('join-err','Meeting not found. Host may not have started.'); showPage('join-page'); }
-    else toast('Connection error');
   });
 }
 
 function setupDC(){
   if(!conn)return;
   conn.on('data',msg=>{
-    if(msg.type==='hello'){
-      lastRemoteName=msg.name||'Guest';
-      $('big-nametag-txt').textContent=lastRemoteName;
-      $('pip-av-name').textContent=lastRemoteName;
-      $('pip-av-letter').textContent=lastRemoteName[0]?.toUpperCase()||'?';
-    }
-    if(msg.type==='mute'){
-      // Show muted badge if remote is in big view
-      if(!localIsBig) $('big-muted-dot').classList.toggle('on',!msg.micOn);
-    }
-    if(msg.type==='lag')    applyLag(msg.enabled);
+    if(msg.type==='hello'){ lastRemoteName=msg.name||'Guest'; $('big-nametag-txt').textContent=lastRemoteName; $('pip-av-name').textContent=lastRemoteName; $('pip-av-letter').textContent=lastRemoteName[0]?.toUpperCase()||'?'; }
+    if(msg.type==='mute') { if(!localIsBig) $('big-muted-dot').classList.toggle('on',!msg.micOn); }
+    if(msg.type==='lag')  applyLag(msg.enabled);
     if(msg.type==='vidsync') applyVidSync(msg);
-    if(msg.type==='bye')    handleLeft();
+    if(msg.type==='bye')  handleLeft();
   });
   conn.on('close',()=>handleLeft());
-  if(conn.open) conn.send({type:'hello',name:myName});
+  if(conn.open) conn.send({type:'hello',name:window._myName||'You'});
 }
 
-function handleLeft(){
-  remoteJoined=false;
-  lastRemoteStream=null;
-  $('vid-pip').style.display='none';
-  // Go back to showing self in big
-  $('big-vid').srcObject=localStream;
-  $('big-vid').muted=true;
-  $('big-nametag-txt').textContent=myName+' (You)';
-  updateBigAvatar(false,myName);
-  if(isHost){
-    $('wait-overlay').classList.remove('gone');
-    $('wait-link').textContent=shareURL();
-  }
-  stopTimer();
-  applyLag(false);
-  toast('The other person left');
-}
-
-// ── CREATE / JOIN ──────────────────────────────────
+// ── CREATE / JOIN ──────────────────────────────
 async function createCall(){
-  myName=($('host-name').value||'').trim();
-  if(!myName){ showErr('home-err','Enter your name.'); return; }
-  if(videoSrc==='file'&&!uploadedFile){ showErr('home-err','Please choose a video file.'); return; }
-  if(videoSrc==='file'&&!previewPlayed){ showErr('home-err','Please preview your video first — tap play on the preview.'); return; }
+  if(!window._currentUser){ showAuth('login'); return; }
+  if(videoSrc==='file'&&!uploadedFile){ showErr('app-err','Choose a video file first.'); return; }
+  if(videoSrc==='file'&&!previewPlayed){ showErr('app-err','Preview your video first — tap play.'); return; }
   isHost=true; roomId=genRoom();
   history.replaceState(null,'',`?room=${roomId}`);
   setLoad(true,'Setting up your meeting…');
   await getMedia();
   showPage('call-page');
-  setupAloneLayout();
-  updateLocalUI();
+  setupAloneLayout(); updateLocalUI();
   loadPeer(initHost);
 }
 
 function joinFromLink(){
   const v=($('join-link').value||'').trim();
-  if(!v){ showErr('home-err','Paste a meeting link first.'); return; }
+  if(!v){ showErr('app-err','Paste a meeting link first.'); return; }
   try{ const u=new URL(v); roomId=u.searchParams.get('room')||u.pathname.replace('/',''); }
   catch{ roomId=v; }
-  if(!roomId){ showErr('home-err','Invalid link.'); return; }
+  if(!roomId){ showErr('app-err','Invalid link.'); return; }
+  window._roomId=roomId;
   history.replaceState(null,'',`?room=${roomId}`);
-  showPage('join-page');
-  setTimeout(()=>$('join-name').focus(),200);
-}
-
-async function joinCall(){
-  myName=($('join-name').value||'').trim();
-  if(!myName){ showErr('join-err','Enter your name.'); return; }
-  isHost=false; videoSrc='camera';
   setLoad(true,'Joining meeting…');
-  await getMedia();
-  showPage('call-page');
-  setupAloneLayout();
-  updateLocalUI();
-  loadPeer(initGuest);
+  getMedia().then(()=>{
+    showPage('call-page');
+    $('wait-overlay').classList.add('gone');
+    updateLocalUI(); setupAloneLayout();
+    loadPeer(()=>{
+      peer=new Peer(PCFG);
+      peer.on('open',()=>{
+        conn=peer.connect('wavemeet-'+roomId,{reliable:true});
+        conn.on('open',()=>{ conn.send({type:'hello',name:window._myName||'Guest'}); setupDC(); });
+        const call=peer.call('wavemeet-'+roomId,localStream,{metadata:{name:window._myName||'Guest'}});
+        call.on('stream',s=>{ lastRemoteStream=s; lastRemoteName='Host'; showRemoteJoined(s,'Host'); });
+        call.on('error',()=>toast('Could not reach host'));
+        setLoad(false); toast('Connecting…',2000);
+      });
+      peer.on('error',e=>{ setLoad(false); if(e.type==='peer-unavailable') toast('Meeting not found'); else toast('Connection error'); });
+    });
+  });
 }
 
 function endCall(){
   sendSig({type:'bye'});
   localStream?.getTracks().forEach(t=>t.stop());
-  clearInterval(canvasInt);
+  clearInterval(canvasInt); clearInterval(freeTimerInt);
   try{peer?.destroy();}catch(e){}
   stopTimer();
   history.replaceState(null,'',location.pathname);
   location.reload();
 }
 
-// ── SHARE ──────────────────────────────────────────
+// ── SHARE ──────────────────────────────────────
 function copyLink(){ navigator.clipboard.writeText(shareURL()).then(()=>toast('Link copied! 📋')).catch(()=>toast(shareURL())); }
 function shareWA() { window.open(`https://wa.me/?text=${encodeURIComponent('Join my WaveMeet call 👇\n'+shareURL())}`); }
 function shareSMS(){ window.open(`sms:?body=${encodeURIComponent('Join my call: '+shareURL())}`); }
 
-// ── INIT ───────────────────────────────────────────
-window.addEventListener('DOMContentLoaded',()=>{
-  const room=getRoomFromURL();
-  if(room){ roomId=room; isHost=false; showPage('join-page'); setTimeout(()=>$('join-name').focus(),350); }
-  else     { showPage('home-page'); setTimeout(()=>$('host-name').focus(),350); }
-  on('host-name','keydown',e=>{ if(e.key==='Enter') createCall(); });
-  on('join-name','keydown',e=>{ if(e.key==='Enter') joinCall();  });
-  on('join-link','keydown',e=>{ if(e.key==='Enter') joinFromLink(); });
+// ── INIT ───────────────────────────────────────
+// Auth state listener in Firebase module handles routing
+// Keyboard shortcuts
+document.addEventListener('DOMContentLoaded',()=>{
+  ['login-email','login-pass'].forEach(id=>$(id)?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.signInEmail(); }));
+  ['signup-email','signup-pass'].forEach(id=>$(id)?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.signUpEmail(); }));
+  $('join-link')?.addEventListener('keydown',e=>{ if(e.key==='Enter') joinFromLink(); });
 });
 </script>
+<!-- ── PWA INSTALL PROMPT ── -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9000;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:rgba(18,18,26,.98);border-top:1px solid rgba(255,255,255,.1);backdrop-filter:blur(20px);display:none;align-items:center;gap:12px;">
+  <img src="/icon-192.png" style="width:44px;height:44px;border-radius:10px;flex-shrink:0" />
+  <div style="flex:1;min-width:0">
+    <div style="font-size:14px;font-weight:800;color:#fff">Add WaveMeet to Home Screen</div>
+    <div style="font-size:12px;color:#9090B0;margin-top:2px">Get the full app experience</div>
+  </div>
+  <button onclick="installPWA()" style="padding:9px 16px;border-radius:8px;border:none;background:linear-gradient(135deg,#8338EC,#FF006E);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0">Install</button>
+  <button onclick="dismissPWA()" style="width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:#9090B0;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">×</button>
+</div>
 
+<script>
+// ── PWA INSTALL ────────────────────────────────
+let _deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  _deferredPrompt = e;
+  // Show banner after 3 seconds
+  setTimeout(() => {
+    const banner = document.getElementById('pwa-banner');
+    if (banner && !localStorage.getItem('pwa_dismissed')) {
+      banner.style.display = 'flex';
+    }
+  }, 3000);
+});
+
+window.installPWA = async () => {
+  const banner = document.getElementById('pwa-banner');
+  if (_deferredPrompt) {
+    _deferredPrompt.prompt();
+    const { outcome } = await _deferredPrompt.userChoice;
+    _deferredPrompt = null;
+    if (banner) banner.style.display = 'none';
+  } else {
+    // iOS fallback — show instructions
+    alert('To add to Home Screen:\n\n1. Tap the Share button (box with arrow)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add"');
+  }
+};
+
+window.dismissPWA = () => {
+  const banner = document.getElementById('pwa-banner');
+  if (banner) banner.style.display = 'none';
+  localStorage.setItem('pwa_dismissed', '1');
+};
+
+// iOS — show install hint differently
+const isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) && !window.MSStream;
+const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+if (isIOS && !isStandalone && !localStorage.getItem('pwa_dismissed')) {
+  setTimeout(() => {
+    const banner = document.getElementById('pwa-banner');
+    if (banner) banner.style.display = 'flex';
+  }, 3000);
+}
+
+// ── SERVICE WORKER ─────────────────────────────
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
 </body>
 </html>
