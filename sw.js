@@ -1,11 +1,11 @@
-const CACHE = 'wavemeet-v2';
-const ASSETS = ['/', '/index.html', '/manifest.json'];
+const CACHE = 'wavemeet-v3';
+const CORE  = ['/', '/index.html', '/manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(
-    caches.open(CACHE).then(c => {
-      return Promise.allSettled(ASSETS.map(a => c.add(a)));
-    })
+    caches.open(CACHE).then(c =>
+      Promise.allSettled(CORE.map(u => c.add(u)))
+    )
   );
   self.skipWaiting();
 });
@@ -21,11 +21,27 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
-  if (e.request.url.includes('/api/')) return;
-  if (e.request.url.includes('firebasejs')) return;
-  if (e.request.url.includes('flutterwave')) return;
-  if (e.request.url.includes('peerjs')) return;
+  // Don't cache API calls or external scripts
+  const url = e.request.url;
+  if (url.includes('/api/')) return;
+  if (url.includes('firebasejs')) return;
+  if (url.includes('flutterwave')) return;
+  if (url.includes('peerjs')) return;
+  if (url.includes('googleapis')) return;
+  if (url.includes('ibb.co')) return;
+
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).catch(() => caches.match('/')))
+    caches.match(e.request)
+      .then(cached => cached || fetch(e.request)
+        .then(res => {
+          // Cache successful responses for our own pages
+          if (res.ok && url.includes(self.location.origin)) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+          }
+          return res;
+        })
+        .catch(() => caches.match('/'))
+      )
   );
 });
