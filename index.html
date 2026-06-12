@@ -491,6 +491,7 @@ html,body{margin:0!important;padding:0!important;width:100%!important;min-height
     <div class="wait-title">Waiting for someone</div>
     <div class="wait-sub">Share this link to invite</div>
     <div class="link-pill"><div class="link-txt" id="wait-link">—</div><button class="link-copy" onclick="copyLink()">Copy</button></div>
+    <div style="font-size:11px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace;text-align:center;">Link shows your name when shared 👆</div>
     <div class="share-btns"><button class="swa" onclick="shareWA()">WhatsApp</button><button class="ssms" onclick="shareSMS()">SMS</button></div>
   </div>
 
@@ -824,7 +825,15 @@ function showSuc(id,msg){ const e=$(id); if(!e)return; e.textContent=msg; e.clas
 window.showErr=showErr; window.showSuc=showSuc;
 
 function getRoomFromURL(){ return new URLSearchParams(location.search).get('room')||''; }
-function shareURL(){ return `${location.origin}${location.pathname}?room=${roomId}`; }
+function shareURL(){
+  // Regular join URL for the actual call
+  return `${location.origin}/?room=${roomId}`;
+}
+function sharePreviewURL(){
+  // Rich preview URL — goes through our API to generate custom OG tags
+  const host = encodeURIComponent(window._myName || 'Someone');
+  return `${location.origin}/api/room-preview?room=${roomId}&host=${host}`;
+}
 function genRoom(){ const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++) r+=c[Math.floor(Math.random()*c.length)]; return r; }
 function sendSig(msg){ try{ if(conn?.open) conn.send(msg); }catch(e){} }
 
@@ -1195,9 +1204,24 @@ window.endCallAndGoApp=endCallAndGoApp;
 window.endCall=endCallAndGoApp;
 
 // ── SHARE ─────────────────────────────────────
-function copyLink(){ navigator.clipboard.writeText(shareURL()).then(()=>toast('Link copied! 📋')).catch(()=>toast(shareURL())); }
-function shareWA(){ window.open(`https://wa.me/?text=${encodeURIComponent('Join my WaveMeet call 👇\n'+shareURL())}`); }
-function shareSMS(){ window.open(`sms:?body=${encodeURIComponent('Join my call: '+shareURL())}`); }
+function copyLink(){
+  // Copy the preview URL so WhatsApp/iMessage shows the rich card
+  const url = sharePreviewURL();
+  navigator.clipboard.writeText(url)
+    .then(()=>toast('Link copied! 📋'))
+    .catch(()=>toast(url));
+  // Also update wait overlay link text to show clean URL
+  const wl = document.getElementById('wait-link');
+  if(wl) wl.textContent = shareURL();
+}
+function shareWA(){
+  const msg = `📹 ${window._myName||'Someone'} is inviting you to a video call\nJoin instantly 👇\n${sharePreviewURL()}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+}
+function shareSMS(){
+  const msg = `📹 ${window._myName||'Someone'} is inviting you to a WaveMeet call. Join now: ${sharePreviewURL()}`;
+  window.open(`sms:?body=${encodeURIComponent(msg)}`);
+}
 window.copyLink=copyLink; window.shareWA=shareWA; window.shareSMS=shareSMS;
 
 // ── PWA ───────────────────────────────────────
