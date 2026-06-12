@@ -3,15 +3,45 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "Permissions-Policy", "value": "camera=*, microphone=*, display-capture=*" },
-        { "key": "Cross-Origin-Embedder-Policy", "value": "unsafe-none" },
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
-        { "key": "X-Content-Type-Options", "value": "nosniff" }
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=*, microphone=*, display-capture=*"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "unsafe-none"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        }
       ]
     }
   ],
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    {
+      "source": "/api/room-preview",
+      "destination": "/api/room-preview"
+    },
+    {
+      "source": "/api/invite-image",
+      "destination": "/api/invite-image"
+    },
+    {
+      "source": "/api/verify-payment",
+      "destination": "/api/verify-payment"
+    },
+    {
+      "source": "/api/get-turn",
+      "destination": "/api/get-turn"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
   ]
 }

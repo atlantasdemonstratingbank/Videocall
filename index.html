@@ -830,9 +830,9 @@ function shareURL(){
   return `${location.origin}/?room=${roomId}`;
 }
 function sharePreviewURL(){
-  // Rich preview URL — goes through our API to generate custom OG tags
+  // Rich preview URL — generates custom card with host name
   const host = encodeURIComponent(window._myName || 'Someone');
-  return `${location.origin}/api/room-preview?room=${roomId}&host=${host}`;
+  return `${location.origin}/api/room-preview?room=${encodeURIComponent(roomId)}&host=${host}`;
 }
 function genRoom(){ const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++) r+=c[Math.floor(Math.random()*c.length)]; return r; }
 function sendSig(msg){ try{ if(conn?.open) conn.send(msg); }catch(e){} }
