@@ -271,6 +271,9 @@ html,body{margin:0!important;padding:0!important;width:100%!important;min-height
 .pwa-sub{font-size:12px;color:var(--t2);margin-top:2px;}
 .pwa-install{padding:9px 16px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;}
 .pwa-dismiss{width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+/* Range slider webkit */
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--g3);cursor:pointer;box-shadow:0 0 8px rgba(58,134,255,.4);}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--g3);cursor:pointer;border:none;}
 </style>
 </head>
 <body>
@@ -455,6 +458,54 @@ html,body{margin:0!important;padding:0!important;width:100%!important;min-height
       <input type="file" id="file-input" accept="video/*" onchange="onFilePick(event)" />
       <div id="vid-preview-wrap"><video id="vid-preview" playsinline preload="metadata"></video><div class="preview-overlay" id="preview-overlay"><button class="preview-play-btn" onclick="previewPlay()">▶</button><span class="preview-hint">Press play to confirm</span></div></div>
       <div class="lag-row" id="lag-row"><div><div class="lag-lbl">😂 Lag Mode</div><div class="lag-sub">Look like bad connection</div></div><div class="tog" id="lag-tog" onclick="togLag()"><div class="tok"></div></div></div>
+
+      <!-- Background Sound -->
+      <div class="lag-row show" id="bg-sound-row" style="display:none!important;flex-direction:column;gap:12px;align-items:stretch;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div><div class="lag-lbl" style="color:var(--g3);">🎵 Background Sound</div><div class="lag-sub">Mix ambient sound into your call</div></div>
+          <div class="tog" id="bg-sound-tog" onclick="togBgSound()"><div class="tok"></div></div>
+        </div>
+        <!-- File upload for sound -->
+        <div id="bg-sound-upload" style="display:none;">
+          <div id="bg-sound-area" onclick="document.getElementById('bg-sound-input').click()" style="border:1.5px dashed rgba(58,134,255,.3);border-radius:10px;padding:12px;text-align:center;cursor:pointer;background:rgba(58,134,255,.04);margin-bottom:10px;">
+            <p style="font-size:13px;color:var(--muted);">🎵 <strong id="bg-sound-name">Tap to upload audio file</strong></p>
+            <p style="font-size:11px;color:var(--muted);margin-top:3px;">MP3 · WAV · M4A · AAC</p>
+          </div>
+          <input type="file" id="bg-sound-input" accept="audio/*" style="display:none" onchange="onBgSoundPick(event)" />
+
+          <!-- Preview + volume -->
+          <div id="bg-sound-controls" style="display:none;">
+            <!-- Waveform preview bar -->
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+              <button id="bg-preview-btn" onclick="toggleBgPreview()" style="width:36px;height:36px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">▶</button>
+              <div style="flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;">
+                <div id="bg-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--g2),var(--g3));transition:width .1s;"></div>
+              </div>
+              <span id="bg-duration" style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;flex-shrink:0;">0:00</span>
+            </div>
+
+            <!-- Volume slider -->
+            <div style="margin-bottom:8px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <span style="font-size:12px;color:var(--t2);font-weight:600;">Volume mix</span>
+                <span id="bg-vol-pct" style="font-size:12px;color:var(--g3);font-family:'Space Mono',monospace;font-weight:700;">30%</span>
+              </div>
+              <input type="range" id="bg-vol-slider" min="0" max="100" value="30"
+                style="width:100%;height:4px;-webkit-appearance:none;appearance:none;background:linear-gradient(90deg,var(--g3) 30%,rgba(255,255,255,.1) 30%);border-radius:2px;outline:none;cursor:pointer;"
+                oninput="onBgVolChange(this.value)" />
+              <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                <span style="font-size:10px;color:var(--muted);">Subtle</span>
+                <span style="font-size:10px;color:var(--muted);">Loud</span>
+              </div>
+            </div>
+
+            <!-- Mix preview hint -->
+            <div style="background:rgba(58,134,255,.06);border:1px solid rgba(58,134,255,.15);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--t2);line-height:1.5;">
+              💡 <strong style="color:var(--g3);">Hear the mix:</strong> Press ▶ above then play your video to preview how both will sound together before the call.
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="err" id="app-err"></div>
       <button class="btn btn-grad" onclick="createCall()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
@@ -710,14 +761,25 @@ window.startPayment = () => {
           const data=await res.json();
           hideSpinner();
           if(data.success){
-            window._userData.subscribed=true; window._userData.expiresAt=data.expiresAt;
+            // Update local state immediately
+            window._userData.subscribed = true;
+            window._userData.expiresAt  = data.expiresAt;
+            window._userData.plan       = 'pro';
+            // Update UI
             $('paywall-overlay').classList.add('hidden');
-            $('free-badge').classList.add('hidden');
-            $('free-countdown').classList.remove('show');
-            $('user-plan-txt').textContent='✨ Pro plan · Unlimited calls';
+            $('free-badge') && $('free-badge').classList.add('hidden');
+            $('free-countdown') && $('free-countdown').classList.remove('show','urgent');
+            $('user-plan-txt').textContent = '✨ Pro plan · Unlimited calls';
             clearInterval(freeTimerInt);
-            toast('🎉 Welcome to Pro! Enjoy unlimited calls.');
-          } else { toast('Payment received but verification failed. Contact support.'); }
+            // Re-enable mic/video if they were cut by paywall
+            localStream?.getAudioTracks().forEach(t=>t.enabled=micOn);
+            localStream?.getVideoTracks().forEach(t=>t.enabled=camOn);
+            toast('🎉 You are now Pro! Unlimited calls unlocked.', 5000);
+            hideSpinner();
+          } else { 
+            hideSpinner();
+            toast('Payment received but verification failed. Contact support with your payment ID.'); 
+          }
         } catch(e) { hideSpinner(); toast('Verification error — contact support'); }
       }
     },
@@ -769,7 +831,7 @@ let lagEnabled=false, lagSetup=false, canvasInt=null;
 let localIsBig=false, remoteJoined=false;
 let lastRemoteStream=null, lastRemoteName='Guest';
 let previewPlayed=false;
-const FREE_LIMIT = 30;
+const FREE_LIMIT = 30; // default, overridden by admin config
 
 // ── SCREEN NAVIGATION (no reload!) ──────────
 function goScreen(name, sub) {
@@ -855,7 +917,9 @@ function startFreeTimer(){
   if (isGuest) return;
   if (window.isProUser && window.isProUser()) return;
 
-  const freeLimit = window._subConfig?.freeLimit || FREE_LIMIT;
+  // Use admin-configured limit (set in admin panel Subscription tab)
+  const freeLimit = (window._subConfig?.freeLimit) || FREE_LIMIT;
+  console.log('Free call limit:', freeLimit, 'seconds');
   let elapsed = 0;
 
   const cd = $('free-countdown');
@@ -930,6 +994,10 @@ async function setupFileStream(){
   $('btn-lag').classList.remove('hidden');
   if(lagSetup){ lagEnabled=true; $('btn-lag').classList.add('on'); }
   fv.ontimeupdate=()=>{ const t=fv.currentTime; $('vc-time').textContent=`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`; };
+  // Mix background sound if enabled
+  if (bgEnabled && bgAudio) {
+    await mixBgSoundIntoStream();
+  }
 }
 
 // ── VIDEO CONTROLS ────────────────────────────
@@ -1185,6 +1253,15 @@ function endCallAndGoApp(){
   micOn=true; camOn=true; isHost=false; isGuest=false;
   previewPlayed=false; lagEnabled=false; lagSetup=false;
   videoSrc='camera'; uploadedFile=null;
+  stopBgSound();
+  // Reset bg sound UI
+  bgEnabled=false; bgAudio=null;
+  $('bg-sound-tog') && $('bg-sound-tog').classList.remove('on');
+  $('bg-sound-upload') && ($('bg-sound-upload').style.display='none');
+  $('bg-sound-controls') && ($('bg-sound-controls').style.display='none');
+  $('bg-sound-name') && ($('bg-sound-name').textContent='Tap to upload audio file');
+  $('bg-preview-btn') && ($('bg-preview-btn').textContent='▶');
+  $('bg-progress-bar') && ($('bg-progress-bar').style.width='0%');
   $('t-timer').textContent='—';
   $('paywall-overlay').classList.add('hidden');
   $('free-countdown').classList.remove('show','urgent');
@@ -1233,6 +1310,169 @@ const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
 if(isIOS&&!window.matchMedia('(display-mode:standalone)').matches&&!localStorage.getItem('pwa_d')) setTimeout(()=>$('pwa-banner').classList.add('show'),5000);
 
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+// ══════════════════════════════════════════
+//  BACKGROUND SOUND SYSTEM
+//  Mixes uploaded audio into the call stream
+//  Only available in video file mode
+// ══════════════════════════════════════════
+
+let bgAudio       = null;  // HTMLAudioElement
+let bgAudioCtx    = null;  // AudioContext
+let bgSource      = null;  // MediaElementSourceNode
+let bgGainNode    = null;  // GainNode for volume
+let bgDestination = null;  // MediaStreamDestinationNode
+let bgEnabled     = false;
+let bgVolume      = 0.30;  // default 30%
+let bgPreviewing  = false;
+let bgProgressInt = null;
+
+function togBgSound() {
+  bgEnabled = !bgEnabled;
+  $('bg-sound-tog').classList.toggle('on', bgEnabled);
+  $('bg-sound-upload').style.display = bgEnabled ? 'block' : 'none';
+  if (!bgEnabled && bgAudio) {
+    bgAudio.pause();
+    bgPreviewing = false;
+    $('bg-preview-btn').textContent = '▶';
+  }
+}
+window.togBgSound = togBgSound;
+
+function onBgSoundPick(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  $('bg-sound-name').textContent = f.name;
+
+  // Load into audio element
+  if (bgAudio) { bgAudio.pause(); bgAudio = null; }
+  bgAudio = new Audio();
+  bgAudio.src = URL.createObjectURL(f);
+  bgAudio.loop = true;
+  bgAudio.preload = 'metadata';
+  bgAudio.onloadedmetadata = () => {
+    const d = bgAudio.duration;
+    const m = Math.floor(d/60);
+    const s = Math.floor(d%60);
+    $('bg-duration').textContent = `${m}:${String(s).padStart(2,'0')}`;
+  };
+  bgAudio.ontimeupdate = () => {
+    if (!bgAudio.duration) return;
+    const pct = (bgAudio.currentTime / bgAudio.duration) * 100;
+    $('bg-progress-bar').style.width = pct + '%';
+  };
+
+  $('bg-sound-controls').style.display = 'block';
+}
+window.onBgSoundPick = onBgSoundPick;
+
+function toggleBgPreview() {
+  if (!bgAudio) return;
+  if (bgPreviewing) {
+    bgAudio.pause();
+    bgPreviewing = false;
+    $('bg-preview-btn').textContent = '▶';
+  } else {
+    bgAudio.volume = bgVolume;
+    bgAudio.play();
+    bgPreviewing = true;
+    $('bg-preview-btn').textContent = '⏸';
+  }
+}
+window.toggleBgPreview = toggleBgPreview;
+
+function onBgVolChange(val) {
+  bgVolume = val / 100;
+  if (bgAudio) bgAudio.volume = bgVolume;
+  if (bgGainNode) bgGainNode.gain.value = bgVolume;
+  $('bg-vol-pct').textContent = val + '%';
+  // Update slider gradient
+  const slider = $('bg-vol-slider');
+  slider.style.background = `linear-gradient(90deg,var(--g3) ${val}%,rgba(255,255,255,.1) ${val}%)`;
+}
+window.onBgVolChange = onBgVolChange;
+
+// Mix background audio into the local stream using Web Audio API
+// Called after getMedia() sets up localStream
+async function mixBgSoundIntoStream() {
+  if (!bgEnabled || !bgAudio || !localStream) return;
+
+  try {
+    // Create audio context
+    bgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // Source: background audio file
+    bgSource = bgAudioCtx.createMediaElementSource(bgAudio);
+
+    // Gain node: controls volume mix
+    bgGainNode = bgAudioCtx.createGain();
+    bgGainNode.gain.value = bgVolume;
+
+    // Destination: outputs to a MediaStream
+    bgDestination = bgAudioCtx.createMediaStreamDestination();
+
+    // Connect: bgAudio → gain → destination
+    bgSource.connect(bgGainNode);
+    bgGainNode.connect(bgDestination);
+    // Also connect to speakers so host can hear it too (monitoring)
+    bgGainNode.connect(bgAudioCtx.destination);
+
+    // Get mic audio tracks from localStream
+    const micTracks = localStream.getAudioTracks();
+
+    if (micTracks.length > 0) {
+      // Create source from mic stream
+      const micSource = bgAudioCtx.createMediaStreamSource(
+        new MediaStream(micTracks)
+      );
+
+      // Mix mic + bg audio together into one destination
+      const mixDest = bgAudioCtx.createMediaStreamDestination();
+      micSource.connect(mixDest);
+      bgGainNode.connect(mixDest);
+
+      // Replace audio tracks in localStream with mixed tracks
+      const mixedTrack = mixDest.stream.getAudioTracks()[0];
+      micTracks.forEach(t => localStream.removeTrack(t));
+      localStream.addTrack(mixedTrack);
+    } else {
+      // No mic — just use bg audio track directly
+      const bgTrack = bgDestination.stream.getAudioTracks()[0];
+      localStream.addTrack(bgTrack);
+    }
+
+    // Start playing background audio
+    bgAudio.volume = bgVolume;
+    await bgAudio.play();
+    bgPreviewing = true;
+    console.log('Background sound mixed into stream ✅');
+
+  } catch(e) {
+    console.error('Background sound mix error:', e);
+    toast('Background sound could not be mixed — check audio permissions');
+  }
+}
+
+function stopBgSound() {
+  if (bgAudio) { bgAudio.pause(); bgAudio.currentTime = 0; }
+  if (bgAudioCtx) { try { bgAudioCtx.close(); } catch(e){} bgAudioCtx = null; }
+  bgSource = null; bgGainNode = null; bgDestination = null; bgPreviewing = false;
+}
+
+// Show/hide bg sound row only in file mode
+const _origSetSrc = window.setSrc;
+window.setSrc = function(src) {
+  _origSetSrc(src);
+  const row = $('bg-sound-row');
+  if (row) row.style.display = src === 'file' ? 'flex' : 'none';
+  // Reset if switching away from file
+  if (src !== 'file' && bgEnabled) {
+    bgEnabled = false;
+    $('bg-sound-tog') && $('bg-sound-tog').classList.remove('on');
+    $('bg-sound-upload') && ($('bg-sound-upload').style.display = 'none');
+    stopBgSound();
+  }
+};
 
 // ── KEYBOARD ──────────────────────────────────
 document.addEventListener('DOMContentLoaded',()=>{
