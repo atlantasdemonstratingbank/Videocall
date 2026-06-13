@@ -582,7 +582,7 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const FB = { apiKey:"AIzaSyCduZGxLq_pwSE2BustK4Z5suKV83vdknw", authDomain:"wave-220b6.firebaseapp.com", projectId:"wave-220b6", storageBucket:"wave-220b6.firebasestorage.app", messagingSenderId:"634835256647", appId:"1:634835256647:web:fcfc069523a81d2bdaf862" };
+const FB = { apiKey:"AIzaSyCduZGxLq_pwSE2BustK4Z5suKV83vdknw", authDomain:window.location.hostname, projectId:"wave-220b6", storageBucket:"wave-220b6.firebasestorage.app", messagingSenderId:"634835256647", appId:"1:634835256647:web:fcfc069523a81d2bdaf862" };
 const fbApp = initializeApp(FB);
 const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
@@ -768,7 +768,7 @@ window.doEmailSignup = async () => {
   if(spin2) spin2.style.display='block'; if(txt2) txt2.textContent='Creating…'; if(btn2){btn2.disabled=true;btn2.style.opacity='.7';}
   try {
     const cred = await createUserWithEmailAndPassword(auth,email,pass);
-    await sendEmailVerification(cred.user, { url: location.origin+'/?verified=1', handleCodeInApp:false });
+    await sendEmailVerification(cred.user, { url: `${location.origin}/?verified=1`, handleCodeInApp:false });
     await setDoc(doc(db,'users',cred.user.uid), { email, name:email.split('@')[0], createdAt:new Date().toISOString(), subscribed:false, plan:'free' });
     showSuc('signup-suc','✅ Account created! Check your email to verify.');
     // Auth state listener will route to app
@@ -783,7 +783,7 @@ window.doReset = async () => {
   const email=$('forgot-email').value.trim();
   if(!email){ showErr('forgot-err','Enter your email.'); return; }
   try {
-    await sendPasswordResetEmail(auth, email, { url: location.origin+'/?reset=1', handleCodeInApp:false });
+    await sendPasswordResetEmail(auth, email, { url: `${location.origin}/?reset=1`, handleCodeInApp:false });
     showSuc('forgot-suc','✅ Reset email sent! Check your inbox.');
   } catch(e) {
     showErr('forgot-err', e.code==='auth/user-not-found'?'No account with this email.':e.message);
