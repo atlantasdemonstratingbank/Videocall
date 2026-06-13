@@ -501,7 +501,10 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 
             <!-- Mix preview hint -->
             <div style="background:rgba(58,134,255,.06);border:1px solid rgba(58,134,255,.15);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--t2);line-height:1.5;">
-              💡 <strong style="color:var(--g3);">Hear the mix:</strong> Press ▶ above then play your video to preview how both will sound together before the call.
+              💡 <strong style="color:var(--g3);">Preview the mix:</strong> Press ▶ on both the video above and the audio here at the same time to hear exactly how they'll sound together. Adjust volume until it feels right, then start your call.
+            </div>
+            <div style="margin-top:8px;font-size:11px;color:var(--muted);text-align:center;font-family:'Space Mono',monospace;">
+              Background keeps playing even when video is paused 🎵
             </div>
           </div>
         </div>
@@ -590,6 +593,24 @@ window._auth = auth; window._db = db;
 // ── AUTH STATE ───────────────────────────────
 // Runs once on load — routes without reloading
 onAuthStateChanged(auth, async user => {
+  // Check maintenance mode first
+  try {
+    const maint = (await getDoc(doc(db,'config','maintenance'))).data();
+    if (maint?.enabled) {
+      document.querySelectorAll('.screen,#screen-call').forEach(s=>s.classList.remove('active'));
+      const msg = maint.message || 'WaveMeet is currently under maintenance. Please check back soon.';
+      // Show maintenance screen
+      document.body.innerHTML += `<div id="maint-screen" style="position:fixed;inset:0;z-index:9999;background:#0A0A0F;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;font-family:'Space Grotesk',sans-serif;">
+        <div style="font-size:64px;margin-bottom:20px;">🔧</div>
+        <h1 style="font-size:28px;font-weight:800;color:#fff;margin-bottom:12px;letter-spacing:-.02em;">Under Maintenance</h1>
+        <p style="font-size:16px;color:#9090B0;line-height:1.7;max-width:400px;">${msg}</p>
+        <div style="margin-top:32px;font-size:13px;color:#505070;font-family:monospace;">WaveMeet · Back soon 🚀</div>
+      </div>`;
+      $('app-spinner').classList.add('hidden');
+      return;
+    }
+  } catch(e) { /* No maintenance config — continue normally */ }
+
   if (user) {
     window._currentUser = user;
     try {
@@ -597,12 +618,18 @@ onAuthStateChanged(auth, async user => {
       window._userData = uSnap.exists() ? uSnap.data() : {};
     } catch(e) { window._userData = {}; }
 
-    // Load sub config
+    // Load sub config + features config
     try {
       const cfg = (await getDoc(doc(db,'config','subscription'))).data() || {};
       window._subConfig = cfg;
       updatePriceDisplays(cfg);
     } catch(e) { window._subConfig = {}; }
+
+    try {
+      const feat = (await getDoc(doc(db,'config','features'))).data() || {};
+      window._features = feat;
+      applyFeatureFlags(feat);
+    } catch(e) { window._features = {}; }
 
     // Update nav
     $('nav-right').classList.add('hidden');
@@ -646,6 +673,30 @@ onAuthStateChanged(auth, async user => {
   $('app-spinner').classList.add('hidden');
 });
 
+function applyFeatureFlags(feat) {
+  // If subscriptions are disabled globally, hide upgrade prompts
+  if (feat.subscriptionsEnabled === false) {
+    document.querySelectorAll('.upgrade-link,.paywall-btn').forEach(el => el.style.display='none');
+    // Give everyone unlimited calls
+    window._forceFree = false;
+    window._forceUnlimited = true;
+  }
+  // Free plan features
+  if (feat.freeCallLimit !== undefined) {
+    window._subConfig = window._subConfig || {};
+    window._subConfig.freeLimit = feat.freeCallLimit;
+  }
+  // Hide lag mode for free users if disabled
+  if (feat.freeLagMode === false && !window.isProUser?.()) {
+    document.getElementById('lag-row')?.style?.setProperty('display','none','important');
+  }
+  // Hide video file mode for free users if disabled
+  if (feat.freeVideoFile === false && !window.isProUser?.()) {
+    document.getElementById('src-file')?.style?.setProperty('display','none','important');
+  }
+}
+window.applyFeatureFlags = applyFeatureFlags;
+
 function updatePriceDisplays(cfg) {
   const p=cfg.price||'—'; const c=cfg.currency||''; const m=cfg.months||3;
   const disp=`${c}${p}`; const per=`/ ${m} month${m>1?'s':''}`;
@@ -656,6 +707,7 @@ function updatePriceDisplays(cfg) {
 }
 
 window.isProUser = () => {
+  if (window._forceUnlimited) return true; // Admin disabled subscriptions
   const d = window._userData||{};
   return d.subscribed && d.expiresAt && new Date(d.expiresAt) > new Date();
 };
@@ -1001,7 +1053,20 @@ async function setupFileStream(){
 }
 
 // ── VIDEO CONTROLS ────────────────────────────
-function toggleVidPlay(){ const fv=$('vid-preview'); if(fv.paused){ fv.play(); $('pp-btn').textContent='⏸'; sendSig({type:'vidsync',playing:true,time:fv.currentTime}); } else { fv.pause(); $('pp-btn').textContent='▶'; sendSig({type:'vidsync',playing:false,time:fv.currentTime}); } }
+function toggleVidPlay(){
+  const fv=$('vid-preview');
+  if(fv.paused){
+    fv.play();
+    $('pp-btn').textContent='⏸';
+    sendSig({type:'vidsync',playing:true,time:fv.currentTime});
+  } else {
+    fv.pause();
+    $('pp-btn').textContent='▶';
+    sendSig({type:'vidsync',playing:false,time:fv.currentTime});
+  }
+  // Background sound is NOT affected by video pause — it keeps playing always
+  if(bgAudio && bgEnabled && bgAudio.paused) bgAudio.play();
+}
 function restartVid(){ const fv=$('vid-preview'); fv.currentTime=0; fv.play(); $('pp-btn').textContent='⏸'; sendSig({type:'vidsync',playing:true,time:0}); }
 function applyVidSync(msg){ $('big-vid').style.filter=msg.playing?'':'blur(2px) brightness(.6)'; }
 window.toggleVidPlay=toggleVidPlay; window.restartVid=restartVid;
