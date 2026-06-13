@@ -5,8 +5,10 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { transaction_id, uid } = req.body;
-  if (!transaction_id || !uid) return res.status(400).json({ error: 'Missing fields' });
+  const { transaction_id, uid } = req.body || {};
+  if (!transaction_id || !uid) {
+    return res.status(400).json({ error: 'Missing transaction_id or uid' });
+  }
 
   const FW_SECRET = 'FLWSECK-fa0a4592ae8bc75eba79bf225b40d25b-19eb0785121vt-X';
 
@@ -24,50 +26,98 @@ export default async function handler(req, res) {
   };
 
   try {
-    // Verify payment with Flutterwave
-    const fw = await fetch(`https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`, {
+    // Step 1 — Verify with Flutterwave
+    console.log(`Verifying transaction ${transaction_id} for user ${uid}`);
+    const fwRes = await fetch(`https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`, {
       headers: { Authorization: `Bearer ${FW_SECRET}` }
     });
-    const data = await fw.json();
 
-    if (data.status !== 'success' || data.data.status !== 'successful') {
-      return res.status(400).json({ error: 'Payment not successful' });
+    if (!fwRes.ok) {
+      const errTxt = await fwRes.text();
+      console.error('Flutterwave API error:', errTxt);
+      return res.status(500).json({ error: 'Flutterwave verification failed', detail: errTxt });
     }
 
-    // Init Firebase Admin
-    const { initializeApp, getApps, cert } = await import('firebase-admin/app');
-    const { getFirestore } = await import('firebase-admin/firestore');
+    const fwData = await fwRes.json();
+    console.log('Flutterwave response:', JSON.stringify(fwData));
 
-    const adminApp = getApps().length === 0
-      ? initializeApp({ credential: cert(SERVICE_ACCOUNT) })
-      : getApps()[0];
+    if (fwData.status !== 'success' || fwData.data?.status !== 'successful') {
+      return res.status(400).json({ 
+        error: 'Payment not successful',
+        fw_status: fwData.status,
+        tx_status: fwData.data?.status
+      });
+    }
+
+    const { amount, currency, customer } = fwData.data;
+
+    // Step 2 — Init Firebase Admin
+    const { initializeApp, getApps, cert } = await import('firebase-admin/app');
+    const { getFirestore }                  = await import('firebase-admin/firestore');
+
+    let adminApp;
+    try {
+      adminApp = getApps().find(a => a.name === 'admin-verify') || 
+                 initializeApp({ credential: cert(SERVICE_ACCOUNT) }, 'admin-verify');
+    } catch(e) {
+      // App already exists with different name
+      adminApp = getApps()[0];
+    }
 
     const db = getFirestore(adminApp);
 
-    // Get subscription config
-    const cfgDoc = await db.collection('config').doc('subscription').get();
-    const cfg    = cfgDoc.exists ? cfgDoc.data() : {};
-    const months = cfg.months || 3;
+    // Step 3 — Get subscription config (months, etc)
+    let months = 3;
+    try {
+      const cfgSnap = await db.collection('config').doc('subscription').get();
+      if (cfgSnap.exists) months = cfgSnap.data().months || 3;
+    } catch(e) { console.log('Could not read config, using default 3 months'); }
 
-    // Set user as Pro
+    // Step 4 — Calculate expiry
+    const now    = new Date();
     const expiry = new Date();
     expiry.setMonth(expiry.getMonth() + months);
 
-    await db.collection('users').doc(uid).set({
-      subscribed:  true,
-      plan:        'pro',
-      subscribedAt: new Date().toISOString(),
-      expiresAt:   expiry.toISOString(),
+    // Step 5 — Update user to Pro
+    const userRef = db.collection('users').doc(uid);
+    await userRef.set({
+      subscribed:   true,
+      plan:         'pro',
+      subscribedAt: now.toISOString(),
+      expiresAt:    expiry.toISOString(),
       lastPayment: {
         transaction_id,
-        amount:   data.data.amount,
-        currency: data.data.currency
+        amount,
+        currency,
+        customer_email: customer?.email || '',
+        paidAt: now.toISOString()
       }
     }, { merge: true });
 
-    return res.status(200).json({ success: true, expiresAt: expiry.toISOString() });
+    // Step 6 — Log payment to admin payments collection (admin can see all payments)
+    await db.collection('payments').add({
+      uid,
+      transaction_id,
+      amount,
+      currency,
+      customer_email: customer?.email || '',
+      months,
+      subscribedAt:  now.toISOString(),
+      expiresAt:     expiry.toISOString(),
+      status:        'success',
+      verifiedAt:    now.toISOString()
+    });
+
+    console.log(`User ${uid} upgraded to Pro until ${expiry.toISOString()}`);
+
+    return res.status(200).json({ 
+      success: true, 
+      expiresAt: expiry.toISOString(),
+      months
+    });
+
   } catch(e) {
-    console.error(e);
-    return res.status(500).json({ error: e.message });
+    console.error('verify-payment error:', e);
+    return res.status(500).json({ error: e.message, stack: e.stack });
   }
 }
