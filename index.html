@@ -546,7 +546,6 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     <div class="wait-title">Waiting for someone</div>
     <div class="wait-sub">Share this link to invite</div>
     <div class="link-pill"><div class="link-txt" id="wait-link">—</div><button class="link-copy" onclick="copyLink()">Copy</button></div>
-    <div style="font-size:11px;color:rgba(255,255,255,.3);font-family:'Space Mono',monospace;text-align:center;">Link shows your name when shared 👆</div>
     <div class="share-btns"><button class="swa" onclick="shareWA()">WhatsApp</button><button class="ssms" onclick="shareSMS()">SMS</button></div>
   </div>
 
@@ -945,9 +944,9 @@ function shareURL(){
   return `${location.origin}/?room=${roomId}`;
 }
 function sharePreviewURL(){
-  // Rich preview URL — generates custom card with host name
+  // Uses /join endpoint — bots get custom OG preview, real users get the app
   const host = encodeURIComponent(window._myName || 'Someone');
-  return `${location.origin}/api/room-preview?room=${encodeURIComponent(roomId)}&host=${host}`;
+  return `${location.origin}/join?room=${encodeURIComponent(roomId)}&host=${host}`;
 }
 function genRoom(){ const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++) r+=c[Math.floor(Math.random()*c.length)]; return r; }
 function sendSig(msg){ try{ if(conn?.open) conn.send(msg); }catch(e){} }
@@ -1136,7 +1135,7 @@ function setupAloneLayout(){
   $('big-nametag-txt').textContent=name;
   updateBigAvatar(false,name);
   $('vid-pip').style.display='none';
-  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=shareURL(); }
+  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=sharePreviewURL(); }
   else $('wait-overlay').classList.add('gone');
 }
 
@@ -1174,7 +1173,7 @@ function handleLeft(){
   $('big-vid').srcObject=localStream; $('big-vid').muted=true;
   $('big-nametag-txt').textContent=(window._myName||'You')+' (You)';
   updateBigAvatar(false,window._myName);
-  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=shareURL(); }
+  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=sharePreviewURL(); }
   stopCallTimer(); applyLag(false);
   clearInterval(freeTimerInt);
   $('free-countdown').classList.remove('show','urgent');
@@ -1348,14 +1347,10 @@ window.endCall=endCallAndGoApp;
 
 // ── SHARE ─────────────────────────────────────
 function copyLink(){
-  // Copy the preview URL so WhatsApp/iMessage shows the rich card
   const url = sharePreviewURL();
   navigator.clipboard.writeText(url)
     .then(()=>toast('Link copied! 📋'))
     .catch(()=>toast(url));
-  // Also update wait overlay link text to show clean URL
-  const wl = document.getElementById('wait-link');
-  if(wl) wl.textContent = shareURL();
 }
 function shareWA(){
   const msg = `📹 ${window._myName||'Someone'} is inviting you to a video call\nJoin instantly 👇\n${sharePreviewURL()}`;
