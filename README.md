@@ -6,15 +6,14 @@ Deploy this to Vercel. This is the public-facing website.
 ```
 ├── index.html        — the app (UI + call logic)
 ├── manifest.json      — PWA manifest
+├── package.json        — declares "type": "module" (required for api/*.js ES module syntax)
 ├── sw.js               — service worker (offline caching)
 ├── vercel.json         — routing & security headers
-├── api/
-│   ├── verify-payment.js   — verifies Flutterwave payment, unlocks subscription
-│   └── join-handler.js     — /join?room=... : shows a "Call link / Join call"
-│                             preview card to WhatsApp/Telegram/iMessage/etc.,
-│                             redirects real users straight into the call
-└── public/
-    └── call-preview.png    — branded image used in the share preview card
+└── api/
+    ├── verify-payment.js   — verifies Flutterwave payment, unlocks subscription
+    └── join-handler.js     — /join?room=... : shows a "Call link / Join call"
+                              preview card to WhatsApp/Telegram/iMessage/etc.,
+                              redirects real users straight into the call
 ```
 
 ## Deploy
