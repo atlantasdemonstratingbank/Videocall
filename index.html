@@ -579,16 +579,37 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
 <!-- Firebase -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
 
-const FB = { apiKey:"AIzaSyCduZGxLq_pwSE2BustK4Z5suKV83vdknw", authDomain:"wavemeet-wine.vercel.app", projectId:"wave-220b6", storageBucket:"wave-220b6.firebasestorage.app", messagingSenderId:"634835256647", appId:"1:634835256647:web:fcfc069523a81d2bdaf862" };
+const FB = { apiKey:"AIzaSyCduZGxLq_pwSE2BustK4Z5suKV83vdknw", authDomain:"wave-220b6.firebaseapp.com", projectId:"wave-220b6", storageBucket:"wave-220b6.firebasestorage.app", messagingSenderId:"634835256647", appId:"1:634835256647:web:fcfc069523a81d2bdaf862" };
 const fbApp = initializeApp(FB);
 const auth  = getAuth(fbApp);
 const db    = getFirestore(fbApp);
 const gProv = new GoogleAuthProvider();
 
 window._auth = auth; window._db = db;
+
+// ── GOOGLE REDIRECT RESULT ────────────────────
+// Must run on every load to catch the user coming back from Google.
+// onAuthStateChanged below will also fire with the same user, but this
+// is the only place we can create their Firestore doc on first sign-in.
+(async () => {
+  try {
+    const r = await getRedirectResult(auth);
+    if (r && r.user) {
+      const uRef = doc(db,'users',r.user.uid);
+      const uSnap = await getDoc(uRef);
+      if (!uSnap.exists()) {
+        await setDoc(uRef, { email:r.user.email, name:r.user.displayName, photo:r.user.photoURL, createdAt:new Date().toISOString(), subscribed:false, plan:'free' });
+      }
+    }
+  } catch(e) {
+    if (e.code && e.code !== 'auth/no-current-user') {
+      showErr('login-err', e.message); showErr('signup-err', e.message);
+    }
+  }
+})();
 
 // ── AUTH STATE ───────────────────────────────
 // Runs once on load — routes without reloading
@@ -723,16 +744,11 @@ window.doGoogle = async (btnEl) => {
     btnEl.disabled = true;
   }
   try {
-    const r = await signInWithPopup(auth, gProv);
-    const uRef = doc(db,'users',r.user.uid);
-    const uSnap = await getDoc(uRef);
-    if (!uSnap.exists()) {
-      await setDoc(uRef, { email:r.user.email, name:r.user.displayName, photo:r.user.photoURL, createdAt:new Date().toISOString(), subscribed:false, plan:'free' });
-    }
-    // onAuthStateChanged handles routing
+    // Full-page redirect — far more reliable than a popup on mobile/PWA.
+    // Page navigates away here; getRedirectResult() above picks up the result on return.
+    await signInWithRedirect(auth, gProv);
   } catch(e) {
-    if(e.code !== 'auth/popup-closed-by-user') { showErr('login-err',e.message); showErr('signup-err',e.message); }
-  } finally {
+    showErr('login-err',e.message); showErr('signup-err',e.message);
     // Reset all Google buttons
     document.querySelectorAll('.google-btn').forEach(b => {
       const spin = b.querySelector('.g-spin');
