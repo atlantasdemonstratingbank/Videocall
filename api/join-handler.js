@@ -32,7 +32,7 @@ export default async function handler(req, res) {
   const siteHost = req.headers.host || 'wavemeet-wine.vercel.app';
   const joinURL  = `https://${siteHost}/?room=${encodeURIComponent(roomId)}`;
   const pageURL  = `https://${siteHost}/join?room=${encodeURIComponent(roomId)}`;
-  const imageURL = `https://${siteHost}/call-preview.png`;
+  const imageURL = 'https://i.ibb.co/N6xZXDdH/IMG-0876.png';
   const userAgent = req.headers['user-agent'] || '';
 
   if (isBotRequest(userAgent)) {
