@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WaveMeet">
+<meta name="theme-color" content="#8338EC">
+<title>WaveMeet — Video calls from the future</title>
+<!-- OG/Twitter preview tags for shared call links live in api/join-handler.js,
+     which serves them only to link-preview crawlers (WhatsApp/Telegram/etc.).
+     Real visitors to this page get the full app, untouched. -->
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg">
+<link rel="icon" href="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+:root{
+  --g1:#FF006E;--g2:#8338EC;--g3:#3A86FF;--g4:#06FFB4;--g5:#FFBE0B;
+  --bg:#0A0A0F;--s1:#12121A;--s2:#1A1A26;
+  --b1:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.13);
+  --text:#F0F0FF;--t2:#9090B0;--muted:#505070;
+  --red:#FF4060;--green:#06FFB4;
+}
+html,body{margin:0!important;padding:0!important;width:100%!important;min-height:100%!important;background:#0A0A0F!important;color:#F0F0FF!important;font-family:'Space Grotesk',-apple-system,sans-serif!important;-webkit-font-smoothing:antialiased;overscroll-behavior-x:none;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;max-width:100%;}
+.hidden{display:none!important;}
+
+/* ORBS */
+.orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.18;animation:orbf 9s ease-in-out infinite;}
+.o1{width:500px;height:500px;background:#8338EC;top:-150px;left:-100px;}
+.o2{width:400px;height:400px;background:#FF006E;bottom:-100px;right:-80px;animation-delay:-4s;}
+.o3{width:300px;height:300px;background:#3A86FF;top:40%;left:40%;animation-delay:-7s;}
+@keyframes orbf{0%,100%{transform:translate(0,0)}33%{transform:translate(20px,-30px)}66%{transform:translate(-15px,20px)}}
+
+/* SPINNER */
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:60px;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:rgba(10,10,15,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);}
+.nav-logo{display:flex;align-items:center;gap:10px;}
+.nav-logo-img{width:34px;height:34px;border-radius:9px;object-fit:cover;}
+.nav-name{font-size:18px;font-weight:800;background:linear-gradient(90deg,var(--g2),var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.nav-right{display:flex;align-items:center;gap:8px;}
+.nav-btn{padding:8px 16px;border-radius:8px;border:none;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.nav-login{background:transparent;border:1px solid var(--b2);color:var(--t2);}
+.nav-signup{background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;}
+.nav-user{display:flex;align-items:center;gap:8px;}
+.nav-avatar-text{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--g2),var(--g1));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;}
+.nav-signout{background:transparent;border:1px solid var(--b2);color:var(--t2);font-size:12px;padding:6px 12px;}
+
+/* SCREENS — no reload, just show/hide */
+.screen{display:none;position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;background:var(--bg);}
+.screen.active{display:block;}
+/* Call screen is different */
+#screen-call{display:none;position:fixed;inset:0;z-index:600;background:#050508;}
+#screen-call.active{display:flex;flex-direction:column;}
+
+/* SPINNER OVERLAY */
+#app-spinner{position:fixed;inset:0;z-index:9999;background:rgba(10,10,15,.97);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;}
+#app-spinner.hidden{display:none;}
+.sp-logo{width:60px;height:60px;border-radius:16px;overflow:hidden;}
+.sp-logo img{width:100%;height:100%;object-fit:cover;}
+.sp-ring{width:48px;height:48px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:var(--g3);animation:spin 1s linear infinite;}
+.sp-txt{font-size:14px;color:var(--t2);font-weight:600;}
+
+/* SECTION INNER */
+.page-inner{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px;position:relative;z-index:1;}
+
+/* HERO */
+.hero-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:90px 24px 60px;text-align:center;position:relative;z-index:1;}
+.hero-tag{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.05);border:1px solid var(--b2);border-radius:40px;padding:6px 16px;margin-bottom:24px;font-size:11px;font-weight:700;font-family:'Space Mono',monospace;color:var(--t2);letter-spacing:.07em;text-transform:uppercase;}
+.hdot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;box-shadow:0 0 8px var(--green)}50%{opacity:.3;box-shadow:none}}
+.hero-title{font-size:clamp(38px,9vw,80px);font-weight:800;line-height:1.0;letter-spacing:-.04em;color:#fff;margin-bottom:20px;}
+.gt{background:linear-gradient(90deg,var(--g1),var(--g2),var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;display:block;}
+.hero-sub{font-size:17px;color:var(--t2);line-height:1.7;margin-bottom:40px;max-width:480px;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:60px;}
+.hero-cta{padding:16px 32px;border-radius:12px;border:none;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;}
+.cta-primary{background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;box-shadow:0 8px 30px rgba(131,56,236,.4);}
+.cta-primary:hover{transform:translateY(-2px);}
+.cta-secondary{background:rgba(255,255,255,.06);border:1.5px solid var(--b2);color:var(--text);}
+.hero-img-wrap{width:100%;max-width:720px;border-radius:20px;overflow:hidden;border:1px solid var(--b2);box-shadow:0 40px 100px rgba(0,0,0,.6);}
+.hero-img-wrap img{width:100%;height:auto;display:block;}
+
+/* FEATURES */
+.features-section{padding:80px 24px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;}
+.section-tag{font-size:12px;font-weight:700;font-family:'Space Mono',monospace;color:var(--g4);letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;}
+.section-title{font-size:clamp(26px,5vw,44px);font-weight:800;color:#fff;text-align:center;margin-bottom:12px;letter-spacing:-.02em;}
+.section-sub{font-size:15px;color:var(--t2);text-align:center;margin-bottom:48px;line-height:1.6;max-width:480px;}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;width:100%;max-width:900px;}
+.feat-card{background:rgba(18,18,26,.8);border:1px solid var(--b2);border-radius:16px;padding:22px;transition:transform .2s,border-color .2s;}
+.feat-card:hover{transform:translateY(-4px);border-color:rgba(131,56,236,.4);}
+.feat-icon{font-size:30px;margin-bottom:12px;display:block;}
+.feat-title{font-size:15px;font-weight:800;color:#fff;margin-bottom:7px;}
+.feat-desc{font-size:13px;color:var(--t2);line-height:1.6;}
+
+/* PRICING */
+.pricing-section{padding:80px 24px;display:flex;flex-direction:column;align-items:center;position:relative;z-index:1;}
+.pricing-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;width:100%;max-width:620px;margin-top:48px;}
+.price-card{background:rgba(18,18,26,.8);border:1px solid var(--b2);border-radius:20px;padding:26px;position:relative;}
+.price-card.pro{border-color:rgba(131,56,236,.5);background:rgba(131,56,236,.08);}
+.price-badge{position:absolute;top:14px;right:14px;background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;font-family:'Space Mono',monospace;}
+.price-name{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-family:'Space Mono',monospace;margin-bottom:10px;}
+.price-amount{font-size:44px;font-weight:800;color:#fff;letter-spacing:-.03em;margin-bottom:4px;}
+.price-amount span{font-size:16px;color:var(--t2);font-weight:500;}
+.price-desc{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.price-features{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:26px;}
+.price-features li{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--t2);}
+.pf-y{color:var(--green);font-size:13px;flex-shrink:0;}
+.pf-n{color:var(--muted);font-size:13px;flex-shrink:0;}
+.price-btn{display:flex;align-items:center;justify-content:center;width:100%;padding:13px;border-radius:10px;border:none;font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .15s;}
+.price-btn-free{background:rgba(255,255,255,.07);border:1px solid var(--b2);color:var(--t2);}
+.price-btn-pro{background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;box-shadow:0 4px 20px rgba(131,56,236,.4);}
+
+/* FOOTER */
+.footer{padding:40px 24px;text-align:center;border-top:1px solid var(--b1);position:relative;z-index:1;}
+.footer-logo{font-size:20px;font-weight:800;background:linear-gradient(90deg,var(--g2),var(--g3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;}
+.footer p{font-size:12px;color:var(--muted);font-family:'Space Mono',monospace;}
+
+/* AUTH */
+.auth-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 20px 40px;position:relative;z-index:1;}
+.auth-card{background:rgba(18,18,26,.98);border:1px solid var(--b2);border-radius:22px;padding:36px 28px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.auth-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:20px;}
+.auth-logo img{width:56px;height:56px;border-radius:14px;object-fit:cover;margin-bottom:10px;}
+.auth-title{font-size:22px;font-weight:800;color:#fff;text-align:center;margin-bottom:6px;}
+.auth-sub{font-size:13px;color:var(--t2);text-align:center;margin-bottom:24px;line-height:1.5;}
+.google-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:13px;border-radius:10px;background:rgba(255,255,255,.06);border:1.5px solid var(--b2);color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .15s;margin-bottom:6px;}
+.gl{width:18px;height:18px;flex-shrink:0;}
+.auth-div{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:11px;font-weight:700;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.08em;}
+.auth-div::before,.auth-div::after{content:'';flex:1;height:1px;background:var(--b1);}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;}
+.fi{display:block;width:100%;background:rgba(255,255,255,.05);border:1.5px solid var(--b2);border-radius:10px;padding:12px 13px;color:var(--text);font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:500;outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;margin-bottom:12px;}
+.fi:focus{border-color:var(--g3);box-shadow:0 0 0 3px rgba(58,134,255,.2);background:rgba(255,255,255,.07);}
+.fi::placeholder{color:var(--muted);font-weight:400;}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:10px;border:none;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;}
+.btn-grad{background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;box-shadow:0 4px 20px rgba(131,56,236,.4);}
+.btn-grad:active{transform:scale(.97);}
+.btn-grad:disabled{opacity:.6;transform:none;}
+.btn-out{background:transparent;border:1.5px solid var(--b2);color:var(--t2);margin-top:8px;}
+.auth-forgot{text-align:right;margin-top:-8px;margin-bottom:12px;}
+.auth-forgot a{font-size:12px;color:var(--g3);cursor:pointer;font-weight:600;}
+.auth-switch{text-align:center;margin-top:14px;font-size:13px;color:var(--t2);}
+.auth-switch a{color:var(--g3);cursor:pointer;font-weight:700;}
+.err{display:none;background:rgba(255,64,96,.1);border:1px solid rgba(255,64,96,.3);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--red);text-align:center;margin-bottom:12px;line-height:1.4;}
+.err.on{display:block;}
+.suc{display:none;background:rgba(6,255,180,.08);border:1px solid rgba(6,255,180,.25);border-radius:10px;padding:10px 13px;font-size:13px;color:var(--green);text-align:center;margin-bottom:12px;}
+.suc.on{display:block;}
+
+/* GUEST JOIN */
+.guest-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:80px 20px 40px;position:relative;z-index:1;}
+.guest-card{background:rgba(18,18,26,.98);border:1px solid var(--b2);border-radius:22px;padding:36px 28px;width:100%;max-width:400px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.guest-icon{font-size:52px;margin-bottom:14px;display:block;}
+.guest-card h2{font-size:24px;font-weight:800;color:#fff;margin-bottom:8px;}
+.guest-card p{font-size:13px;color:var(--t2);margin-bottom:24px;line-height:1.5;}
+.guest-card .fl{text-align:left;}
+
+/* APP */
+.app-home{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 20px 40px;position:relative;z-index:1;}
+.app-welcome{text-align:center;margin-bottom:28px;}
+.app-welcome h2{font-size:clamp(24px,6vw,40px);font-weight:800;color:#fff;margin-bottom:6px;letter-spacing:-.02em;}
+.app-welcome p{font-size:14px;color:var(--t2);}
+.app-card{background:rgba(18,18,26,.95);border:1px solid var(--b2);border-radius:20px;padding:26px 22px;width:100%;max-width:420px;box-shadow:0 8px 48px rgba(0,0,0,.5);}
+.app-card-title{font-size:16px;font-weight:800;color:#fff;margin-bottom:3px;}
+.app-card-sub{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:18px;}
+.free-badge{display:flex;align-items:center;justify-content:space-between;background:rgba(255,190,11,.06);border:1px solid rgba(255,190,11,.2);border-radius:10px;padding:10px 13px;margin-bottom:14px;}
+.free-badge-left{font-size:13px;font-weight:700;color:var(--g5);}
+.free-badge-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.upgrade-link{font-size:12px;font-weight:800;color:var(--g3);cursor:pointer;white-space:nowrap;}
+.src-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.src-opt{padding:12px 8px;border-radius:10px;border:1.5px solid var(--b2);background:rgba(255,255,255,.03);cursor:pointer;text-align:center;transition:all .2s;}
+.src-opt.active{border-color:var(--g3);background:rgba(58,134,255,.1);}
+.src-icon{font-size:22px;margin-bottom:5px;display:block;}
+.src-lbl{font-size:12px;font-weight:700;color:var(--t2);}
+.src-opt.active .src-lbl{color:var(--g3);}
+#file-area{display:none;margin-bottom:12px;border:1.5px dashed var(--b2);border-radius:10px;padding:16px;text-align:center;cursor:pointer;background:rgba(255,255,255,.02);}
+#file-area p{font-size:13px;color:var(--muted);}
+#file-input{display:none;}
+#vid-preview-wrap{display:none;margin-bottom:12px;border-radius:10px;overflow:hidden;border:1px solid var(--b2);position:relative;background:#000;}
+#vid-preview{width:100%;max-height:160px;display:block;object-fit:contain;}
+.preview-overlay{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.preview-play-btn{width:52px;height:52px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.preview-hint{font-size:12px;color:rgba(255,255,255,.7);font-weight:600;}
+.lag-row{display:none;align-items:center;justify-content:space-between;background:rgba(255,190,11,.06);border:1px solid rgba(255,190,11,.2);border-radius:10px;padding:11px 13px;margin-bottom:12px;}
+.lag-row.show{display:flex;}
+.lag-lbl{font-size:13px;font-weight:700;color:var(--g5);}
+.lag-sub{font-size:11px;color:var(--muted);margin-top:2px;}
+.tog{width:44px;height:24px;border-radius:12px;background:var(--s2);border:1px solid var(--b2);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.tog.on{background:var(--g5);}
+.tok{position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .2s;}
+.tog.on .tok{transform:translateX(20px);}
+.div{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:11px;font-weight:700;color:var(--muted);font-family:'Space Mono',monospace;text-transform:uppercase;letter-spacing:.08em;}
+.div::before,.div::after{content:'';flex:1;height:1px;background:var(--b1);}
+
+/* CALL */
+.vid-bg{position:absolute;inset:0;background:#0A0A0F;}
+.vid-bg video{width:100%;height:100%;object-fit:cover;display:block;}
+.big-avatar{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.big-av-circle{width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--g2),var(--g1));display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:800;color:#fff;box-shadow:0 0 40px rgba(131,56,236,.5);}
+.big-av-name{font-size:16px;font-weight:700;color:rgba(255,255,255,.5);}
+.big-nametag{position:absolute;bottom:90px;left:16px;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);border-radius:20px;padding:5px 14px;font-size:13px;font-weight:700;color:#fff;display:flex;align-items:center;gap:6px;z-index:10;}
+.muted-dot{width:8px;height:8px;border-radius:50%;background:var(--red);display:none;}
+.muted-dot.on{display:block;}
+.vid-pip{position:absolute;top:70px;right:12px;width:110px;height:155px;border-radius:16px;overflow:hidden;border:2px solid rgba(255,255,255,.2);box-shadow:0 8px 32px rgba(0,0,0,.6);cursor:pointer;z-index:10;background:#111;transition:all .3s cubic-bezier(.34,1.56,.64,1);}
+.vid-pip video{width:100%;height:100%;object-fit:cover;display:block;}
+.pip-avatar{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+.pip-av-circle{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--g2),var(--g1));display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#fff;}
+.pip-av-name{font-size:10px;color:rgba(255,255,255,.5);font-weight:600;}
+.pip-tap-hint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-size:9px;color:rgba(255,255,255,.4);font-family:'Space Mono',monospace;white-space:nowrap;}
+.vid-bg.lagging video{animation:lagEff .5s steps(1) infinite;filter:blur(1px);}
+@keyframes lagEff{0%{opacity:1;transform:none}20%{opacity:.3;transform:translateX(4px)}40%{opacity:1}60%{opacity:.5;transform:translateX(-3px)}80%{opacity:1}95%{filter:blur(4px)}}
+.lag-overlay{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(0,0,0,.72);border-radius:10px;padding:10px 16px;text-align:center;font-size:13px;font-weight:700;color:#fff;font-family:'Space Mono',monospace;display:none;pointer-events:none;line-height:1.6;}
+.vid-bg.lagging .lag-overlay{display:block;}
+.wait-overlay{position:absolute;inset:0;background:rgba(5,5,8,.88);backdrop-filter:blur(14px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:5;padding:24px;}
+.wait-overlay.gone{display:none;}
+.wait-ring{width:48px;height:48px;border-radius:50%;border:2px solid rgba(255,255,255,.1);border-top-color:var(--g3);animation:spin 1s linear infinite;}
+.wait-title{font-size:18px;font-weight:800;color:#fff;}
+.wait-sub{font-size:13px;color:var(--t2);text-align:center;line-height:1.5;}
+.link-pill{display:flex;align-items:center;background:rgba(255,255,255,.06);border:1px solid var(--b2);border-radius:10px;overflow:hidden;width:100%;max-width:300px;}
+.link-txt{flex:1;padding:9px 12px;font-size:11px;font-family:'Space Mono',monospace;color:var(--g4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.link-copy{padding:9px 14px;background:linear-gradient(135deg,var(--g2),var(--g3));border:none;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;}
+.share-btns{display:flex;gap:8px;}
+.swa{padding:9px 16px;border-radius:8px;border:none;background:#25D366;color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.ssms{padding:9px 16px;border-radius:8px;border:1px solid var(--b2);background:rgba(255,255,255,.06);color:#fff;font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:700;cursor:pointer;}
+.vid-play-controls{position:absolute;bottom:86px;left:50%;transform:translateX(-50%);display:none;align-items:center;gap:10px;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);border-radius:30px;padding:8px 16px;z-index:10;}
+.vid-play-controls.show{display:flex;}
+.vc-btn{width:36px;height:36px;border-radius:50%;border:none;background:rgba(255,255,255,.12);color:#fff;font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.vc-time{font-size:12px;font-family:'Space Mono',monospace;color:rgba(255,255,255,.7);}
+.toolbar{position:absolute;bottom:0;left:0;right:0;height:72px;z-index:20;display:flex;align-items:center;justify-content:center;gap:14px;padding-bottom:env(safe-area-inset-bottom);background:linear-gradient(to top,rgba(5,5,8,.9),transparent);}
+.t-info{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:10px;font-weight:700;font-family:'Space Mono',monospace;color:rgba(255,255,255,.3);text-transform:uppercase;}
+.t-timer{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:700;font-family:'Space Mono',monospace;color:rgba(255,255,255,.4);}
+.tbtn{width:50px;height:50px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.1);color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.tbtn:active{transform:scale(.88);}
+.tbtn.off{background:rgba(255,64,96,.18);border-color:rgba(255,64,96,.35);}
+.tbtn-end{width:58px;height:58px;border-radius:50%;border:none;background:linear-gradient(135deg,#FF4060,#FF0040);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 22px rgba(255,64,96,.55);flex-shrink:0;}
+.tbtn-lag{width:50px;height:50px;border-radius:50%;border:1px solid rgba(255,190,11,.2);background:rgba(255,190,11,.1);color:var(--g5);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.tbtn-lag.on{background:rgba(255,190,11,.25);border-color:var(--g5);box-shadow:0 0 16px rgba(255,190,11,.45);}
+
+/* BG SOUND IN-CALL BUTTON */
+.tbtn-bg{width:50px;height:50px;border-radius:50%;border:1px solid rgba(58,134,255,.25);background:rgba(58,134,255,.1);color:var(--g3);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;-webkit-tap-highlight-color:transparent;position:relative;}
+.tbtn-bg.active{background:rgba(58,134,255,.28);border-color:var(--g3);box-shadow:0 0 18px rgba(58,134,255,.45);}
+.tbtn-bg:active{transform:scale(.88);}
+.bg-dot{position:absolute;top:8px;right:8px;width:7px;height:7px;border-radius:50%;background:var(--g3);display:none;animation:blink 1.6s infinite;}
+.tbtn-bg.active .bg-dot{display:block;}
+
+/* BG SOUND SLIDE-UP TRAY (in-call) */
+#bg-tray{position:absolute;bottom:82px;left:50%;transform:translateX(-50%) translateY(20px);z-index:30;width:min(340px,92vw);background:rgba(12,12,20,.97);border:1px solid rgba(58,134,255,.25);border-radius:20px 20px 16px 16px;padding:16px 18px 14px;box-shadow:0 -8px 40px rgba(0,0,0,.6);backdrop-filter:blur(20px);opacity:0;pointer-events:none;transition:opacity .22s,transform .22s;}
+#bg-tray.open{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:all;}
+.bg-tray-handle{width:36px;height:3px;border-radius:2px;background:rgba(255,255,255,.18);margin:0 auto 14px;}
+.bg-tray-title{font-size:13px;font-weight:800;color:var(--g3);margin-bottom:12px;display:flex;align-items:center;gap:7px;letter-spacing:.01em;}
+.bg-tray-upload{border:1.5px dashed rgba(58,134,255,.3);border-radius:12px;padding:14px;text-align:center;cursor:pointer;background:rgba(58,134,255,.04);margin-bottom:12px;transition:border-color .2s;}
+.bg-tray-upload:active{border-color:var(--g3);}
+.bg-tray-upload p{font-size:13px;color:var(--t2);font-weight:600;}
+.bg-tray-upload small{font-size:11px;color:var(--muted);margin-top:3px;display:block;}
+.bg-tray-controls{display:none;}
+.bg-tray-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.bg-tray-pp{width:40px;height:40px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .15s;}
+.bg-tray-pp:active{transform:scale(.88);}
+.bg-tray-progress{flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;}
+.bg-tray-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--g2),var(--g3));transition:width .1s;}
+.bg-tray-dur{font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;flex-shrink:0;}
+.bg-tray-vol-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.bg-tray-vol-row span:first-child{font-size:12px;color:var(--t2);font-weight:600;}
+.bg-tray-vol-pct{font-size:12px;color:var(--g3);font-family:'Space Mono',monospace;font-weight:700;}
+.bg-tray-slider{width:100%;height:4px;-webkit-appearance:none;appearance:none;border-radius:2px;outline:none;cursor:pointer;}
+.bg-tray-hint{font-size:11px;color:var(--muted);text-align:center;margin-top:8px;font-family:'Space Mono',monospace;}
+
+/* PREVIEW SCREEN BG SOUND REDESIGN */
+#bg-sound-row{border-radius:14px;overflow:hidden;}
+.bg-preview-panel{background:rgba(58,134,255,.05);border:1.5px solid rgba(58,134,255,.2);border-radius:14px;padding:14px 16px;margin-bottom:0;}
+.bg-preview-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:0;}
+.bg-preview-toggle-row{display:flex;align-items:center;gap:10px;}
+.bg-panel-expanded{margin-top:14px;display:none;}
+.bg-panel-expanded.open{display:block;}
+
+/* FREE TIME COUNTDOWN BADGE */
+#free-countdown{position:absolute;top:74px;left:50%;transform:translateX(-50%);background:rgba(255,190,11,.15);border:1px solid rgba(255,190,11,.4);backdrop-filter:blur(10px);border-radius:20px;padding:5px 16px;font-size:13px;font-weight:800;color:var(--g5);font-family:'Space Mono',monospace;z-index:10;display:none;white-space:nowrap;}
+#free-countdown.show{display:block;}
+#free-countdown.urgent{background:rgba(255,64,96,.2);border-color:rgba(255,64,96,.5);color:var(--red);animation:urgentPulse 1s infinite;}
+@keyframes urgentPulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* PAYWALL */
+#paywall-overlay{position:absolute;inset:0;z-index:50;background:rgba(5,5,8,.96);backdrop-filter:blur(20px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center;}
+.paywall-icon{font-size:52px;margin-bottom:6px;}
+.paywall-title{font-size:24px;font-weight:800;color:#fff;letter-spacing:-.02em;}
+.paywall-sub{font-size:14px;color:var(--t2);line-height:1.6;max-width:300px;}
+.paywall-price{font-size:32px;font-weight:800;color:#fff;}
+.paywall-price span{font-size:14px;color:var(--t2);font-weight:500;}
+.paywall-btn{padding:14px 32px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 8px 30px rgba(131,56,236,.4);width:100%;max-width:280px;}
+.paywall-dismiss{font-size:13px;color:var(--muted);cursor:pointer;text-decoration:underline;}
+
+/* TOAST */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(10px);background:rgba(26,26,38,.96);border:1px solid var(--b2);color:#fff;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:all .3s cubic-bezier(.34,1.56,.64,1);z-index:9999;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* PWA BANNER */
+#pwa-banner{position:fixed;bottom:0;left:0;right:0;z-index:9000;padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom));background:rgba(18,18,26,.98);border-top:1px solid rgba(255,255,255,.1);backdrop-filter:blur(20px);display:none;align-items:center;gap:12px;}
+#pwa-banner.show{display:flex;}
+.pwa-icon{width:44px;height:44px;border-radius:10px;object-fit:cover;flex-shrink:0;}
+.pwa-text{flex:1;min-width:0;}
+.pwa-title{font-size:14px;font-weight:800;color:#fff;}
+.pwa-sub{font-size:12px;color:var(--t2);margin-top:2px;}
+.pwa-install{padding:9px 16px;border-radius:8px;border:none;background:linear-gradient(135deg,var(--g2),var(--g1));color:#fff;font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:800;cursor:pointer;flex-shrink:0;}
+.pwa-dismiss{width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:var(--t2);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+/* Range slider webkit */
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--g3);cursor:pointer;box-shadow:0 0 8px rgba(58,134,255,.4);}
+input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--g3);cursor:pointer;border:none;}
+</style>
+</head>
+<body>
+<div class="orbs"><div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div></div>
+<div id="toast"></div>
+
+<!-- SPINNER — shown during transitions, not page load -->
+<div id="app-spinner" class="hidden">
+  <div class="sp-logo"><img src="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg" onerror="this.style.display='none'" /></div>
+  <div class="sp-ring"></div>
+  <div class="sp-txt" id="sp-txt">Loading…</div>
+</div>
+
+<!-- PWA BANNER -->
+<div id="pwa-banner">
+  <img class="pwa-icon" src="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg" onerror="this.style.display='none'" />
+  <div class="pwa-text"><div class="pwa-title">Add WaveMeet to Home Screen</div><div class="pwa-sub">Get the full app experience</div></div>
+  <button class="pwa-install" onclick="installPWA()">Install</button>
+  <button class="pwa-dismiss" onclick="dismissPWA()">×</button>
+</div>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <img class="nav-logo-img" src="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg" onerror="this.style.display='none'" />
+    <span class="nav-name">WaveMeet</span>
+  </div>
+  <div class="nav-right" id="nav-right">
+    <button class="nav-btn nav-login" onclick="goScreen('auth','login')">Log in</button>
+    <button class="nav-btn nav-signup" onclick="goScreen('auth','signup')">Sign up</button>
+  </div>
+  <div class="nav-user hidden" id="nav-user">
+    <div class="nav-avatar-text" id="nav-avatar-text">?</div>
+    <button class="nav-btn nav-signout" onclick="doSignOut()">Sign out</button>
+  </div>
+</nav>
+
+<!-- ═══ LANDING ═══ -->
+<div id="screen-landing" class="screen">
+  <div class="hero-section">
+    <div class="hero-tag"><span class="hdot"></span> No downloads · Works everywhere</div>
+    <h1 class="hero-title">Video meetings<br><span class="gt">from the future.</span></h1>
+    <p class="hero-sub">Create a call in seconds, share the link. Anyone clicks it and joins instantly — no app, no signup needed to join.</p>
+    <div class="hero-btns">
+      <button class="hero-cta cta-primary" onclick="goScreen('auth','signup')">🚀 Get started free</button>
+      <button class="hero-cta cta-secondary" onclick="goScreen('auth','login')">Log in</button>
+    </div>
+    <div class="hero-img-wrap">
+      <img src="https://i.ibb.co/xqjrGVsD/IMG-0732.jpg" onerror="this.parentElement.style.display='none'" />
+    </div>
+  </div>
+  <section class="features-section">
+    <div class="section-tag">// Features</div>
+    <h2 class="section-title">Everything you need,<br>nothing you don't.</h2>
+    <p class="section-sub">Built for real people who just want calls that work.</p>
+    <div class="features-grid">
+      <div class="feat-card"><span class="feat-icon">🔗</span><div class="feat-title">One-tap join</div><div class="feat-desc">Share a link. Anyone taps it and joins instantly — no account, no download needed.</div></div>
+      <div class="feat-card"><span class="feat-icon">📱</span><div class="feat-title">Works on iPhone</div><div class="feat-desc">Camera and mic work perfectly on iOS and Android.</div></div>
+      <div class="feat-card"><span class="feat-icon">🎬</span><div class="feat-title">Virtual camera</div><div class="feat-desc">Upload a video and use it as your camera. Pause and sync with the other person.</div></div>
+      <div class="feat-card"><span class="feat-icon">😂</span><div class="feat-title">Lag mode</div><div class="feat-desc">Make yourself look like you have terrible internet. Your friend has no idea.</div></div>
+      <div class="feat-card"><span class="feat-icon">🔒</span><div class="feat-title">Encrypted</div><div class="feat-desc">Peer-to-peer WebRTC. Your video goes directly between devices.</div></div>
+      <div class="feat-card"><span class="feat-icon">⚡</span><div class="feat-title">Zero lag</div><div class="feat-desc">Powered by global TURN servers. Works on mobile data and firewalls.</div></div>
+    </div>
+  </section>
+  <section class="pricing-section">
+    <div class="section-tag">// Pricing</div>
+    <h2 class="section-title">Simple, honest pricing.</h2>
+    <p class="section-sub">Try it free. Upgrade when you're ready.</p>
+    <div class="pricing-cards">
+      <div class="price-card">
+        <div class="price-name">Free</div>
+        <div class="price-amount">$0 <span>/ forever</span></div>
+        <div class="price-desc">Try it out</div>
+        <ul class="price-features">
+          <li><span class="pf-y">✓</span> 30 second calls</li>
+          <li><span class="pf-y">✓</span> Google + email login</li>
+          <li><span class="pf-n">✗</span> Unlimited calls</li>
+          <li><span class="pf-n">✗</span> Virtual camera</li>
+        </ul>
+        <button class="price-btn price-btn-free" onclick="goScreen('auth','signup')">Get started</button>
+      </div>
+      <div class="price-card pro">
+        <div class="price-badge">PRO</div>
+        <div class="price-name">Pro</div>
+        <div class="price-amount" id="landing-price">— <span id="landing-period">/ 3 months</span></div>
+        <div class="price-desc">Everything, unlimited</div>
+        <ul class="price-features">
+          <li><span class="pf-y">✓</span> Unlimited call time</li>
+          <li><span class="pf-y">✓</span> Virtual camera</li>
+          <li><span class="pf-y">✓</span> Lag mode prank</li>
+          <li><span class="pf-y">✓</span> Priority support</li>
+        </ul>
+        <button class="price-btn price-btn-pro" onclick="goScreen('auth','signup')">Upgrade to Pro</button>
+      </div>
+    </div>
+  </section>
+  <footer class="footer"><div class="footer-logo">WaveMeet</div><p>© 2025 WaveMeet · Video calls from the future.</p></footer>
+</div>
+
+<!-- ═══ AUTH ═══ -->
+<div id="screen-auth" class="screen">
+  <div class="auth-wrap">
+    <div id="login-form" class="auth-card hidden">
+      <div class="auth-logo"><img src="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg" onerror="this.style.display='none'" /><div class="auth-title">Welcome back</div><div class="auth-sub">Sign in to your WaveMeet account</div></div>
+      <button class="google-btn" id="google-btn-login" onclick="doGoogle(this)"><div style="display:none;width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s linear infinite;flex-shrink:0;" class="g-spin"></div><svg class="gl" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Continue with Google</button>
+      <div class="auth-div">or</div>
+      <label class="fl">Email</label><input class="fi" type="email" id="login-email" placeholder="you@email.com" autocomplete="email" />
+      <label class="fl">Password</label><input class="fi" type="password" id="login-pass" placeholder="Your password" autocomplete="current-password" />
+      <div class="auth-forgot"><a onclick="showForgot()">Forgot password?</a></div>
+      <div class="err" id="login-err"></div>
+      <button class="btn btn-grad" id="login-btn" onclick="doEmailLogin()" style="position:relative;gap:10px;">
+        <div id="login-spinner" style="display:none;width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s linear infinite;flex-shrink:0;"></div>
+        <span id="login-btn-txt">Sign in</span>
+      </button>
+      <div class="auth-switch">No account? <a onclick="goScreen('auth','signup')">Sign up free</a></div>
+      <div style="text-align:center;margin-top:12px"><a style="font-size:12px;color:var(--muted);cursor:pointer" onclick="goScreen('landing')">← Back</a></div>
+    </div>
+    <div id="signup-form" class="auth-card hidden">
+      <div class="auth-logo"><img src="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg" onerror="this.style.display='none'" /><div class="auth-title">Create account</div><div class="auth-sub">Join WaveMeet — free to start</div></div>
+      <button class="google-btn" id="google-btn-signup" onclick="doGoogle(this)"><div style="display:none;width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s linear infinite;flex-shrink:0;" class="g-spin"></div><svg class="gl" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>Sign up with Google</button>
+      <div class="auth-div">or</div>
+      <label class="fl">Email</label><input class="fi" type="email" id="signup-email" placeholder="you@email.com" autocomplete="email" />
+      <label class="fl">Password</label><input class="fi" type="password" id="signup-pass" placeholder="Min 6 characters" autocomplete="new-password" />
+      <div class="err" id="signup-err"></div>
+      <div class="suc" id="signup-suc"></div>
+      <button class="btn btn-grad" id="signup-btn" onclick="doEmailSignup()" style="position:relative;gap:10px;">
+        <div id="signup-spinner" style="display:none;width:18px;height:18px;border-radius:50%;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;animation:spin 1s linear infinite;flex-shrink:0;"></div>
+        <span id="signup-btn-txt">Create account</span>
+      </button>
+      <div class="auth-switch">Have an account? <a onclick="goScreen('auth','login')">Sign in</a></div>
+      <div style="text-align:center;margin-top:12px"><a style="font-size:12px;color:var(--muted);cursor:pointer" onclick="goScreen('landing')">← Back</a></div>
+    </div>
+    <div id="forgot-form" class="auth-card hidden">
+      <div class="auth-logo"><img src="https://i.ibb.co/rRRSr4kH/IMG-0734.jpg" onerror="this.style.display='none'" /><div class="auth-title">Reset password</div><div class="auth-sub">We'll send a reset link to your email</div></div>
+      <label class="fl">Email</label><input class="fi" type="email" id="forgot-email" placeholder="you@email.com" />
+      <div class="err" id="forgot-err"></div>
+      <div class="suc" id="forgot-suc"></div>
+      <button class="btn btn-grad" onclick="doReset()">Send reset email</button>
+      <button class="btn btn-out" onclick="goScreen('auth','login')">← Back</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ GUEST JOIN ═══ instant join screen — just camera permission then in -->
+<div id="screen-guest" class="screen">
+  <div class="guest-wrap">
+    <div class="guest-card">
+      <span class="guest-icon">📹</span>
+      <h2>Joining call…</h2>
+      <p id="guest-status">Connecting you now. Allow camera &amp; microphone when prompted.</p>
+      <div style="display:flex;align-items:center;justify-content:center;margin:20px 0;">
+        <div style="width:44px;height:44px;border-radius:50%;border:3px solid rgba(255,255,255,.1);border-top-color:var(--g3);animation:spin 1s linear infinite;"></div>
+      </div>
+      <div class="err" id="guest-err"></div>
+      <div style="margin-top:14px;font-size:12px;color:var(--muted);text-align:center">
+        Have an account? <a style="color:var(--g3);cursor:pointer;font-weight:700" onclick="goScreen('auth','login')">Sign in instead</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="screen-app" class="screen">
+  <div class="app-home">
+    <div class="app-welcome">
+      <h2>Hey, <span id="user-dname">there</span> 👋</h2>
+      <p id="user-plan-txt">Free plan · 30 second calls</p>
+    </div>
+    <div class="app-card">
+      <div class="app-card-title">Start a meeting</div>
+      <div class="app-card-sub">// your call, your link</div>
+      <div class="free-badge hidden" id="free-badge">
+        <div><div class="free-badge-left">⚡ Free plan</div><div class="free-badge-sub">30 second calls</div></div>
+        <span class="upgrade-link" onclick="showPaywallDirect()">Upgrade →</span>
+      </div>
+      <label class="fl">Video source</label>
+      <div class="src-grid">
+        <div class="src-opt active" id="src-cam" onclick="setSrc('camera')"><span class="src-icon">📷</span><span class="src-lbl">My Camera</span></div>
+        <div class="src-opt" id="src-file" onclick="setSrc('file')"><span class="src-icon">🎬</span><span class="src-lbl">Upload Video</span></div>
+      </div>
+      <div id="file-area" onclick="document.getElementById('file-input').click()"><p>📁 <strong id="file-name">Tap to choose a video</strong></p><p style="font-size:11px;margin-top:3px;color:var(--muted)">MP4 · MOV · WebM</p></div>
+      <input type="file" id="file-input" accept="video/*" onchange="onFilePick(event)" />
+      <div id="vid-preview-wrap"><video id="vid-preview" playsinline preload="metadata"></video><div class="preview-overlay" id="preview-overlay"><button class="preview-play-btn" onclick="previewPlay()">▶</button><span class="preview-hint">Press play to confirm</span></div></div>
+      <div class="lag-row" id="lag-row"><div><div class="lag-lbl">😂 Lag Mode</div><div class="lag-sub">Look like bad connection</div></div><div class="tog" id="lag-tog" onclick="togLag()"><div class="tok"></div></div></div>
+
+      <!-- Background Sound (always visible) -->
+      <div id="bg-sound-row" class="bg-preview-panel">
+        <div class="bg-preview-header">
+          <div style="display:flex;align-items:center;gap:9px;">
+            <!-- Music note SVG -->
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--g3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+            <div>
+              <div style="font-size:13px;font-weight:800;color:var(--g3);">Background Sound</div>
+              <div style="font-size:11px;color:var(--muted);">Mix audio into your call</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <!-- Arrow toggle button -->
+            <button id="bg-panel-arrow" onclick="toggleBgPanel()" style="width:32px;height:32px;border-radius:50%;border:1px solid rgba(58,134,255,.3);background:rgba(58,134,255,.08);color:var(--g3);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .25s,background .2s;flex-shrink:0;-webkit-tap-highlight-color:transparent;">
+              <!-- Up arrow SVG -->
+              <svg id="bg-arrow-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .25s;"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            <div class="tog" id="bg-sound-tog" onclick="togBgSound()"><div class="tok"></div></div>
+          </div>
+        </div>
+
+        <!-- Expanded panel (slides open) -->
+        <div id="bg-panel-expanded" class="bg-panel-expanded">
+          <!-- File upload -->
+          <div id="bg-sound-upload">
+            <div id="bg-sound-area" onclick="document.getElementById('bg-sound-input').click()" style="border:1.5px dashed rgba(58,134,255,.3);border-radius:10px;padding:12px;text-align:center;cursor:pointer;background:rgba(58,134,255,.04);margin-bottom:10px;">
+              <div style="display:flex;align-items:center;justify-content:center;gap:7px;">
+                <!-- Upload SVG -->
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g3)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <strong id="bg-sound-name" style="font-size:13px;color:var(--t2);">Tap to upload audio</strong>
+              </div>
+              <p style="font-size:11px;color:var(--muted);margin-top:3px;">MP3 · WAV · M4A · AAC</p>
+            </div>
+            <input type="file" id="bg-sound-input" accept="audio/*" style="display:none" onchange="onBgSoundPick(event)" />
+
+            <!-- Preview + volume controls -->
+            <div id="bg-sound-controls" style="display:none;">
+              <!-- Play/pause + progress -->
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <button id="bg-preview-btn" onclick="toggleBgPreview()" style="width:38px;height:38px;border-radius:50%;border:none;background:linear-gradient(135deg,var(--g2),var(--g3));color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;-webkit-tap-highlight-color:transparent;">
+                  <!-- Play SVG -->
+                  <svg id="bg-preview-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                </button>
+                <div style="flex:1;height:4px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;">
+                  <div id="bg-progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--g2),var(--g3));transition:width .1s;"></div>
+                </div>
+                <span id="bg-duration" style="font-size:11px;color:var(--muted);font-family:'Space Mono',monospace;flex-shrink:0;">0:00</span>
+              </div>
+              <!-- Volume -->
+              <div style="margin-bottom:8px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                  <span style="font-size:12px;color:var(--t2);font-weight:600;display:flex;align-items:center;gap:5px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+                    Volume mix
+                  </span>
+                  <span id="bg-vol-pct" style="font-size:12px;color:var(--g3);font-family:'Space Mono',monospace;font-weight:700;">30%</span>
+                </div>
+                <input type="range" id="bg-vol-slider" min="0" max="100" value="30"
+                  style="width:100%;height:4px;-webkit-appearance:none;appearance:none;background:linear-gradient(90deg,var(--g3) 30%,rgba(255,255,255,.1) 30%);border-radius:2px;outline:none;cursor:pointer;"
+                  oninput="onBgVolChange(this.value)" />
+                <div style="display:flex;justify-content:space-between;margin-top:4px;">
+                  <span style="font-size:10px;color:var(--muted);">Subtle</span>
+                  <span style="font-size:10px;color:var(--muted);">Loud</span>
+                </div>
+              </div>
+              <!-- Hint -->
+              <div style="background:rgba(58,134,255,.06);border:1px solid rgba(58,134,255,.15);border-radius:8px;padding:9px 12px;font-size:12px;color:var(--t2);line-height:1.5;display:flex;align-items:flex-start;gap:7px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--g3)" stroke-width="2" stroke-linecap="round" style="flex-shrink:0;margin-top:1px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>Press play above to preview the mix. Background sound stays on even when your video is paused.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="err" id="app-err"></div>
+      <button class="btn btn-grad" onclick="createCall()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
+        Start Meeting
+      </button>
+      <button class="btn btn-out" onclick="startSoloStudio()" style="margin-top:8px;">
+        🎥 Solo Studio Mode (for OBS)
+      </button>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px;">No call, no timer — just your feed, ready for OBS to capture and stream elsewhere.</div>
+      <div class="div">or join existing</div>
+      <label class="fl">Meeting link</label>
+      <input class="fi" type="text" id="join-link" placeholder="Paste invite link here" autocomplete="off" />
+      <button class="btn btn-out" onclick="joinFromLink()">Join Meeting →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ CALL ═══ -->
+<div id="screen-call">
+  <div class="vid-bg" id="vid-bg">
+    <video id="big-vid" autoplay playsinline></video>
+    <div class="big-avatar" id="big-avatar" style="display:none"><div class="big-av-circle" id="big-av-letter">?</div><div class="big-av-name" id="big-av-name">Waiting…</div></div>
+    <div class="lag-overlay">📡 Poor connection<br><span style="font-size:10px;opacity:.6">Buffering…</span></div>
+  </div>
+  <div class="big-nametag" id="big-nametag"><span id="big-nametag-txt">You</span><span class="muted-dot" id="big-muted-dot"></span></div>
+
+  <!-- Free time countdown -->
+  <div id="free-countdown">⏱ 30s left</div>
+
+  <div class="vid-pip" id="vid-pip" onclick="swapVids()" style="display:none">
+    <video id="pip-vid" autoplay muted playsinline></video>
+    <div class="pip-avatar" id="pip-avatar" style="display:none"><div class="pip-av-circle" id="pip-av-letter">?</div><div class="pip-av-name" id="pip-av-name">Guest</div></div>
+    <span class="pip-tap-hint">tap to swap</span>
+  </div>
+
+  <div class="wait-overlay" id="wait-overlay">
+    <div class="wait-ring"></div>
+    <div class="wait-title">Waiting for someone</div>
+    <div class="wait-sub">Share this link to invite</div>
+    <div class="link-pill"><div class="link-txt" id="wait-link">—</div><button class="link-copy" onclick="copyLink()">Copy</button></div>
+    <div class="share-btns"><button class="swa" onclick="shareWA()">WhatsApp</button><button class="ssms" onclick="shareSMS()">SMS</button></div>
+  </div>
+
+  <div class="vid-play-controls" id="vid-play-controls">
+    <button class="vc-btn" onclick="restartVid()">⏮</button>
+    <button class="vc-btn" id="pp-btn" onclick="toggleVidPlay()">⏸</button>
+    <span class="vc-time" id="vc-time">0:00</span>
+  </div>
+
+  <div id="paywall-overlay" class="hidden">
+    <div class="paywall-icon">⏰</div>
+    <div class="paywall-title">Free call ended</div>
+    <div class="paywall-sub">Your 30 second free call is up. Upgrade to Pro for unlimited calls.</div>
+    <div class="paywall-price" id="paywall-price-txt">— <span>/ 3 months</span></div>
+    <button class="paywall-btn" onclick="startPayment()">Upgrade to Pro 🚀</button>
+    <span class="paywall-dismiss" onclick="endCallAndGoApp()">End call</span>
+  </div>
+
+  <!-- BG SOUND SLIDE-UP TRAY (in-call) -->
+  <div id="bg-tray">
+    <div class="bg-tray-handle"></div>
+    <div class="bg-tray-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g3)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      Background Sound
+    </div>
+    <!-- Upload area (shown when no file) -->
+    <div id="bg-tray-upload-area" class="bg-tray-upload" onclick="document.getElementById('bg-tray-input').click()">
+      <p>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--g3)" stroke-width="2" stroke-linecap="round" style="vertical-align:middle;margin-right:5px;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <strong id="bg-tray-filename">Tap to upload audio</strong>
+      </p>
+      <small>MP3 · WAV · M4A · AAC</small>
+    </div>
+    <input type="file" id="bg-tray-input" accept="audio/*" style="display:none" onchange="onBgTrayPick(event)" />
+    <!-- Controls (shown after file picked) -->
+    <div id="bg-tray-controls" class="bg-tray-controls">
+      <div class="bg-tray-row">
+        <button class="bg-tray-pp" id="bg-tray-pp" onclick="toggleBgTrayPlay()">
+          <svg id="bg-tray-pp-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+        </button>
+        <div class="bg-tray-progress"><div class="bg-tray-bar" id="bg-tray-bar"></div></div>
+        <span class="bg-tray-dur" id="bg-tray-dur">0:00</span>
+      </div>
+      <div class="bg-tray-vol-row">
+        <span style="font-size:12px;color:var(--t2);font-weight:600;display:flex;align-items:center;gap:5px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07"/></svg>
+          Volume mix
+        </span>
+        <span class="bg-tray-vol-pct" id="bg-tray-vol-pct">30%</span>
+      </div>
+      <input type="range" id="bg-tray-slider" min="0" max="100" value="30" class="bg-tray-slider"
+        style="background:linear-gradient(90deg,var(--g3) 30%,rgba(255,255,255,.1) 30%);"
+        oninput="onBgTrayVol(this.value)" />
+      <div class="bg-tray-hint">Sound stays on even when video is paused</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="t-info" id="t-info">WAVE</div>
+    <button class="tbtn" id="btn-mic" onclick="toggleMic()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+    </button>
+    <button class="tbtn-end" onclick="endCallAndGoApp()">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.27-.27.67-.38 1.02-.22 1.14.44 2.35.68 3.58.68.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C6.84 21 2 16.16 2 10c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.12.36.03.76-.22 1.02L6.6 10.8z"/></svg>
+    </button>
+    <button class="tbtn" id="btn-cam" onclick="toggleCam()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+    </button>
+    <button class="tbtn" id="btn-focus" onclick="toggleFocusMode()" title="Focus mode — mute mic &amp; camera to just watch">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg>
+    </button>
+    <button class="tbtn-lag hidden" id="btn-lag" onclick="toggleLagLive()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 6l5 5-5 5"/><path d="M6 12h12"/><path d="M18 6l5 5-5 5"/></svg>
+    </button>
+    <button class="tbtn-bg" id="btn-bg-sound" onclick="toggleBgTray()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      <div class="bg-dot"></div>
+    </button>
+    <div class="t-timer" id="t-timer">—</div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getAuth, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendEmailVerification, sendPasswordResetEmail, signOut, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const FB = { apiKey:"AIzaSyCduZGxLq_pwSE2BustK4Z5suKV83vdknw", authDomain:"wave-220b6.firebaseapp.com", projectId:"wave-220b6", storageBucket:"wave-220b6.firebasestorage.app", messagingSenderId:"634835256647", appId:"1:634835256647:web:fcfc069523a81d2bdaf862" };
+const fbApp = initializeApp(FB);
+const auth  = getAuth(fbApp);
+const db    = getFirestore(fbApp);
+
+window._auth = auth; window._db = db;
+
+// ── AUTH STATE ───────────────────────────────
+// Runs once on load — routes without reloading
+onAuthStateChanged(auth, async user => {
+  // Check maintenance mode first
+  try {
+    const maint = (await getDoc(doc(db,'config','maintenance'))).data();
+    if (maint?.enabled) {
+      document.querySelectorAll('.screen,#screen-call').forEach(s=>s.classList.remove('active'));
+      const msg = maint.message || 'WaveMeet is currently under maintenance. Please check back soon.';
+      // Show maintenance screen
+      document.body.innerHTML += `<div id="maint-screen" style="position:fixed;inset:0;z-index:9999;background:#0A0A0F;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;font-family:'Space Grotesk',sans-serif;">
+        <div style="font-size:64px;margin-bottom:20px;">🔧</div>
+        <h1 style="font-size:28px;font-weight:800;color:#fff;margin-bottom:12px;letter-spacing:-.02em;">Under Maintenance</h1>
+        <p style="font-size:16px;color:#9090B0;line-height:1.7;max-width:400px;">${msg}</p>
+        <div style="margin-top:32px;font-size:13px;color:#505070;font-family:monospace;">WaveMeet · Back soon 🚀</div>
+      </div>`;
+      $('app-spinner').classList.add('hidden');
+      return;
+    }
+  } catch(e) { /* No maintenance config — continue normally */ }
+
+  if (user) {
+    window._currentUser = user;
+    try {
+      const uSnap = await getDoc(doc(db,'users',user.uid));
+      window._userData = uSnap.exists() ? uSnap.data() : {};
+    } catch(e) { window._userData = {}; }
+
+    // Load sub config + features config
+    try {
+      const cfg = (await getDoc(doc(db,'config','subscription'))).data() || {};
+      window._subConfig = cfg;
+      updatePriceDisplays(cfg);
+    } catch(e) { window._subConfig = {}; }
+
+    try {
+      const feat = (await getDoc(doc(db,'config','features'))).data() || {};
+      window._features = feat;
+      applyFeatureFlags(feat);
+    } catch(e) { window._features = {}; }
+
+    // Update nav
+    $('nav-right').classList.add('hidden');
+    $('nav-user').classList.remove('hidden');
+    const dname = user.displayName || user.email?.split('@')[0] || 'there';
+    $('nav-avatar-text').textContent = dname[0].toUpperCase();
+    $('user-dname').textContent = dname;
+    window._myName = dname;
+
+    const pro = isProUser();
+    $('user-plan-txt').textContent = pro ? '✨ Pro plan · Unlimited calls' : 'Free plan · 30 second calls';
+    $('free-badge').classList.toggle('hidden', pro);
+
+    // Route based on URL
+    const room = getRoomFromURL();
+    if (room) {
+      // Logged-in user joins directly — no name prompt needed, use their account name
+      window._roomId = room;
+      startCall(false); // join as member
+    } else {
+      goScreen('app');
+    }
+  } else {
+    window._currentUser = null;
+    window._userData    = {};
+    $('nav-right').classList.remove('hidden');
+    $('nav-user').classList.add('hidden');
+
+    const room = getRoomFromURL();
+    if (room) {
+      // Not logged in — show guest screen then auto-join immediately
+      window._roomId = room;
+      goScreen('guest');
+      // Auto-join after short delay to let screen render
+      setTimeout(() => window._guestAutoJoin && window._guestAutoJoin(), 300);
+    } else {
+      goScreen('landing');
+    }
+  }
+  // Hide spinner after routing
+  $('app-spinner').classList.add('hidden');
+});
+
+function applyFeatureFlags(feat) {
+  // If subscriptions are disabled globally, hide upgrade prompts
+  if (feat.subscriptionsEnabled === false) {
+    document.querySelectorAll('.upgrade-link,.paywall-btn').forEach(el => el.style.display='none');
+    // Give everyone unlimited calls
+    window._forceFree = false;
+    window._forceUnlimited = true;
+  }
+  // Free plan features
+  if (feat.freeCallLimit !== undefined) {
+    window._subConfig = window._subConfig || {};
+    window._subConfig.freeLimit = feat.freeCallLimit;
+  }
+  // Hide lag mode for free users if disabled
+  if (feat.freeLagMode === false && !window.isProUser?.()) {
+    document.getElementById('lag-row')?.style?.setProperty('display','none','important');
+  }
+  // Hide video file mode for free users if disabled
+  if (feat.freeVideoFile === false && !window.isProUser?.()) {
+    document.getElementById('src-file')?.style?.setProperty('display','none','important');
+  }
+}
+window.applyFeatureFlags = applyFeatureFlags;
+
+function updatePriceDisplays(cfg) {
+  const p=cfg.price||'—'; const c=cfg.currency||''; const m=cfg.months||3;
+  const disp=`${c}${p}`; const per=`/ ${m} month${m>1?'s':''}`;
+  const lp=$('landing-price'); const lper=$('landing-period');
+  if(lp) lp.innerHTML=`${disp} <span>${per}</span>`;
+  const pp=$('paywall-price-txt');
+  if(pp) pp.innerHTML=`${disp} <span>${per}</span>`;
+}
+
+window.isProUser = () => {
+  if (window._forceUnlimited) return true; // Admin disabled subscriptions
+  const d = window._userData||{};
+  return d.subscribed && d.expiresAt && new Date(d.expiresAt) > new Date();
+};
+
+// ── AUTH ACTIONS ─────────────────────────────
+window.doGoogle = async (btnEl) => {
+  // Show spinner
+  if (btnEl) {
+    const spin = btnEl.querySelector('.g-spin');
+    const gl   = btnEl.querySelector('.gl');
+    if(spin) spin.style.display = 'block';
+    if(gl)   gl.style.display   = 'none';
+    btnEl.disabled = true;
+  }
+  try {
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    // Create Firestore doc if first sign-in
+    const uRef = doc(db, 'users', user.uid);
+    const uSnap = await getDoc(uRef);
+    if (!uSnap.exists()) {
+      await setDoc(uRef, {
+        email: user.email,
+        name: user.displayName,
+        photo: user.photoURL,
+        createdAt: new Date().toISOString(),
+        subscribed: false,
+        plan: 'free'
+      });
+    }
+    // onAuthStateChanged fires automatically — no manual navigation needed
+  } catch(e) {
+    if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+      showErr('login-err', e.message);
+      showErr('signup-err', e.message);
+    }
+    // Reset buttons
+    document.querySelectorAll('.google-btn').forEach(b => {
+      const spin = b.querySelector('.g-spin');
+      const gl   = b.querySelector('.gl');
+      if(spin) spin.style.display = 'none';
+      if(gl)   gl.style.display   = '';
+      b.disabled = false;
+    });
+  }
+};
+
+window.doEmailLogin = async () => {
+  const email=$('login-email').value.trim();
+  const pass=$('login-pass').value;
+  if(!email||!pass){ showErr('login-err','Fill in all fields.'); return; }
+  // Show spinner immediately
+  const spin=$('login-spinner'); const txt=$('login-btn-txt'); const btn=$('login-btn');
+  if(spin) spin.style.display='block'; if(txt) txt.textContent='Signing in…'; if(btn){btn.disabled=true;btn.style.opacity='.7';}
+  try { await signInWithEmailAndPassword(auth,email,pass); }
+  catch(e) {
+    const msg = ['auth/wrong-password','auth/user-not-found','auth/invalid-credential'].includes(e.code) ? 'Invalid email or password.' : e.message;
+    showErr('login-err',msg);
+    if(spin) spin.style.display='none'; if(txt) txt.textContent='Sign in'; if(btn){btn.disabled=false;btn.style.opacity='1';}
+  }
+};
+
+window.doEmailSignup = async () => {
+  const email=$('signup-email').value.trim();
+  const pass=$('signup-pass').value;
+  if(!email){ showErr('signup-err','Enter your email.'); return; }
+  if(pass.length<6){ showErr('signup-err','Password needs at least 6 characters.'); return; }
+  const spin2=$('signup-spinner'); const txt2=$('signup-btn-txt'); const btn2=$('signup-btn');
+  if(spin2) spin2.style.display='block'; if(txt2) txt2.textContent='Creating…'; if(btn2){btn2.disabled=true;btn2.style.opacity='.7';}
+  try {
+    const cred = await createUserWithEmailAndPassword(auth,email,pass);
+    await sendEmailVerification(cred.user, { url: `${location.origin}/?verified=1`, handleCodeInApp:false });
+    await setDoc(doc(db,'users',cred.user.uid), { email, name:email.split('@')[0], createdAt:new Date().toISOString(), subscribed:false, plan:'free' });
+    showSuc('signup-suc','✅ Account created! Check your email to verify.');
+    // Auth state listener will route to app
+  } catch(e) {
+    const msg = e.code==='auth/email-already-in-use' ? 'Email already registered.' : e.code==='auth/invalid-email' ? 'Invalid email.' : e.message;
+    showErr('signup-err',msg);
+    if(spin2) spin2.style.display='none'; if(txt2) txt2.textContent='Create account'; if(btn2){btn2.disabled=false;btn2.style.opacity='1';}
+  }
+};
+
+window.doReset = async () => {
+  const email=$('forgot-email').value.trim();
+  if(!email){ showErr('forgot-err','Enter your email.'); return; }
+  try {
+    await sendPasswordResetEmail(auth, email, { url: `${location.origin}/?reset=1`, handleCodeInApp:false });
+    showSuc('forgot-suc','✅ Reset email sent! Check your inbox.');
+  } catch(e) {
+    showErr('forgot-err', e.code==='auth/user-not-found'?'No account with this email.':e.message);
+  }
+};
+
+window.doSignOut = async () => {
+  await signOut(auth);
+  // No reload — auth state listener handles it
+};
+
+// ── PAYMENT ──────────────────────────────────
+window.startPayment = () => {
+  const cfg=window._subConfig||{}; const user=window._currentUser;
+  if(!user){ goScreen('auth','login'); return; }
+  FlutterwaveCheckout({
+    public_key:'FLWPUBK-d1231ee5582659ed92eca52b827332f8-X',
+    tx_ref:'wave_'+Date.now()+'_'+user.uid,
+    amount:cfg.price||1000, currency:cfg.currency||'NGN',
+    customer:{ email:user.email, name:user.displayName||user.email },
+    customizations:{ title:'WaveMeet Pro', description:`Unlimited calls — ${cfg.months||3} months`, logo:'https://i.ibb.co/rRRSr4kH/IMG-0734.jpg' },
+    callback: async (response) => {
+      if(response.status==='successful'){
+        try {
+          showSpinner('Verifying payment…');
+          const res=await fetch('/api/verify-payment',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ transaction_id:response.transaction_id, uid:user.uid }) });
+          const data=await res.json();
+          hideSpinner();
+          if(data.success){
+            // Update local state immediately
+            window._userData.subscribed = true;
+            window._userData.expiresAt  = data.expiresAt;
+            window._userData.plan       = 'pro';
+            // Update UI
+            $('paywall-overlay').classList.add('hidden');
+            $('free-badge') && $('free-badge').classList.add('hidden');
+            $('free-countdown') && $('free-countdown').classList.remove('show','urgent');
+            $('user-plan-txt').textContent = '✨ Pro plan · Unlimited calls';
+            clearInterval(freeTimerInt);
+            // Re-enable mic/video if they were cut by paywall
+            localStream?.getAudioTracks().forEach(t=>t.enabled=micOn);
+            localStream?.getVideoTracks().forEach(t=>t.enabled=camOn);
+            toast('🎉 You are now Pro! Unlimited calls unlocked.', 5000);
+            hideSpinner();
+          } else { 
+            hideSpinner();
+            toast('Payment received but verification failed. Contact support with your payment ID.'); 
+          }
+        } catch(e) { hideSpinner(); toast('Verification error — contact support'); }
+      }
+    },
+    onclose:()=>{}
+  });
+};
+
+window.showPaywallDirect = () => {
+  goScreen('call');
+  $('paywall-overlay').classList.remove('hidden');
+};
+
+function setBtnState(loading, btnId) {
+  ['login-btn','signup-btn'].forEach(id => {
+    const b=$(id); if(!b)return;
+    b.disabled=loading; b.style.opacity=loading?'.6':'1';
+  });
+  if(btnId){ const b=$(btnId); if(b){ b.disabled=loading; b.style.opacity=loading?'.6':'1'; } }
+}
+</script>
+
+<script src="https://checkout.flutterwave.com/v3.js"></script>
+
+<script>
+// ═══════════════════════════════════════════
+//  WAVE MEET — Core App (no reloads!)
+// ═══════════════════════════════════════════
+
+const ICE = [
+  { urls:'stun:stun.l.google.com:19302' },
+  { urls:'stun:stun1.l.google.com:19302' },
+  { urls:['turn:a.relay.metered.ca:80','turn:a.relay.metered.ca:80?transport=tcp','turn:a.relay.metered.ca:443','turn:a.relay.metered.ca:443?transport=tcp','turns:a.relay.metered.ca:443?transport=tcp'], username:'bdd71e02060e1c9aec7db3b3', credential:'FvAwsOkY/+2FLFJ0' }
+];
+const MED = {
+  video:{ width:{ideal:320,max:480}, height:{ideal:240,max:360}, frameRate:{ideal:15,max:20}, facingMode:'user' },
+  audio:{ echoCancellation:true, noiseSuppression:true, sampleRate:16000, channelCount:1 }
+};
+
+const $ = id => document.getElementById(id);
+
+// State
+let localStream=null, peer=null, conn=null;
+let roomId='', isHost=false, isGuest=false;
+let micOn=true, camOn=true;
+let timerInt=null, timerSecs=0;
+let freeTimerInt=null;
+let videoSrc='camera', uploadedFile=null;
+let soloMode=false; // true = local-only "studio" for OBS capture, no peer/call involved
+let lagEnabled=false, lagSetup=false, canvasInt=null;
+let localIsBig=false, remoteJoined=false;
+let lastRemoteStream=null, lastRemoteName='Guest';
+let previewPlayed=false;
+const FREE_LIMIT = 30; // default, overridden by admin config
+
+// ── SCREEN NAVIGATION (no reload!) ──────────
+function goScreen(name, sub) {
+  // Hide all screens
+  document.querySelectorAll('.screen, #screen-call').forEach(s => {
+    s.classList.remove('active');
+  });
+  const el = $('screen-'+name);
+  if (el) el.classList.add('active');
+
+  // Auth sub-forms
+  if (name === 'auth') {
+    $('login-form').classList.toggle('hidden', sub !== 'login');
+    $('signup-form').classList.toggle('hidden', sub !== 'signup');
+    $('forgot-form').classList.add('hidden');
+    if (!sub) { $('login-form').classList.remove('hidden'); }
+  }
+
+  // Scroll to top
+  if (el) el.scrollTop = 0;
+}
+window.goScreen = goScreen;
+
+function showForgot() {
+  $('login-form').classList.add('hidden');
+  $('signup-form').classList.add('hidden');
+  $('forgot-form').classList.remove('hidden');
+}
+window.showForgot = showForgot;
+
+// ── SPINNER ──────────────────────────────────
+function showSpinner(msg='Loading…') {
+  $('sp-txt').textContent = msg;
+  $('app-spinner').classList.remove('hidden');
+}
+function hideSpinner() {
+  $('app-spinner').classList.add('hidden');
+}
+window.showSpinner = showSpinner;
+window.hideSpinner = hideSpinner;
+
+// ── TOAST ────────────────────────────────────
+let _tt;
+function toast(msg, dur=3000) {
+  const e=$('toast'); e.textContent=msg; e.classList.add('show');
+  clearTimeout(_tt); _tt=setTimeout(()=>e.classList.remove('show'),dur);
+}
+window.toast = toast;
+
+// ── HELPERS ──────────────────────────────────
+function showErr(id,msg){ const e=$(id); if(!e)return; e.textContent=msg; e.classList.add('on'); setTimeout(()=>e.classList.remove('on'),6000); }
+function showSuc(id,msg){ const e=$(id); if(!e)return; e.textContent=msg; e.classList.add('on'); setTimeout(()=>e.classList.remove('on'),6000); }
+window.showErr=showErr; window.showSuc=showSuc;
+
+function getRoomFromURL(){ return new URLSearchParams(location.search).get('room')||''; }
+function shareURL(){
+  // Regular join URL for the actual call
+  return `${location.origin}/?room=${roomId}`;
+}
+function sharePreviewURL(){
+  // Routes through /join so messaging apps (WhatsApp, Telegram, iMessage, etc.)
+  // render a clean "Call link / Join call" preview card instead of a bare URL.
+  // Real users tapping the link still land straight in the call — see api/join-handler.js.
+  return `${location.origin}/join?room=${roomId}`;
+}
+function genRoom(){ const c='abcdefghjkmnpqrstuvwxyz23456789'; let r=''; for(let i=0;i<8;i++) r+=c[Math.floor(Math.random()*c.length)]; return r; }
+function sendSig(msg){ try{ if(conn?.open) conn.send(msg); }catch(e){} }
+
+// ── TIMERS ────────────────────────────────────
+function startCallTimer(){
+  timerSecs=0; clearInterval(timerInt);
+  timerInt=setInterval(()=>{
+    timerSecs++;
+    const m=String(Math.floor(timerSecs/60)).padStart(2,'0');
+    const s=String(timerSecs%60).padStart(2,'0');
+    $('t-timer').textContent=`${m}:${s}`;
+  },1000);
+}
+
+function stopCallTimer(){ clearInterval(timerInt); $('t-timer').textContent='—'; }
+
+function startFreeTimer(){
+  // Solo studio mode is a local-only preview for OBS — no call, no limit
+  if (soloMode) return;
+  // Guests never have a timer — only logged-in free users
+  if (isGuest) return;
+  if (window.isProUser && window.isProUser()) return;
+
+  // Use admin-configured limit (set in admin panel Subscription tab)
+  const freeLimit = (window._subConfig?.freeLimit) || FREE_LIMIT;
+  console.log('Free call limit:', freeLimit, 'seconds');
+  let elapsed = 0;
+
+  const cd = $('free-countdown');
+  cd.classList.add('show');
+  cd.textContent = `⏱ ${freeLimit}s left`;
+
+  freeTimerInt = setInterval(() => {
+    elapsed++;
+    const remaining = freeLimit - elapsed;
+
+    if (remaining > 0) {
+      cd.textContent = `⏱ ${remaining}s left`;
+      if (remaining <= 10) cd.classList.add('urgent');
+    } else {
+      clearInterval(freeTimerInt);
+      cd.classList.remove('show');
+      // Cut audio/video and show paywall
+      localStream?.getAudioTracks().forEach(t=>t.enabled=false);
+      localStream?.getVideoTracks().forEach(t=>t.enabled=false);
+      $('paywall-overlay').classList.remove('hidden');
+    }
+  }, 1000);
+}
+
+// ── VIDEO SOURCE ─────────────────────────────
+function setSrc(src){
+  videoSrc=src;
+  $('src-cam').classList.toggle('active',src==='camera');
+  $('src-file').classList.toggle('active',src==='file');
+  $('file-area').style.display=src==='file'?'block':'none';
+  if(src!=='file'){ $('lag-row').classList.remove('show'); $('vid-preview-wrap').style.display='none'; }
+}
+window.setSrc=setSrc;
+
+function onFilePick(e){
+  const f=e.target.files[0]; if(!f)return;
+  uploadedFile=f; $('file-name').textContent=f.name;
+  const prev=$('vid-preview'); prev.src=URL.createObjectURL(f);
+  $('vid-preview-wrap').style.display='block';
+  $('preview-overlay').style.display='flex';
+  $('lag-row').classList.add('show');
+}
+window.onFilePick=onFilePick;
+
+function previewPlay(){
+  const prev=$('vid-preview'); prev.play();
+  $('preview-overlay').style.display='none';
+  previewPlayed=true;
+  prev.onpause=()=>{ $('preview-overlay').style.display='flex'; $('preview-overlay').querySelector('.preview-hint').textContent='Ready! Tap Start Meeting.'; };
+}
+window.previewPlay=previewPlay;
+
+function togLag(){ lagSetup=!lagSetup; $('lag-tog').classList.toggle('on',lagSetup); }
+window.togLag=togLag;
+
+// ── MEDIA ────────────────────────────────────
+async function getMedia(){
+  if(videoSrc==='file'&&uploadedFile){ await setupFileStream(); return; }
+  try { localStream=await navigator.mediaDevices.getUserMedia(MED); }
+  catch{ try{ localStream=await navigator.mediaDevices.getUserMedia({video:false,audio:true}); camOn=false; }
+         catch{ localStream=new MediaStream(); camOn=false; micOn=false; } }
+}
+
+async function setupFileStream(){
+  const canvas=document.createElement('canvas'); canvas.width=320; canvas.height=240;
+  const ctx=canvas.getContext('2d');
+  const fv=$('vid-preview');
+  fv.currentTime=0;
+  fv.pause(); // stay paused by default — auto-plays when guest joins
+  canvasInt=setInterval(()=>{ if(!fv.paused&&!fv.ended) ctx.drawImage(fv,0,0,320,240); },1000/15);
+  let audioStream; try{ audioStream=await navigator.mediaDevices.getUserMedia({audio:MED.audio,video:false}); }catch{ audioStream=new MediaStream(); }
+  localStream=new MediaStream([...canvas.captureStream(15).getTracks(),...audioStream.getTracks()]);
+  $('vid-play-controls').classList.add('show');
+  $('btn-lag').classList.remove('hidden');
+  if(lagSetup){ lagEnabled=true; $('btn-lag').classList.add('on'); }
+  fv.ontimeupdate=()=>{ const t=fv.currentTime; $('vc-time').textContent=`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`; };
+  // pp-btn shows play since video is paused
+  $('pp-btn') && ($('pp-btn').innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>');
+  // Mix background sound if enabled
+  if (bgEnabled && bgAudio) {
+    await mixBgSoundIntoStream();
+  }
+}
+
+// ── VIDEO CONTROLS (watch-together, synced both ways) ──
+// Only the person who uploaded the file has the actual <video> element to
+// control. If the *other* person (guest, or host watching a guest-shared
+// file) taps pause/play/restart, we send a request across the data channel
+// and the side that actually owns the file performs the action, then
+// broadcasts the new state back out — so both UIs stay in lockstep.
+function hasLocalFile(){ return videoSrc==='file' && !!uploadedFile; }
+
+function toggleVidPlay(){
+  if(!hasLocalFile()){ sendSig({type:'pausereq'}); return; }
+  const fv=$('vid-preview');
+  if(fv.paused){
+    fv.play();
+    $('pp-btn') && ($('pp-btn').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>');
+    sendSig({type:'vidsync',playing:true,time:fv.currentTime});
+  } else {
+    fv.pause();
+    $('pp-btn') && ($('pp-btn').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>');
+    sendSig({type:'vidsync',playing:false,time:fv.currentTime});
+  }
+  // bg sound keeps playing always, even when video paused
+  if(bgAudio && bgEnabled && bgAudio.paused) bgAudio.play();
+}
+function restartVid(){
+  if(!hasLocalFile()){ sendSig({type:'restartreq'}); return; }
+  const fv=$('vid-preview'); fv.currentTime=0; fv.play();
+  $('pp-btn') && ($('pp-btn').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>');
+  sendSig({type:'vidsync',playing:true,time:0});
+}
+function applyVidSync(msg){
+  $('big-vid').style.filter=msg.playing?'':'blur(2px) brightness(.6)';
+  // Show watch-together controls to whichever side doesn't own the file,
+  // and keep its play/pause icon reflecting the real (synced) state.
+  if(!hasLocalFile()){
+    $('vid-play-controls')?.classList.add('show');
+    const icon = msg.playing
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    $('pp-btn') && ($('pp-btn').innerHTML = icon);
+    if (typeof msg.time === 'number') {
+      $('vc-time').textContent = `${Math.floor(msg.time/60)}:${String(Math.floor(msg.time%60)).padStart(2,'0')}`;
+    }
+  }
+}
+window.toggleVidPlay=toggleVidPlay; window.restartVid=restartVid;
+
+// ── FOCUS MODE — one tap to mute mic+camera while watching, one tap to
+// bring them back for talking about it ─────────────────────────────
+let focusMode=false;
+function toggleFocusMode(){
+  focusMode=!focusMode;
+  if(focusMode){
+    if(micOn) toggleMic();
+    if(camOn && videoSrc!=='file') toggleCam();
+    $('btn-focus')?.classList.add('off');
+    toast('🎬 Focus mode — mic & camera off');
+  } else {
+    if(!micOn) toggleMic();
+    if(!camOn && videoSrc!=='file') toggleCam();
+    $('btn-focus')?.classList.remove('off');
+    toast('🎙️ Chat mode — mic & camera on');
+  }
+}
+window.toggleFocusMode=toggleFocusMode;
+
+function toggleLagLive(){ lagEnabled=!lagEnabled; $('btn-lag').classList.toggle('on',lagEnabled); sendSig({type:'lag',enabled:lagEnabled}); toast(lagEnabled?'😂 Lag ON!':'✅ Lag OFF'); }
+// Real lag mode — freeze remote video randomly using canvas overlay
+let _lagCanvas=null, _lagCtx=null, _lagInt=null;
+function applyLag(enabled) {
+  const vidBg=$('vid-bg');
+  const remVid=$('big-vid');
+  if(enabled) {
+    // Create canvas overlay on top of remote video
+    if(!_lagCanvas){
+      _lagCanvas=document.createElement('canvas');
+      _lagCanvas.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;';
+      vidBg.appendChild(_lagCanvas);
+    }
+    _lagCanvas.style.display='block';
+    _lagCanvas.width=remVid.videoWidth||320; _lagCanvas.height=remVid.videoHeight||240;
+    _lagCtx=_lagCanvas.getContext('2d');
+    let frozen=false; let freezeCount=0;
+    _lagInt=setInterval(()=>{
+      if(!remVid.videoWidth) return;
+      _lagCanvas.width=remVid.videoWidth; _lagCanvas.height=remVid.videoHeight;
+      const roll=Math.random();
+      if(!frozen && roll < 0.3) {
+        // Freeze — capture current frame
+        frozen=true; freezeCount=0;
+        _lagCtx.drawImage(remVid,0,0);
+        // Add digital artifact effect
+        _lagCtx.fillStyle=`rgba(${Math.random()>0.5?'58,134,255':'131,56,236'},0.15)`;
+        _lagCtx.fillRect(0,Math.random()*_lagCanvas.height,_lagCanvas.width,Math.random()*20);
+      } else if(frozen) {
+        freezeCount++;
+        // Redraw same frozen frame with occasional glitch line
+        if(freezeCount<8){
+          if(Math.random()<0.4){
+            const y=Math.random()*_lagCanvas.height;
+            _lagCtx.fillStyle='rgba(255,255,255,0.05)';
+            _lagCtx.fillRect(0,y,_lagCanvas.width,2);
+          }
+        } else { frozen=false; }
+      } else {
+        // Show real video
+        _lagCtx.drawImage(remVid,0,0,_lagCanvas.width,_lagCanvas.height);
+        // Random horizontal shift artifact
+        if(roll<0.1){
+          const slice=_lagCtx.getImageData(0,Math.floor(Math.random()*_lagCanvas.height),_lagCanvas.width,4);
+          _lagCtx.putImageData(slice,Math.random()>0.5?8:-8,Math.floor(Math.random()*_lagCanvas.height));
+        }
+      }
+    }, 80); // ~12fps canvas redraw
+    vidBg.classList.add('lagging');
+  } else {
+    clearInterval(_lagInt); _lagInt=null;
+    if(_lagCanvas) _lagCanvas.style.display='none';
+    vidBg.classList.remove('lagging');
+  }
+}
+window.toggleLagLive=toggleLagLive;
+
+// ── CALL LAYOUT ───────────────────────────────
+function setupAloneLayout(){
+  $('big-vid').srcObject=localStream; $('big-vid').muted=true;
+  const name = window._myName||'You';
+  $('big-nametag-txt').textContent=name;
+  updateBigAvatar(false,name);
+  $('vid-pip').style.display='none';
+  if(isHost && !soloMode){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=sharePreviewURL(); }
+  else $('wait-overlay').classList.add('gone');
+}
+
+function updateBigAvatar(show,name){ $('big-avatar').style.display=show?'flex':'none'; $('big-av-letter').textContent=(name||'?')[0].toUpperCase(); $('big-av-name').textContent=name||'…'; }
+function updatePipAvatar(show,name){ $('pip-avatar').style.display=show?'flex':'none'; $('pip-av-letter').textContent=(name||'?')[0].toUpperCase(); $('pip-av-name').textContent=name||'Guest'; }
+
+function showRemoteJoined(stream,rName){
+  remoteJoined=true; $('wait-overlay').classList.add('gone');
+  $('big-vid').srcObject=stream; $('big-vid').muted=false;
+  $('big-nametag-txt').textContent=rName;
+  updateBigAvatar(stream.getVideoTracks().length===0,rName);
+  $('pip-vid').srcObject=localStream; $('pip-vid').muted=true;
+  updatePipAvatar(false,window._myName||'You');
+  $('vid-pip').style.display=''; localIsBig=false;
+  startCallTimer(); startFreeTimer();
+  toast(`${rName} joined 🎉`,4000);
+  // Auto-play video file when guest joins
+  if(videoSrc==='file'){
+    const fv=$('vid-preview');
+    if(fv && fv.paused){
+      fv.play();
+      $('pp-btn') && ($('pp-btn').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>');
+      sendSig({type:'vidsync',playing:true,time:fv.currentTime});
+    }
+  }
+}
+
+function swapVids(){
+  if(!remoteJoined)return; localIsBig=!localIsBig;
+  if(localIsBig){
+    $('big-vid').srcObject=localStream; $('big-vid').muted=true;
+    $('big-nametag-txt').textContent=(window._myName||'You')+' (You)'; updateBigAvatar(false,window._myName);
+    if(lastRemoteStream){ $('pip-vid').srcObject=lastRemoteStream; updatePipAvatar(lastRemoteStream.getVideoTracks().length===0,lastRemoteName); }
+  } else {
+    if(lastRemoteStream){ $('big-vid').srcObject=lastRemoteStream; $('big-vid').muted=false; $('big-nametag-txt').textContent=lastRemoteName; updateBigAvatar(lastRemoteStream.getVideoTracks().length===0,lastRemoteName); }
+    $('pip-vid').srcObject=localStream; $('pip-vid').muted=true; updatePipAvatar(false,window._myName);
+  }
+}
+window.swapVids=swapVids;
+
+function handleLeft(){
+  remoteJoined=false; lastRemoteStream=null;
+  $('vid-pip').style.display='none';
+  $('big-vid').srcObject=localStream; $('big-vid').muted=true;
+  $('big-nametag-txt').textContent=(window._myName||'You')+' (You)';
+  updateBigAvatar(false,window._myName);
+  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=sharePreviewURL(); }
+  stopCallTimer(); applyLag(false);
+  clearInterval(freeTimerInt);
+  $('free-countdown').classList.remove('show','urgent');
+  toast('The other person left');
+}
+
+// ── MIC/CAM ───────────────────────────────────
+function updateLocalUI(){
+  $('t-info').textContent=(roomId||'WAVE').slice(0,10).toUpperCase();
+  const micSVG = micOn
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>'
+    : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="1" y1="1" x2="23" y2="23"/><path d="M9 9v3a3 3 0 005.12 2.12M15 9.34V4a3 3 0 00-5.94-.6"/><path d="M17 16.95A7 7 0 015 12v-2m14 0v2a7 7 0 01-.11 1.23"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>';
+  const camSVG = videoSrc==='file'
+    ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="13" height="10" rx="2"/><path d="M16 10l5-3v10l-5-3V10z"/><line x1="9" y1="9" x2="9" y2="15"/><line x1="6" y1="12" x2="12" y2="12"/></svg>'
+    : camOn
+      ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>'
+      : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16v1a2 2 0 01-2 2H3a2 2 0 01-2-2V7a2 2 0 012-2h2m5.66 0H14a2 2 0 012 2v3.34l1 1L23 7v10"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+  $('btn-mic').innerHTML = micSVG; $('btn-mic').classList.toggle('off',!micOn);
+  $('btn-cam').innerHTML = camSVG; $('btn-cam').classList.toggle('off',videoSrc!=='file'&&!camOn);
+}
+function toggleMic(){ micOn=!micOn; localStream?.getAudioTracks().forEach(t=>t.enabled=micOn); updateLocalUI(); sendSig({type:'mute',micOn}); if(localIsBig) $('big-muted-dot').classList.toggle('on',!micOn); }
+function toggleCam(){ if(videoSrc==='file'){toast('Using video file');return;} camOn=!camOn; localStream?.getVideoTracks().forEach(t=>t.enabled=camOn); updateLocalUI(); }
+window.toggleMic=toggleMic; window.toggleCam=toggleCam;
+
+// ── PEERJS ────────────────────────────────────
+function loadPeer(cb){ if(window.Peer){cb();return;} const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.4/peerjs.min.js'; s.onload=cb; document.head.appendChild(s); }
+const PCFG={ host:'0.peerjs.com',port:443,path:'/',secure:true,config:{iceServers:ICE} };
+
+function initHost(){
+  peer=new Peer('wavemeet-'+roomId,PCFG);
+  peer.on('open',()=>{ hideSpinner(); toast('Meeting ready! Share the link 🔗',6000); });
+  peer.on('connection',dc=>{ conn=dc; setupDC(); });
+  peer.on('call',call=>{ call.answer(localStream); call.on('stream',s=>{ lastRemoteStream=s; lastRemoteName=call.metadata?.name||'Guest'; showRemoteJoined(s,lastRemoteName); }); call.on('close',()=>handleLeft()); });
+  peer.on('error',e=>{ if(e.type==='unavailable-id'){ roomId=genRoom(); history.replaceState(null,'',`?room=${roomId}`); peer.destroy(); initHost(); } else { hideSpinner(); toast('Connection error'); } });
+}
+
+function initGuestPeer(name, targetRoom){
+  peer=new Peer(PCFG);
+  peer.on('open',()=>{
+    conn=peer.connect('wavemeet-'+targetRoom,{reliable:true});
+    conn.on('open',()=>{ conn.send({type:'hello',name}); setupDC(); });
+    const call=peer.call('wavemeet-'+targetRoom,localStream,{metadata:{name}});
+    call.on('stream',s=>{ lastRemoteStream=s; lastRemoteName='Host'; showRemoteJoined(s,'Host'); });
+    call.on('error',()=>toast('Could not reach host — check the link'));
+    hideSpinner();
+  });
+  peer.on('error',e=>{ hideSpinner(); if(e.type==='peer-unavailable') toast('Meeting not found — host may not have started yet'); else toast('Connection error'); });
+}
+
+function setupDC(){
+  if(!conn)return;
+  conn.on('data',msg=>{
+    if(msg.type==='hello'){ lastRemoteName=msg.name||'Guest'; $('big-nametag-txt').textContent=lastRemoteName; $('pip-av-name').textContent=lastRemoteName; $('pip-av-letter').textContent=lastRemoteName[0]?.toUpperCase()||'?'; }
+    if(msg.type==='mute') if(!localIsBig) $('big-muted-dot').classList.toggle('on',!msg.micOn);
+    if(msg.type==='lag')  applyLag(msg.enabled);
+    if(msg.type==='vidsync') applyVidSync(msg);
+    if(msg.type==='pausereq')   if(hasLocalFile()) toggleVidPlay();
+    if(msg.type==='restartreq') if(hasLocalFile()) restartVid();
+    if(msg.type==='bye')  handleLeft();
+  });
+  conn.on('close',()=>handleLeft());
+  if(conn.open) conn.send({type:'hello',name:window._myName||'Guest'});
+}
+
+// ── START CALL ────────────────────────────────
+// Called by auth state listener when logged-in user opens a room link
+window.startCall = async function(asHost) {
+  isHost = asHost;
+  isGuest = false;
+  if (asHost) {
+    roomId = genRoom();
+    history.replaceState(null,'',`?room=${roomId}`);
+  } else {
+    roomId = window._roomId || getRoomFromURL();
+  }
+  showSpinner(asHost ? 'Setting up meeting…' : 'Joining meeting…');
+  await getMedia();
+  goScreen('call');
+  setupAloneLayout(); updateLocalUI();
+  loadPeer(asHost ? initHost : ()=>initGuestPeer(window._myName||'User', roomId));
+};
+
+// ── CREATE CALL (from app screen) ────────────
+async function createCall(){
+  if(!window._currentUser){ goScreen('auth','login'); return; }
+  if(videoSrc==='file'&&!uploadedFile){ showErr('app-err','Choose a video file first.'); return; }
+  if(videoSrc==='file'&&!previewPlayed){ showErr('app-err','Preview your video first.'); return; }
+  await window.startCall(true);
+}
+window.createCall=createCall;
+
+// ── SOLO STUDIO MODE ──────────────────────────
+// No peer, no room, no free-timer, no "waiting for someone" screen.
+// Just your camera/file + background sound, composed and shown full-screen,
+// so OBS (Window Capture) can grab it and feed it into WhatsApp, Telegram,
+// TikTok, etc. as your "camera" while you actually talk over that app.
+async function startSoloStudio(){
+  if(videoSrc==='file'&&!uploadedFile){ showErr('app-err','Choose a video file first.'); return; }
+  if(videoSrc==='file'&&!previewPlayed){ showErr('app-err','Preview your video first.'); return; }
+  isHost=false; isGuest=false; soloMode=true;
+  showSpinner('Starting studio…');
+  await getMedia();
+  goScreen('call');
+  setupAloneLayout(); updateLocalUI();
+  $('t-info').textContent='STUDIO';
+  hideSpinner();
+  toast('🎥 Studio running — capture this window in OBS');
+}
+window.startSoloStudio=startSoloStudio;
+
+// ── JOIN FROM LINK INPUT ──────────────────────
+async function joinFromLink(){
+  const v=($('join-link').value||'').trim();
+  if(!v){ showErr('app-err','Paste a meeting link first.'); return; }
+  try{ const u=new URL(v); roomId=u.searchParams.get('room')||u.pathname.replace('/',''); }
+  catch{ roomId=v; }
+  if(!roomId){ showErr('app-err','Invalid link.'); return; }
+  window._roomId=roomId;
+  await window.startCall(false);
+}
+window.joinFromLink=joinFromLink;
+
+// ── GUEST JOIN (no account needed) ───────────
+async function joinAsGuest(){
+  const name=($('guest-name').value||'').trim();
+  if(!name){ showErr('guest-err','Enter your name.'); return; }
+  window._myName=name;
+  isGuest=true; isHost=false;
+  roomId=window._roomId||getRoomFromURL();
+  showSpinner('Joining call…');
+  // Guests always use camera, no timer
+  videoSrc='camera';
+  await getMedia();
+  goScreen('call');
+  $('wait-overlay').classList.add('gone');
+  updateLocalUI(); setupAloneLayout();
+  loadPeer(()=>initGuestPeer(name, roomId));
+}
+// Auto-join immediately when guest screen loads
+window._guestAutoJoin = async function() {
+  const adjectives = ['Happy','Funny','Cool','Swift','Brave','Calm','Wild','Bright'];
+  const animals    = ['Panda','Tiger','Eagle','Dolphin','Fox','Wolf','Koala','Jaguar'];
+  const randName   = adjectives[Math.floor(Math.random()*adjectives.length)] + ' ' + animals[Math.floor(Math.random()*animals.length)];
+  window._myName = randName;
+  isGuest = true; isHost = false;
+  roomId = window._roomId || getRoomFromURL();
+  const statusEl = document.getElementById('guest-status');
+  if(statusEl) statusEl.textContent = `Joining as "${randName}"…`;
+  videoSrc = 'camera';
+  try {
+    await getMedia();
+    goScreen('call');
+    $('wait-overlay').classList.add('gone');
+    updateLocalUI(); setupAloneLayout();
+    loadPeer(() => initGuestPeer(randName, roomId));
+  } catch(e) {
+    const errEl = document.getElementById('guest-err');
+    if(errEl){ errEl.textContent = 'Could not access camera/mic. Please allow permissions and try again.'; errEl.classList.add('on'); }
+  }
+};
+window.joinAsGuest=joinAsGuest;
+
+// ── END CALL (no reload!) ────────────────────
+function endCallAndGoApp(){
+  sendSig({type:'bye'});
+  localStream?.getTracks().forEach(t=>t.stop());
+  clearInterval(canvasInt); clearInterval(timerInt); clearInterval(freeTimerInt);
+  try{ peer?.destroy(); }catch(e){}
+  peer=null; conn=null; localStream=null;
+  remoteJoined=false; lastRemoteStream=null;
+  micOn=true; camOn=true; isHost=false; isGuest=false; soloMode=false;
+  previewPlayed=false; lagEnabled=false; lagSetup=false;
+  videoSrc='camera'; uploadedFile=null;
+  stopBgSound();
+  // Reset bg sound UI
+  bgEnabled=false; bgAudio=null; bgPanelOpen=false; bgTrayOpen=false;
+  $('bg-sound-tog') && $('bg-sound-tog').classList.remove('on');
+  $('bg-sound-controls') && ($('bg-sound-controls').style.display='none');
+  $('bg-sound-name') && ($('bg-sound-name').textContent='Tap to upload audio');
+  $('bg-preview-btn') && ($('bg-preview-btn').innerHTML='<svg id="bg-preview-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>');
+  $('bg-progress-bar') && ($('bg-progress-bar').style.width='0%');
+  $('bg-panel-expanded') && $('bg-panel-expanded').classList.remove('open');
+  $('bg-arrow-icon') && ($('bg-arrow-icon').style.transform='');
+  // Reset tray
+  $('bg-tray') && $('bg-tray').classList.remove('open');
+  $('bg-tray-controls') && ($('bg-tray-controls').style.display='none');
+  $('bg-tray-filename') && ($('bg-tray-filename').textContent='Tap to upload audio');
+  $('bg-tray-pp-icon') && ($('bg-tray-pp-icon').outerHTML='<svg id="bg-tray-pp-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>');
+  $('bg-tray-bar') && ($('bg-tray-bar').style.width='0%');
+  $('btn-bg-sound') && $('btn-bg-sound').classList.remove('active');
+  $('t-timer').textContent='—';
+  $('paywall-overlay').classList.add('hidden');
+  $('free-countdown').classList.remove('show','urgent');
+  $('vid-play-controls').classList.remove('show');
+  $('btn-lag').classList.add('hidden');
+  $('lag-row').classList.remove('show');
+  $('vid-preview-wrap').style.display='none';
+  $('file-area').style.display='none';
+  $('src-cam').classList.add('active'); $('src-file').classList.remove('active');
+  // Remove room from URL without reload
+  history.replaceState(null,'',location.pathname);
+  // Route back
+  if(window._currentUser) goScreen('app');
+  else goScreen('landing');
+}
+window.endCallAndGoApp=endCallAndGoApp;
+window.endCall=endCallAndGoApp;
+
+// ── SHARE ─────────────────────────────────────
+function copyLink(){
+  const url = sharePreviewURL();
+  navigator.clipboard.writeText(url)
+    .then(()=>toast('Link copied! 📋'))
+    .catch(()=>toast(url));
+}
+function shareWA(){
+  const msg = `📹 ${window._myName||'Someone'} is inviting you to a video call\nJoin instantly 👇\n${sharePreviewURL()}`;
+  window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
+}
+function shareSMS(){
+  const msg = `📹 ${window._myName||'Someone'} is inviting you to a WaveMeet call. Join now: ${sharePreviewURL()}`;
+  window.open(`sms:?body=${encodeURIComponent(msg)}`);
+}
+window.copyLink=copyLink; window.shareWA=shareWA; window.shareSMS=shareSMS;
+
+// ── PWA ───────────────────────────────────────
+let _dp=null;
+window.addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); _dp=e; if(!localStorage.getItem('pwa_d')) setTimeout(()=>$('pwa-banner').classList.add('show'),4000); });
+window.installPWA=async()=>{ if(_dp){ _dp.prompt(); await _dp.userChoice; _dp=null; $('pwa-banner').classList.remove('show'); } else { alert('To add to Home Screen:\n\n1. Tap the Share button ⬆️\n2. Tap "Add to Home Screen"\n3. Tap "Add"'); } };
+window.dismissPWA=()=>{ $('pwa-banner').classList.remove('show'); localStorage.setItem('pwa_d','1'); };
+const isIOS=/iPhone|iPad|iPod/.test(navigator.userAgent)&&!window.MSStream;
+if(isIOS&&!window.matchMedia('(display-mode:standalone)').matches&&!localStorage.getItem('pwa_d')) setTimeout(()=>$('pwa-banner').classList.add('show'),5000);
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+
+// ══════════════════════════════════════════════════════
+//  BACKGROUND SOUND SYSTEM v2
+//  • Custom upload (any mode)
+//  • Preview screen: toggle + expand panel + vol slider
+//  • In-call: slide-up tray (arrow button in toolbar)
+//  • Loops & restarts automatically
+//  • Plays for everyone (mixed into stream)
+//  • Continues even when video is paused
+//  • Video file: paused by default, auto-plays on guest join
+// ══════════════════════════════════════════════════════
+
+let bgAudio       = null;
+let bgAudioCtx    = null;
+let bgSource      = null;
+let bgGainNode    = null;
+let bgDestination = null;
+let bgEnabled     = false;
+let bgVolume      = 0.30;
+let bgPreviewing  = false;
+let bgPanelOpen   = false;
+let bgTrayOpen    = false;
+
+// ── SVG helpers ──
+function _playIcon(){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>'; }
+function _pauseIcon(){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'; }
+
+function _fmtTime(secs) {
+  const m = Math.floor(secs/60), s = Math.floor(secs%60);
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+// ── Preview screen: toggle enable ──
+function togBgSound() {
+  bgEnabled = !bgEnabled;
+  $('bg-sound-tog').classList.toggle('on', bgEnabled);
+  if (!bgEnabled && bgAudio) {
+    bgAudio.pause();
+    bgPreviewing = false;
+    const icon = $('bg-preview-icon');
+    if (icon) icon.outerHTML = _playIcon().replace('<svg','<svg id="bg-preview-icon"');
+  }
+}
+window.togBgSound = togBgSound;
+
+// ── Preview screen: expand/collapse panel ──
+function toggleBgPanel() {
+  bgPanelOpen = !bgPanelOpen;
+  const panel = $('bg-panel-expanded');
+  const arrowIcon = $('bg-arrow-icon');
+  if (panel) panel.classList.toggle('open', bgPanelOpen);
+  if (arrowIcon) arrowIcon.style.transform = bgPanelOpen ? 'rotate(180deg)' : '';
+}
+window.toggleBgPanel = toggleBgPanel;
+
+// ── Shared: load audio file into bgAudio ──
+function _loadBgFile(file, onReady) {
+  if (bgAudio) { bgAudio.pause(); bgAudio.onended = null; bgAudio.ontimeupdate = null; bgAudio = null; }
+  bgAudio = new Audio();
+  bgAudio.src = URL.createObjectURL(file);
+  bgAudio.loop = true;
+  bgAudio.volume = bgVolume;
+  bgAudio.preload = 'metadata';
+  bgAudio.onloadedmetadata = () => {
+    if (onReady) onReady(bgAudio.duration);
+  };
+}
+
+// ── Preview screen: file picked ──
+function onBgSoundPick(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const nameEl = $('bg-sound-name');
+  if (nameEl) nameEl.textContent = f.name.length > 28 ? f.name.slice(0,25)+'…' : f.name;
+
+  _loadBgFile(f, (dur) => {
+    const durEl = $('bg-duration');
+    if (durEl) durEl.textContent = _fmtTime(dur);
+  });
+
+  bgAudio.ontimeupdate = () => {
+    if (!bgAudio || !bgAudio.duration) return;
+    const pct = (bgAudio.currentTime / bgAudio.duration) * 100;
+    const bar = $('bg-progress-bar');
+    if (bar) bar.style.width = pct + '%';
+  };
+
+  // Also sync to tray if open
+  bgAudio.addEventListener('timeupdate', () => {
+    if (!bgAudio || !bgAudio.duration) return;
+    const pct = (bgAudio.currentTime / bgAudio.duration) * 100;
+    const trayBar = $('bg-tray-bar');
+    if (trayBar) trayBar.style.width = pct + '%';
+    const trayDur = $('bg-tray-dur');
+    if (trayDur) trayDur.textContent = _fmtTime(bgAudio.currentTime);
+  });
+
+  const ctrl = $('bg-sound-controls');
+  if (ctrl) ctrl.style.display = 'block';
+
+  // Sync filename to tray too
+  const trayName = $('bg-tray-filename');
+  if (trayName) trayName.textContent = f.name.length > 22 ? f.name.slice(0,19)+'…' : f.name;
+  const trayCtrl = $('bg-tray-controls');
+  if (trayCtrl) trayCtrl.style.display = 'block';
+  const trayDurEl = $('bg-tray-dur');
+  if (bgAudio && bgAudio.duration && trayDurEl) trayDurEl.textContent = _fmtTime(bgAudio.duration);
+}
+window.onBgSoundPick = onBgSoundPick;
+
+// ── Preview screen: play/pause preview ──
+function toggleBgPreview() {
+  if (!bgAudio) return;
+  if (bgPreviewing) {
+    bgAudio.pause();
+    bgPreviewing = false;
+    const btn = $('bg-preview-btn');
+    if (btn) btn.innerHTML = _playIcon().replace('<svg','<svg id="bg-preview-icon"');
+    // sync tray
+    const trayIcon = $('bg-tray-pp-icon');
+    if (trayIcon) trayIcon.outerHTML = _playIcon().replace('<svg','<svg id="bg-tray-pp-icon"');
+  } else {
+    bgAudio.volume = bgVolume;
+    bgAudio.play();
+    bgPreviewing = true;
+    const btn = $('bg-preview-btn');
+    if (btn) btn.innerHTML = _pauseIcon().replace('<svg','<svg id="bg-preview-icon"');
+    // sync tray
+    const trayIcon = $('bg-tray-pp-icon');
+    if (trayIcon) trayIcon.outerHTML = _pauseIcon().replace('<svg','<svg id="bg-tray-pp-icon"');
+  }
+}
+window.toggleBgPreview = toggleBgPreview;
+
+// ── Preview screen: volume change ──
+function onBgVolChange(val) {
+  bgVolume = val / 100;
+  if (bgAudio) bgAudio.volume = bgVolume;
+  if (bgGainNode) bgGainNode.gain.value = bgVolume;
+  const pctEl = $('bg-vol-pct');
+  if (pctEl) pctEl.textContent = val + '%';
+  const slider = $('bg-vol-slider');
+  if (slider) slider.style.background = `linear-gradient(90deg,var(--g3) ${val}%,rgba(255,255,255,.1) ${val}%)`;
+  // Sync tray slider too
+  const ts = $('bg-tray-slider');
+  if (ts) { ts.value = val; ts.style.background = `linear-gradient(90deg,var(--g3) ${val}%,rgba(255,255,255,.1) ${val}%)`; }
+  const tp = $('bg-tray-vol-pct');
+  if (tp) tp.textContent = val + '%';
+}
+window.onBgVolChange = onBgVolChange;
+
+// ── In-call tray: file picked ──
+function onBgTrayPick(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  // Re-use onBgSoundPick logic
+  onBgSoundPick({ target: { files: [f] } });
+  // Also enable bg sound automatically
+  if (!bgEnabled) {
+    bgEnabled = true;
+    $('bg-sound-tog') && $('bg-sound-tog').classList.add('on');
+    $('btn-bg-sound') && $('btn-bg-sound').classList.add('active');
+  }
+}
+window.onBgTrayPick = onBgTrayPick;
+
+// ── In-call tray: play/pause ──
+function toggleBgTrayPlay() {
+  toggleBgPreview(); // shared logic
+}
+window.toggleBgTrayPlay = toggleBgTrayPlay;
+
+// ── In-call tray: volume ──
+function onBgTrayVol(val) {
+  onBgVolChange(val);
+}
+window.onBgTrayVol = onBgTrayVol;
+
+// ── In-call: toggle tray open/close ──
+function toggleBgTray() {
+  bgTrayOpen = !bgTrayOpen;
+  const tray = $('bg-tray');
+  if (tray) tray.classList.toggle('open', bgTrayOpen);
+  const btn = $('btn-bg-sound');
+  if (btn) btn.classList.toggle('active', bgTrayOpen || (bgEnabled && bgAudio && !bgAudio.paused));
+}
+window.toggleBgTray = toggleBgTray;
+
+// Close tray when tapping outside
+document.addEventListener('click', (e) => {
+  if (!bgTrayOpen) return;
+  const tray = $('bg-tray');
+  const btn  = $('btn-bg-sound');
+  if (tray && btn && !tray.contains(e.target) && !btn.contains(e.target)) {
+    bgTrayOpen = false;
+    tray.classList.remove('open');
+  }
+});
+
+// ── Mix bg audio into stream (called when call starts) ──
+async function mixBgSoundIntoStream() {
+  if (!bgEnabled || !bgAudio || !localStream) return;
+  try {
+    bgAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    bgSource   = bgAudioCtx.createMediaElementSource(bgAudio);
+    bgGainNode = bgAudioCtx.createGain();
+    bgGainNode.gain.value = bgVolume;
+    bgDestination = bgAudioCtx.createMediaStreamDestination();
+
+    bgSource.connect(bgGainNode);
+    bgGainNode.connect(bgDestination);
+    bgGainNode.connect(bgAudioCtx.destination); // monitor locally
+
+    const micTracks = localStream.getAudioTracks();
+    if (micTracks.length > 0) {
+      const micSource = bgAudioCtx.createMediaStreamSource(new MediaStream(micTracks));
+      const mixDest   = bgAudioCtx.createMediaStreamDestination();
+      micSource.connect(mixDest);
+      bgGainNode.connect(mixDest);
+      const mixedTrack = mixDest.stream.getAudioTracks()[0];
+      micTracks.forEach(t => localStream.removeTrack(t));
+      localStream.addTrack(mixedTrack);
+    } else {
+      localStream.addTrack(bgDestination.stream.getAudioTracks()[0]);
+    }
+
+    bgAudio.volume = bgVolume;
+    if (bgAudio.paused) await bgAudio.play();
+    bgPreviewing = true;
+
+    // Update tray play icon
+    const trayIcon = $('bg-tray-pp-icon');
+    if (trayIcon) trayIcon.outerHTML = _pauseIcon().replace('<svg','<svg id="bg-tray-pp-icon"');
+    const btn = $('btn-bg-sound');
+    if (btn) btn.classList.add('active');
+
+  } catch(e) {
+    console.error('BG sound mix error:', e);
+    toast('Background sound could not be mixed');
+  }
+}
+
+function stopBgSound() {
+  if (bgAudio) { bgAudio.pause(); bgAudio.currentTime = 0; }
+  if (bgAudioCtx) { try { bgAudioCtx.close(); } catch(e){} bgAudioCtx = null; }
+  bgSource = null; bgGainNode = null; bgDestination = null; bgPreviewing = false;
+  bgTrayOpen = false;
+  const tray = $('bg-tray'); if (tray) tray.classList.remove('open');
+  const btn = $('btn-bg-sound'); if (btn) btn.classList.remove('active');
+}
+
+// ── Keep bg-sound-row always visible (not just file mode) ──
+const _origSetSrc = window.setSrc;
+window.setSrc = function(src) {
+  _origSetSrc(src);
+  // bg sound row always visible — no hide logic needed
+};
+
+// ── KEYBOARD ──────────────────────────────────
+document.addEventListener('DOMContentLoaded',()=>{
+  $('login-email')?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.doEmailLogin?.(); });
+  $('login-pass')?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.doEmailLogin?.(); });
+  $('signup-email')?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.doEmailSignup?.(); });
+  $('signup-pass')?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.doEmailSignup?.(); });
+  $('guest-name')?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.joinAsGuest?.(); });
+  $('join-link')?.addEventListener('keydown',e=>{ if(e.key==='Enter') window.joinFromLink?.(); });
+});
+</script>
+</body>
+</html>
