@@ -571,6 +571,10 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 10l4.553-2.275A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14"/><rect x="3" y="6" width="12" height="12" rx="2"/></svg>
         Start Meeting
       </button>
+      <button class="btn btn-out" onclick="startSoloStudio()" style="margin-top:8px;">
+        🎥 Solo Studio Mode (for OBS)
+      </button>
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:6px;">No call, no timer — just your feed, ready for OBS to capture and stream elsewhere.</div>
       <div class="div">or join existing</div>
       <label class="fl">Meeting link</label>
       <input class="fi" type="text" id="join-link" placeholder="Paste invite link here" autocomplete="off" />
@@ -669,6 +673,9 @@ input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;bac
     </button>
     <button class="tbtn" id="btn-cam" onclick="toggleCam()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+    </button>
+    <button class="tbtn" id="btn-focus" onclick="toggleFocusMode()" title="Focus mode — mute mic &amp; camera to just watch">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg>
     </button>
     <button class="tbtn-lag hidden" id="btn-lag" onclick="toggleLagLive()">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 6l5 5-5 5"/><path d="M6 12h12"/><path d="M18 6l5 5-5 5"/></svg>
@@ -996,6 +1003,7 @@ let micOn=true, camOn=true;
 let timerInt=null, timerSecs=0;
 let freeTimerInt=null;
 let videoSrc='camera', uploadedFile=null;
+let soloMode=false; // true = local-only "studio" for OBS capture, no peer/call involved
 let lagEnabled=false, lagSetup=false, canvasInt=null;
 let localIsBig=false, remoteJoined=false;
 let lastRemoteStream=null, lastRemoteName='Guest';
@@ -1083,6 +1091,8 @@ function startCallTimer(){
 function stopCallTimer(){ clearInterval(timerInt); $('t-timer').textContent='—'; }
 
 function startFreeTimer(){
+  // Solo studio mode is a local-only preview for OBS — no call, no limit
+  if (soloMode) return;
   // Guests never have a timer — only logged-in free users
   if (isGuest) return;
   if (window.isProUser && window.isProUser()) return;
@@ -1174,8 +1184,16 @@ async function setupFileStream(){
   }
 }
 
-// ── VIDEO CONTROLS ────────────────────────────
+// ── VIDEO CONTROLS (watch-together, synced both ways) ──
+// Only the person who uploaded the file has the actual <video> element to
+// control. If the *other* person (guest, or host watching a guest-shared
+// file) taps pause/play/restart, we send a request across the data channel
+// and the side that actually owns the file performs the action, then
+// broadcasts the new state back out — so both UIs stay in lockstep.
+function hasLocalFile(){ return videoSrc==='file' && !!uploadedFile; }
+
 function toggleVidPlay(){
+  if(!hasLocalFile()){ sendSig({type:'pausereq'}); return; }
   const fv=$('vid-preview');
   if(fv.paused){
     fv.play();
@@ -1190,12 +1208,46 @@ function toggleVidPlay(){
   if(bgAudio && bgEnabled && bgAudio.paused) bgAudio.play();
 }
 function restartVid(){
+  if(!hasLocalFile()){ sendSig({type:'restartreq'}); return; }
   const fv=$('vid-preview'); fv.currentTime=0; fv.play();
   $('pp-btn') && ($('pp-btn').innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>');
   sendSig({type:'vidsync',playing:true,time:0});
 }
-function applyVidSync(msg){ $('big-vid').style.filter=msg.playing?'':'blur(2px) brightness(.6)'; }
+function applyVidSync(msg){
+  $('big-vid').style.filter=msg.playing?'':'blur(2px) brightness(.6)';
+  // Show watch-together controls to whichever side doesn't own the file,
+  // and keep its play/pause icon reflecting the real (synced) state.
+  if(!hasLocalFile()){
+    $('vid-play-controls')?.classList.add('show');
+    const icon = msg.playing
+      ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+      : '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+    $('pp-btn') && ($('pp-btn').innerHTML = icon);
+    if (typeof msg.time === 'number') {
+      $('vc-time').textContent = `${Math.floor(msg.time/60)}:${String(Math.floor(msg.time%60)).padStart(2,'0')}`;
+    }
+  }
+}
 window.toggleVidPlay=toggleVidPlay; window.restartVid=restartVid;
+
+// ── FOCUS MODE — one tap to mute mic+camera while watching, one tap to
+// bring them back for talking about it ─────────────────────────────
+let focusMode=false;
+function toggleFocusMode(){
+  focusMode=!focusMode;
+  if(focusMode){
+    if(micOn) toggleMic();
+    if(camOn && videoSrc!=='file') toggleCam();
+    $('btn-focus')?.classList.add('off');
+    toast('🎬 Focus mode — mic & camera off');
+  } else {
+    if(!micOn) toggleMic();
+    if(!camOn && videoSrc!=='file') toggleCam();
+    $('btn-focus')?.classList.remove('off');
+    toast('🎙️ Chat mode — mic & camera on');
+  }
+}
+window.toggleFocusMode=toggleFocusMode;
 
 function toggleLagLive(){ lagEnabled=!lagEnabled; $('btn-lag').classList.toggle('on',lagEnabled); sendSig({type:'lag',enabled:lagEnabled}); toast(lagEnabled?'😂 Lag ON!':'✅ Lag OFF'); }
 // Real lag mode — freeze remote video randomly using canvas overlay
@@ -1261,7 +1313,7 @@ function setupAloneLayout(){
   $('big-nametag-txt').textContent=name;
   updateBigAvatar(false,name);
   $('vid-pip').style.display='none';
-  if(isHost){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=sharePreviewURL(); }
+  if(isHost && !soloMode){ $('wait-overlay').classList.remove('gone'); $('wait-link').textContent=sharePreviewURL(); }
   else $('wait-overlay').classList.add('gone');
 }
 
@@ -1365,6 +1417,8 @@ function setupDC(){
     if(msg.type==='mute') if(!localIsBig) $('big-muted-dot').classList.toggle('on',!msg.micOn);
     if(msg.type==='lag')  applyLag(msg.enabled);
     if(msg.type==='vidsync') applyVidSync(msg);
+    if(msg.type==='pausereq')   if(hasLocalFile()) toggleVidPlay();
+    if(msg.type==='restartreq') if(hasLocalFile()) restartVid();
     if(msg.type==='bye')  handleLeft();
   });
   conn.on('close',()=>handleLeft());
@@ -1397,6 +1451,25 @@ async function createCall(){
   await window.startCall(true);
 }
 window.createCall=createCall;
+
+// ── SOLO STUDIO MODE ──────────────────────────
+// No peer, no room, no free-timer, no "waiting for someone" screen.
+// Just your camera/file + background sound, composed and shown full-screen,
+// so OBS (Window Capture) can grab it and feed it into WhatsApp, Telegram,
+// TikTok, etc. as your "camera" while you actually talk over that app.
+async function startSoloStudio(){
+  if(videoSrc==='file'&&!uploadedFile){ showErr('app-err','Choose a video file first.'); return; }
+  if(videoSrc==='file'&&!previewPlayed){ showErr('app-err','Preview your video first.'); return; }
+  isHost=false; isGuest=false; soloMode=true;
+  showSpinner('Starting studio…');
+  await getMedia();
+  goScreen('call');
+  setupAloneLayout(); updateLocalUI();
+  $('t-info').textContent='STUDIO';
+  hideSpinner();
+  toast('🎥 Studio running — capture this window in OBS');
+}
+window.startSoloStudio=startSoloStudio;
 
 // ── JOIN FROM LINK INPUT ──────────────────────
 async function joinFromLink(){
@@ -1458,7 +1531,7 @@ function endCallAndGoApp(){
   try{ peer?.destroy(); }catch(e){}
   peer=null; conn=null; localStream=null;
   remoteJoined=false; lastRemoteStream=null;
-  micOn=true; camOn=true; isHost=false; isGuest=false;
+  micOn=true; camOn=true; isHost=false; isGuest=false; soloMode=false;
   previewPlayed=false; lagEnabled=false; lagSetup=false;
   videoSrc='camera'; uploadedFile=null;
   stopBgSound();
